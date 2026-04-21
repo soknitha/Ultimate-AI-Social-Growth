@@ -974,6 +974,31 @@ def build_smm_page(api_base: str) -> QWidget:
     brow.addWidget(btn_ping)
     layout.addWidget(banner)
 
+    # ── Setup Guide (shown in Demo mode) ──────────────────────────────────────
+    setup_box = QFrame()
+    setup_box.setStyleSheet(
+        f"background:#2A2A3E; border-radius:8px; border:1px solid {WARNING}; padding:4px;"
+    )
+    setup_layout = QVBoxLayout(setup_box)
+    setup_layout.setContentsMargins(14, 10, 14, 10)
+    setup_title = QLabel("📋  How to connect a real SMM Panel")
+    setup_title.setStyleSheet(f"color:{WARNING}; font-weight:bold; font-size:13px;")
+    setup_steps = QLabel(
+        "1. Register a free account on any SMM panel that supports API v2\n"
+        "   → JustAnotherPanel.com  |  Peakerr.com  |  SMMKings.com  |  or your own panel\n\n"
+        "2. Go to  Account → API  and copy your API Key + API URL\n\n"
+        "3. Open  .env  in this project folder and uncomment + fill:\n"
+        "       SMM_API_KEY=your_api_key_here\n"
+        "       SMM_API_URL=https://your-panel.com/api/v2\n\n"
+        "4. Restart the backend server (python build.py --backend)\n"
+        "5. Click  🔌 Check Connection  above — it will turn 🟢 Live"
+    )
+    setup_steps.setStyleSheet(f"color:{TEXT}; font-size:12px; line-height:1.6;")
+    setup_steps.setWordWrap(True)
+    setup_layout.addWidget(setup_title)
+    setup_layout.addWidget(setup_steps)
+    layout.addWidget(setup_box)
+
     def _ping_panel():
         panel_status_lbl.setText("● Checking…")
         panel_status_lbl.setStyleSheet(f"color:{SUBTEXT}; font-weight:bold;")
@@ -986,9 +1011,11 @@ def build_smm_page(api_base: str) -> QWidget:
             if mode == "live":
                 panel_status_lbl.setText("🟢 Live API — Real SMM Panel Connected")
                 panel_status_lbl.setStyleSheet(f"color:{SUCCESS}; font-weight:bold;")
+                setup_box.setVisible(False)
             else:
-                panel_status_lbl.setText("🟡 Demo Mode — Set DEMOSMM_API_KEY in .env for Live")
+                panel_status_lbl.setText("🟡 Demo Mode — Add SMM_API_KEY + SMM_API_URL in .env for Live")
                 panel_status_lbl.setStyleSheet(f"color:{WARNING}; font-weight:bold;")
+                setup_box.setVisible(True)
             panel_url_lbl.setText(url)
         w.result_ready.connect(_got)
         w.error_signal.connect(lambda e: panel_status_lbl.setText(f"🔴 Error: {e}"))
