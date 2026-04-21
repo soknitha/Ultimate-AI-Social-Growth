@@ -92,8 +92,18 @@ class _SupabaseDB:
         self._available = False
         if USE_SUPABASE:
             try:
-                from supabase import create_client
-                self._client = create_client(SUPABASE_URL, SUPABASE_KEY)
+                # Use postgrest directly to avoid storage3/pyiceberg build issues on Python 3.14
+                from postgrest import SyncPostgrestClient
+                rest_url = SUPABASE_URL.rstrip("/") + "/rest/v1"
+                self._client = SyncPostgrestClient(
+                    rest_url,
+                    headers={
+                        "apikey": SUPABASE_KEY,
+                        "Authorization": f"Bearer {SUPABASE_KEY}",
+                        "Content-Type": "application/json",
+                        "Prefer": "return=representation",
+                    },
+                )
                 self._available = True
             except Exception as e:
                 print(f"[Supabase] Connection failed: {e} — using file fallback")
@@ -109,12 +119,13 @@ class _SupabaseDB:
         if not self._available:
             return []
         try:
-            q = self._client.table(table).select("*")
+            q = self._client.from_(table).select("*")
             if filters:
                 for k, v in filters.items():
                     q = q.eq(k, v)
             q = q.limit(limit)
-            return q.execute().data or []
+            result = q.execute()
+            return result.data or []
         except Exception as e:
             print(f"[Supabase] select {table}: {e}")
             return []
@@ -124,7 +135,7 @@ class _SupabaseDB:
         if not self._available:
             return None
         try:
-            result = self._client.table(table).insert(row).execute()
+            result = self._client.from_(table).insert(row).execute()
             return result.data[0] if result.data else None
         except Exception as e:
             print(f"[Supabase] insert {table}: {e}")
@@ -135,8 +146,7 @@ class _SupabaseDB:
         if not self._available:
             return None
         try:
-            q = self._client.table(table).upsert(row)
-            result = q.execute()
+            result = self._client.from_(table).upsert(row).execute()
             return result.data[0] if result.data else None
         except Exception as e:
             print(f"[Supabase] upsert {table}: {e}")
@@ -147,7 +157,7 @@ class _SupabaseDB:
         if not self._available:
             return []
         try:
-            q = self._client.table(table).update(values)
+            q = self._client.from_(table).update(values)
             for k, v in filters.items():
                 q = q.eq(k, v)
             return q.execute().data or []
@@ -160,7 +170,7 @@ class _SupabaseDB:
         if not self._available:
             return []
         try:
-            q = self._client.table(table).delete()
+            q = self._client.from_(table).delete()
             for k, v in filters.items():
                 q = q.eq(k, v)
             return q.execute().data or []
