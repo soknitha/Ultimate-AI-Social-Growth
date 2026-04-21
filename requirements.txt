@@ -1,12 +1,25 @@
+# ─── GrowthOS AI — Server Requirements (Railway) ─────────────────────────────
+# NOTE: PyQt5, aiogram, supabase (full) intentionally excluded for Railway.
+#       Use requirements-desktop.txt for local development with full features.
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Web framework
 fastapi>=0.110.0
 uvicorn[standard]>=0.29.0
 pydantic>=2.0.0
-requests>=2.31.0
-python-dotenv>=1.0.0
-openai>=1.30.0
-aiogram>=3.5.0
-PyQt5>=5.15.0
+
+# HTTP clients
 httpx>=0.27.0
 aiohttp>=3.9.0
+requests>=2.31.0
+
+# AI
+openai>=1.30.0
+
+# Database (Supabase via PostgREST — avoids pyiceberg build issue)
+postgrest>=2.0.0
+gotrue>=2.0.0
+
+# Utilities
+python-dotenv>=1.0.0
 python-dateutil>=2.9.0
-supabase>=2.0.0
