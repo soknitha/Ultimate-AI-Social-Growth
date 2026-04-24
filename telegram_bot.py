@@ -20,7 +20,9 @@ import asyncio
 import logging
 import httpx
 import json
+import aiohttp
 from aiogram import Bot, Dispatcher, F
+from aiogram.client.session.aiohttp import AiohttpSession
 from aiogram.filters import CommandStart, Command
 from aiogram.types import (
     Message, CallbackQuery,
@@ -65,7 +67,14 @@ if not TELEGRAM_BOT_TOKEN or TELEGRAM_BOT_TOKEN in _PLACEHOLDER_VALUES:
     raise SystemExit(1)
 
 try:
-    bot = Bot(token=TELEGRAM_BOT_TOKEN)
+    # Use aiohttp.DefaultResolver to bypass aiodns (fixes DNS failure on Windows)
+    _bot_session = AiohttpSession(
+        connector=aiohttp.TCPConnector(
+            resolver=aiohttp.DefaultResolver(),
+            ssl=True,
+        )
+    )
+    bot = Bot(token=TELEGRAM_BOT_TOKEN, session=_bot_session)
 except Exception as e:
     print(_SETUP_MSG)
     print(f"Token error: {e}")
