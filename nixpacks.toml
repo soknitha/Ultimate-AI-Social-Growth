@@ -1,13 +1,3 @@
-# nixpacks.toml — tells Railway how to build GrowthOS AI backend
-# Docs: https://nixpacks.com/docs/config
+# nixpacks.toml — kept for reference only
+# Railway now uses Dockerfile for the build
 
-[variables]
-NIXPACKS_PYTHON_VERSION = "3.11"
-
-[phases.install]
-cmds = [
-  "pip install -r requirements-server.txt"
-]
-
-[start]
-cmd = "uvicorn backend_api:app --host 0.0.0.0 --port $PORT"
