@@ -4,10 +4,13 @@
 [variables]
 NIXPACKS_PYTHON_VERSION = "3.11"
 
+[phases.setup]
+nixPkgs = ["python311", "python311Packages.pip"]
+
 [phases.install]
 cmds = [
-  "python -m pip install --upgrade pip",
-  "python -m pip install -r requirements-server.txt"
+  "pip install --upgrade pip",
+  "pip install -r requirements-server.txt"
 ]
 
 [start]
