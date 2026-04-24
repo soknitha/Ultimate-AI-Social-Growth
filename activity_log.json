@@ -1,0 +1,268 @@
+[
+  {
+    "ts": "2026-04-24 04:50:24",
+    "action": "LOGIN",
+    "actor": "admin",
+    "target": "",
+    "detail": "role=admin"
+  },
+  {
+    "ts": "2026-04-24 04:21:37",
+    "action": "LOGIN",
+    "actor": "admin",
+    "target": "",
+    "detail": "role=admin"
+  },
+  {
+    "ts": "2026-04-24 04:07:49",
+    "action": "LOGIN",
+    "actor": "admin",
+    "target": "",
+    "detail": "role=admin"
+  },
+  {
+    "ts": "2026-04-24 03:42:11",
+    "action": "LOGIN",
+    "actor": "admin",
+    "target": "",
+    "detail": "role=admin"
+  },
+  {
+    "ts": "2026-04-24 02:40:00",
+    "action": "LOGIN",
+    "actor": "admin",
+    "target": "",
+    "detail": "role=admin"
+  },
+  {
+    "ts": "2026-04-24 02:38:30",
+    "action": "LOGIN",
+    "actor": "admin",
+    "target": "",
+    "detail": "role=admin"
+  },
+  {
+    "ts": "2026-04-23 10:44:06",
+    "action": "LOGIN",
+    "actor": "admin",
+    "target": "",
+    "detail": "role=admin"
+  },
+  {
+    "ts": "2026-04-23 08:07:22",
+    "action": "LOGIN",
+    "actor": "admin",
+    "target": "",
+    "detail": "role=admin"
+  },
+  {
+    "ts": "2026-04-23 08:07:09",
+    "action": "LOGIN_FAIL",
+    "actor": "admin",
+    "target": "",
+    "detail": "bad credentials"
+  },
+  {
+    "ts": "2026-04-22 15:57:17",
+    "action": "LOGIN",
+    "actor": "admin",
+    "target": "",
+    "detail": "role=admin"
+  },
+  {
+    "ts": "2026-04-22 15:54:22",
+    "action": "LOGIN",
+    "actor": "admin",
+    "target": "",
+    "detail": "role=admin"
+  },
+  {
+    "ts": "2026-04-22 15:37:14",
+    "action": "LOGIN",
+    "actor": "admin",
+    "target": "",
+    "detail": "role=admin"
+  },
+  {
+    "ts": "2026-04-22 15:36:50",
+    "action": "LOGIN_FAIL",
+    "actor": "admin",
+    "target": "",
+    "detail": "bad credentials"
+  },
+  {
+    "ts": "2026-04-22 15:05:08",
+    "action": "LOGIN",
+    "actor": "admin",
+    "target": "",
+    "detail": "role=admin"
+  },
+  {
+    "ts": "2026-04-22 15:01:56",
+    "action": "LOGIN",
+    "actor": "admin",
+    "target": "",
+    "detail": "role=admin"
+  },
+  {
+    "ts": "2026-04-22 14:33:46",
+    "action": "LOGIN",
+    "actor": "admin",
+    "target": "",
+    "detail": "role=admin"
+  },
+  {
+    "ts": "2026-04-22 14:33:23",
+    "action": "LOGIN_FAIL",
+    "actor": "admin",
+    "target": "",
+    "detail": "bad credentials"
+  },
+  {
+    "ts": "2026-04-22 14:18:25",
+    "action": "LOGIN",
+    "actor": "admin",
+    "target": "",
+    "detail": "role=admin"
+  },
+  {
+    "ts": "2026-04-22 14:05:10",
+    "action": "LOGIN",
+    "actor": "admin",
+    "target": "",
+    "detail": "role=admin"
+  },
+  {
+    "ts": "2026-04-22 11:26:53",
+    "action": "LOGIN",
+    "actor": "admin",
+    "target": "",
+    "detail": "role=admin"
+  },
+  {
+    "ts": "2026-04-22 11:07:41",
+    "action": "LOGIN",
+    "actor": "admin",
+    "target": "",
+    "detail": "role=admin"
+  },
+  {
+    "ts": "2026-04-22 10:57:23",
+    "action": "LOGIN",
+    "actor": "admin",
+    "target": "",
+    "detail": "role=admin"
+  },
+  {
+    "ts": "2026-04-22 10:04:21",
+    "action": "LOGIN",
+    "actor": "admin",
+    "target": "",
+    "detail": "role=admin"
+  },
+  {
+    "ts": "2026-04-22 09:55:21",
+    "action": "LOGIN",
+    "actor": "admin",
+    "target": "",
+    "detail": "role=admin"
+  },
+  {
+    "ts": "2026-04-22 09:51:54",
+    "action": "LOGIN",
+    "actor": "admin",
+    "target": "",
+    "detail": "role=admin"
+  },
+  {
+    "ts": "2026-04-22 09:08:49",
+    "action": "LOGIN",
+    "actor": "admin",
+    "target": "",
+    "detail": "role=admin"
+  },
+  {
+    "ts": "2026-04-22 08:11:27",
+    "action": "LOGIN",
+    "actor": "admin",
+    "target": "",
+    "detail": "role=admin"
+  },
+  {
+    "ts": "2026-04-22 08:08:51",
+    "action": "LOGIN",
+    "actor": "admin",
+    "target": "",
+    "detail": "role=admin"
+  },
+  {
+    "ts": "2026-04-22 08:02:05",
+    "action": "LOGIN_FAIL",
+    "actor": "admin",
+    "target": "",
+    "detail": "bad credentials"
+  },
+  {
+    "ts": "2026-04-22 08:01:41",
+    "action": "LOGIN",
+    "actor": "admin",
+    "target": "",
+    "detail": "role=admin"
+  },
+  {
+    "ts": "2026-04-22 07:02:26",
+    "action": "LOGIN",
+    "actor": "admin",
+    "target": "",
+    "detail": "role=admin"
+  },
+  {
+    "ts": "2026-04-22 07:01:30",
+    "action": "LOGIN",
+    "actor": "admin",
+    "target": "",
+    "detail": "role=admin"
+  },
+  {
+    "ts": "2026-04-22 06:31:32",
+    "action": "LOGIN",
+    "actor": "admin",
+    "target": "",
+    "detail": "role=admin"
+  },
+  {
+    "ts": "2026-04-22 06:30:52",
+    "action": "LOGIN",
+    "actor": "admin",
+    "target": "",
+    "detail": "role=admin"
+  },
+  {
+    "ts": "2026-04-22 06:12:58",
+    "action": "CREATE_USER",
+    "actor": "admin",
+    "target": "saravy",
+    "detail": "role=member"
+  },
+  {
+    "ts": "2026-04-22 06:10:54",
+    "action": "PW_CHANGE",
+    "actor": "admin",
+    "target": "",
+    "detail": ""
+  },
+  {
+    "ts": "2026-04-22 06:10:14",
+    "action": "LOGIN",
+    "actor": "admin",
+    "target": "",
+    "detail": "role=admin"
+  },
+  {
+    "ts": "2026-04-22 06:09:59",
+    "action": "BOOTSTRAP",
+    "actor": "system",
+    "target": "admin",
+    "detail": "Default admin created — login: admin / admin123"
+  }
+]

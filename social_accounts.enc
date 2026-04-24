@@ -1,0 +1,31 @@
+[
+  {
+    "id": "9e9c578eab2b7c97",
+    "platform": "Telegram",
+    "display_name": "@UAISG_BOT • Ultimate AI Social Growth",
+    "account_id": "8715208577",
+    "access_token": "ENC:gAAAAABp6vI7fcTIa8sOq_2HSVDOkMolo0P6tOXgHadAcRnBOeqtw90b7o0Elyij5MXv0W4dk4KNLld_MCCzjsbn5RI_PgHI6DNxY2Txh-44mwzDXpnTlCUcBAQ1pv_R4_W3bgwvkaP6",
+    "refresh_token": "",
+    "client_id": "",
+    "client_secret": "",
+    "connected_at": "2026-04-22T14:39:28.506685+00:00",
+    "last_tested": "2026-04-22T16:24:05.548671+00:00",
+    "status": "connected",
+    "profile_info": {
+      "id": 8715208577,
+      "is_bot": true,
+      "first_name": "Ultimate AI Social Growth",
+      "username": "UAISG_BOT",
+      "can_join_groups": true,
+      "can_read_all_group_messages": false,
+      "supports_inline_queries": false,
+      "can_connect_to_business": false,
+      "has_main_web_app": false,
+      "has_topics_enabled": false,
+      "allows_users_to_create_topics": false,
+      "can_manage_bots": false
+    },
+    "icon": "✈️",
+    "color": "#26A5E4"
+  }
+]

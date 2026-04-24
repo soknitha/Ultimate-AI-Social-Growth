@@ -11,17 +11,10 @@ from PyQt5.QtWidgets import (
     QLineEdit, QTextEdit, QFrame, QComboBox, QGroupBox, QGridLayout,
     QScrollArea, QSpinBox, QDoubleSpinBox, QMessageBox, QTabWidget,
     QSplitter, QDateTimeEdit, QTableWidget, QTableWidgetItem, QHeaderView,
-    QProgressBar, QCheckBox, QFormLayout, QListWidget, QListWidgetItem,
+    QProgressBar, QCheckBox, QFormLayout,
 )
-from PyQt5.QtCore import Qt, QThread, pyqtSignal, QTimer, QDateTime, QUrl
+from PyQt5.QtCore import Qt, QThread, pyqtSignal, QTimer, QDateTime
 from PyQt5.QtGui import QFont, QColor, QPalette
-
-try:
-    from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEngineProfile, QWebEnginePage
-    from PyQt5.QtWidgets import QDialog
-    _HAS_WEBENGINE = True
-except ImportError:
-    _HAS_WEBENGINE = False
 
 try:
     from config import BACKEND_URL, APP_NAME, APP_VERSION
@@ -132,38 +125,38 @@ def _build_global_style() -> str:
     return f"""
     QWidget {{
         background-color: {DARK_BG}; color: {TEXT};
-        font-family: 'Segoe UI', Arial; font-size: 14px;
+        font-family: 'Segoe UI', Arial; font-size: 13px;
     }}
     QLineEdit, QTextEdit, QComboBox, QSpinBox, QDoubleSpinBox {{
         background-color: {SURFACE}; color: {TEXT};
         border: 1px solid {BORDER}; border-radius: 6px;
-        padding: 6px 8px; font-size: 14px;
+        padding: 6px 8px; font-size: 13px;
     }}
     QLineEdit:focus, QTextEdit:focus, QComboBox:focus {{
         border: 1px solid {ACCENT};
     }}
     QGroupBox {{
         border: 1px solid {BORDER}; border-radius: 8px;
-        margin-top: 14px; font-weight: bold; font-size: 14px;
+        margin-top: 14px; font-weight: bold; font-size: 13px;
     }}
     QGroupBox::title {{
         subcontrol-origin: margin; left: 12px;
-        padding: 0 6px; color: {ACCENT}; font-size: 14px;
+        padding: 0 6px; color: {ACCENT}; font-size: 13px;
     }}
     QTabWidget::pane {{ border: 1px solid {BORDER}; border-radius: 6px; }}
     QTabBar::tab {{
         background: {SURFACE}; color: {TEXT};
-        padding: 9px 22px; font-size: 14px;
+        padding: 9px 22px; font-size: 13px;
         border-top-left-radius: 6px; border-top-right-radius: 6px;
     }}
     QTabBar::tab:selected {{ background: {DARK_BG}; color: {ACCENT}; font-weight: bold; }}
     QTabBar::tab:hover    {{ background: {HOVER}; }}
     QHeaderView::section {{
-        background: {SIDEBAR}; color: {ACCENT}; font-weight: bold; font-size: 14px;
+        background: {SIDEBAR}; color: {ACCENT}; font-weight: bold; font-size: 13px;
         padding: 6px 8px; border: none; border-bottom: 1px solid {BORDER};
     }}
     QTableWidget {{
-        background: {SURFACE}; gridline-color: {BORDER}; font-size: 14px;
+        background: {SURFACE}; gridline-color: {BORDER}; font-size: 13px;
         selection-background-color: {HOVER}; selection-color: {ACCENT};
     }}
     QTableWidget::item {{ padding: 4px 8px; }}
@@ -178,7 +171,7 @@ def _build_global_style() -> str:
     QScrollBar::add-line, QScrollBar::sub-line {{ border: none; background: none; }}
     QToolTip {{
         background: {SURFACE}; color: {TEXT}; border: 1px solid {BORDER};
-        padding: 6px 8px; border-radius: 6px; font-size: 14px;
+        padding: 6px 8px; border-radius: 6px; font-size: 12px;
     }}
     QComboBox::drop-down {{ border: none; width: 22px; }}
     QComboBox QAbstractItemView {{
@@ -247,22 +240,22 @@ def _account_context_bar(api_base: str, platforms: list | None = None):
     row.addWidget(icon_lbl)
 
     lbl = QLabel("Connected Account:")
-    lbl.setStyleSheet(f"color:{SUBTEXT}; font-size:14px; font-weight:bold;")
+    lbl.setStyleSheet(f"color:{SUBTEXT}; font-size:12px; font-weight:bold;")
     row.addWidget(lbl)
 
     combo = QComboBox()
     combo.setMinimumWidth(260)
     combo.setStyleSheet(
-        f"QComboBox {{ background:{DARK_BG}; color:{TEXT}; font-size:14px; "
+        f"QComboBox {{ background:{DARK_BG}; color:{TEXT}; font-size:12px; "
         f"border:1px solid {BORDER}; border-radius:6px; padding:3px 8px; min-height:26px; }}"
         f"QComboBox::drop-down {{ border:none; width:16px; }}"
         f"QComboBox QAbstractItemView {{ background:{SURFACE}; color:{TEXT}; "
-        f"font-size:14px; selection-background-color:{HOVER}; border:1px solid {BORDER}; }}"
+        f"font-size:12px; selection-background-color:{HOVER}; border:1px solid {BORDER}; }}"
     )
     row.addWidget(combo, 1)
 
     status_lbl = QLabel()
-    status_lbl.setStyleSheet(f"color:{SUBTEXT}; font-size:14px; min-width:90px;")
+    status_lbl.setStyleSheet(f"color:{SUBTEXT}; font-size:11px; min-width:90px;")
     row.addWidget(status_lbl)
 
     def _populate():
@@ -285,11 +278,11 @@ def _account_context_bar(api_base: str, platforms: list | None = None):
                 combo.setCurrentIndex(idx)
             n = len(_acc_list)
             status_lbl.setText(f"✅ {n} connected")
-            status_lbl.setStyleSheet(f"color:{SUCCESS}; font-size:14px;")
+            status_lbl.setStyleSheet(f"color:{SUCCESS}; font-size:11px;")
         else:
             combo.addItem("⚠️  No connected accounts — go to 🔐 Social Accounts")
             status_lbl.setText("Not connected")
-            status_lbl.setStyleSheet(f"color:{WARNING}; font-size:14px;")
+            status_lbl.setStyleSheet(f"color:{WARNING}; font-size:11px;")
         combo.blockSignals(False)
 
     _populate()
@@ -299,14 +292,14 @@ def _account_context_bar(api_base: str, platforms: list | None = None):
     refresh_btn.setToolTip("Reload connected accounts from server")
     refresh_btn.setStyleSheet(
         f"QPushButton {{ background:{HOVER}; border:none; border-radius:4px; "
-        f"color:{TEXT}; font-size:14px; }}"
+        f"color:{TEXT}; font-size:12px; }}"
         f"QPushButton:hover {{ background:{ACCENT}; color:#111; }}"
     )
 
     def _on_refresh():
         refresh_btn.setEnabled(False)
         status_lbl.setText("Loading…")
-        status_lbl.setStyleSheet(f"color:{SUBTEXT}; font-size:14px;")
+        status_lbl.setStyleSheet(f"color:{SUBTEXT}; font-size:11px;")
         w = ApiWorker(f"{api_base}/api/v1/auth/accounts", method="GET")
         def _done(resp):
             global _ACCOUNTS_CACHE
@@ -316,7 +309,7 @@ def _account_context_bar(api_base: str, platforms: list | None = None):
         w.result_ready.connect(_done)
         w.error_signal.connect(lambda _e: (
             status_lbl.setText("Error"),
-            status_lbl.setStyleSheet(f"color:#F38BA8; font-size:14px;"),
+            status_lbl.setStyleSheet(f"color:#F38BA8; font-size:11px;"),
             refresh_btn.setEnabled(True),
         ))
         w.start()
@@ -346,7 +339,7 @@ def _label(text: str, bold: bool = False) -> QLabel:
         lbl.setFont(QFont("Segoe UI", 13, QFont.Bold))
         lbl.setStyleSheet(f"color: {ACCENT}; margin-bottom: 4px;")
     else:
-        lbl.setStyleSheet(f"color: {TEXT}; font-size: 14px;")
+        lbl.setStyleSheet(f"color: {TEXT}; font-size: 13px;")
     lbl.setWordWrap(True)
     return lbl
 
@@ -366,14 +359,11 @@ class ApiWorker(QThread):
     result_ready = pyqtSignal(dict)
     error_signal = pyqtSignal(str)
 
-    def __init__(self, url: str, payload: dict = None, method: str = "POST", btn=None):
+    def __init__(self, url: str, payload: dict = None, method: str = "POST"):
         super().__init__()
         self.url     = url
         self.payload = payload
         self.method  = method
-        if btn is not None:
-            btn.set_loading(True)
-            self.finished.connect(lambda: btn.set_loading(False))
 
     def run(self):
         try:
@@ -399,57 +389,6 @@ class ApiWorker(QThread):
             self.error_signal.emit(str(e))
 
 
-# ─── Telegram Bot Manager Thread ─────────────────────────────────────────────
-class BotThread(QThread):
-    """Runs telegram_bot.py as a subprocess and streams its stdout/stderr."""
-    log_line      = pyqtSignal(str)
-    status_change = pyqtSignal(str)   # "running" | "stopped" | "error:<msg>"
-
-    def __init__(self):
-        super().__init__()
-        self._proc    = None
-        self._running = False
-
-    def run(self):
-        import subprocess as _sp
-        script = os.path.join(os.path.dirname(os.path.abspath(__file__)), "telegram_bot.py")
-        try:
-            flags = _sp.CREATE_NO_WINDOW if sys.platform == "win32" else 0
-            self._proc = _sp.Popen(
-                [sys.executable, "-u", script],
-                stdout=_sp.PIPE,
-                stderr=_sp.STDOUT,
-                text=True,
-                bufsize=1,
-                creationflags=flags,
-            )
-            self._running = True
-            self.status_change.emit("running")
-            for line in iter(self._proc.stdout.readline, ""):
-                if not self._running:
-                    break
-                if line.strip():
-                    self.log_line.emit(line.rstrip())
-            self._proc.wait()
-        except Exception as e:
-            self.status_change.emit(f"error:{e}")
-        finally:
-            self._running = False
-            self.status_change.emit("stopped")
-
-    def stop_bot(self):
-        self._running = False
-        if self._proc and self._proc.poll() is None:
-            try:
-                self._proc.terminate()
-                self._proc.wait(timeout=3)
-            except Exception:
-                try:
-                    self._proc.kill()
-                except Exception:
-                    pass
-
-
 # ─── Reusable Sidebar Button ─────────────────────────────────────────────────
 class NavButton(QPushButton):
     def __init__(self, text: str):
@@ -460,7 +399,7 @@ class NavButton(QPushButton):
             QPushButton {{
                 background-color: transparent; color: {TEXT};
                 border: none; border-radius: 8px;
-                padding: 10px 14px; font-size: 14px; font-weight: bold;
+                padding: 10px 14px; font-size: 13px; font-weight: bold;
                 text-align: left;
             }}
             QPushButton:hover {{ background-color: {HOVER}; }}
@@ -472,7 +411,6 @@ class NavButton(QPushButton):
 class ActionButton(QPushButton):
     def __init__(self, text: str, color: str = ACCENT):
         super().__init__(text)
-        self._orig_text = text   # ← store so set_loading(False) can restore it
         self.color = color
         self.setMinimumHeight(42)
         self.setCursor(Qt.PointingHandCursor)
@@ -483,7 +421,7 @@ class ActionButton(QPushButton):
             QPushButton {{
                 background-color: {color}; color: #11111B;
                 border: none; border-radius: 8px;
-                padding: 10px 18px; font-weight: bold; font-size: 14px;
+                padding: 10px 18px; font-weight: bold; font-size: 13px;
             }}
             QPushButton:hover {{ background-color: rgba(255,255,255,0.12); }}
             QPushButton:disabled {{ background-color: {BORDER}; color: {SUBTEXT}; }}
@@ -495,7 +433,6 @@ class ActionButton(QPushButton):
             self.setText("⏳ Processing…")
         else:
             self._apply_style(self.color)
-            self.setText(self._orig_text)   # ← restore original label
 
 
 # ─── Output Box ───────────────────────────────────────────────────────────────
@@ -508,7 +445,7 @@ class OutputBox(QTextEdit):
             QTextEdit {{
                 background-color: {SURFACE}; color: {SUCCESS};
                 border: 1px solid {BORDER}; border-radius: 8px;
-                padding: 12px; font-size: 14px; line-height: 1.5;
+                padding: 12px; font-size: 13px; line-height: 1.5;
             }}
         """)
 
@@ -566,7 +503,7 @@ def build_dashboard_page(api_base: str) -> QWidget:
     page, layout = _make_page_layout("GrowthOS AI — Command Center", "🚀")
 
     info = QLabel(f"Backend: {api_base}   |   All 110 features active   |   Multi-Agent AI ready")
-    info.setStyleSheet(f"color: {SUBTEXT}; font-size: 14px;")
+    info.setStyleSheet(f"color: {SUBTEXT}; font-size: 12px;")
     layout.addWidget(info)
 
     # KPI cards
@@ -585,7 +522,7 @@ def build_dashboard_page(api_base: str) -> QWidget:
         card.setStyleSheet(f"background:{SURFACE}; border-radius:10px; padding:10px;")
         cl = QVBoxLayout(card)
         top = QLabel(f"{icon}  {label}")
-        top.setStyleSheet(f"color:{SUBTEXT}; font-size:14px;")
+        top.setStyleSheet(f"color:{SUBTEXT}; font-size:12px;")
         v = QLabel(value)
         v.setFont(QFont("Segoe UI", 24, QFont.Bold))
         v.setStyleSheet(f"color:{color};")
@@ -608,7 +545,7 @@ def build_dashboard_page(api_base: str) -> QWidget:
     def _health():
         status_box.reset_color()
         status_box.setPlainText("Connecting to backend…")
-        w = ApiWorker(f"{api_base}/api/v1/health", method="GET", btn=btn_health)
+        w = ApiWorker(f"{api_base}/api/v1/health", method="GET")
         page._worker = w
         w.result_ready.connect(lambda d: status_box.set_result(d))
         w.error_signal.connect(status_box.set_error)
@@ -664,9 +601,9 @@ def build_strategy_page(api_base: str) -> QWidget:
     t1l.addWidget(out1, 1)
     tabs.addTab(t1, "Strategy & Forecast")
 
-    def _run1(url, payload, btn=None):
+    def _run1(url, payload):
         out1.reset_color(); out1.setPlainText("AI is thinking…")
-        w = ApiWorker(url, payload, btn=btn)
+        w = ApiWorker(url, payload)
         page._w1 = w
         w.result_ready.connect(lambda d: out1.set_result(d.get("data", d)))
         w.error_signal.connect(out1.set_error)
@@ -676,15 +613,15 @@ def build_strategy_page(api_base: str) -> QWidget:
         "username": username.text() or "demo", "platform": platform.currentText(),
         "current_followers": followers.value(), "niche": niche.text() or "General",
         "goal_followers": goal_foll.value(), "duration_days": duration.value(),
-    }, btn_strategy))
+    }))
     btn_audit.clicked.connect(lambda: _run1(f"{api_base}/api/v1/ai/audit", {
         "username": username.text() or "demo", "platform": platform.currentText(),
         "followers": followers.value(), "niche": niche.text() or "General",
-    }, btn_audit))
+    }))
     btn_forecast.clicked.connect(lambda: _run1(f"{api_base}/api/v1/ai/forecast", {
         "current_followers": followers.value(), "engagement_rate": 3.5,
         "posting_frequency": 1, "platform": platform.currentText(), "months": 3,
-    }, btn_forecast))
+    }))
 
     # ── Tab 2: Competitor Intelligence ───────────────────────────────────────
     t2 = QWidget()
@@ -710,7 +647,7 @@ def build_strategy_page(api_base: str) -> QWidget:
             "competitor_username": comp_user.text() or "competitor_brand",
             "platform": comp_plat.currentText(),
             "your_niche": comp_niche.text() or "General",
-        }, btn=btn_comp)
+        })
         page._w2 = w
         w.result_ready.connect(lambda d: out2.set_result(d.get("data", d)))
         w.error_signal.connect(out2.set_error)
@@ -743,7 +680,7 @@ def build_strategy_page(api_base: str) -> QWidget:
             "platform": p_plat.currentText(),
             "followers": 15000,
             "niche": p_niche.text() or "General",
-        }, btn=btn_persona)
+        })
         page._w3 = w
         w.result_ready.connect(lambda d: out3.set_result(d.get("data", d)))
         w.error_signal.connect(out3.set_error)
@@ -799,17 +736,17 @@ def build_content_page(api_base: str) -> QWidget:
             "duration_seconds": dur.value(),
         }
 
-    def _run1(url, btn=None):
+    def _run1(url):
         out1.reset_color(); out1.setPlainText("Generating content…")
-        w = ApiWorker(url, _payload(), btn=btn)
+        w = ApiWorker(url, _payload())
         page._w1 = w
         w.result_ready.connect(lambda d: out1.set_result(d.get("data", d)))
         w.error_signal.connect(out1.set_error)
         w.start()
 
-    btn_full.clicked.connect(lambda: _run1(f"{api_base}/api/v1/ai/content", btn_full))
-    btn_hook.clicked.connect(lambda: _run1(f"{api_base}/api/v1/ai/hook", btn_hook))
-    btn_hashtag.clicked.connect(lambda: _run1(f"{api_base}/api/v1/ai/hashtags", btn_hashtag))
+    btn_full.clicked.connect(lambda: _run1(f"{api_base}/api/v1/ai/content"))
+    btn_hook.clicked.connect(lambda: _run1(f"{api_base}/api/v1/ai/hook"))
+    btn_hashtag.clicked.connect(lambda: _run1(f"{api_base}/api/v1/ai/hashtags"))
 
     # ── Tab 2: Video Script & Calendar ────────────────────────────────────────
     t2 = QWidget()
@@ -848,16 +785,16 @@ def build_content_page(api_base: str) -> QWidget:
             "duration_seconds": dur2.value(),
         }
 
-    def _run2(url, btn=None):
+    def _run2(url):
         out2.reset_color(); out2.setPlainText("Generating…")
-        w = ApiWorker(url, _payload2(), btn=btn)
+        w = ApiWorker(url, _payload2())
         page._w2 = w
         w.result_ready.connect(lambda d: out2.set_result(d.get("data", d)))
         w.error_signal.connect(out2.set_error)
         w.start()
 
-    btn_script.clicked.connect(lambda: _run2(f"{api_base}/api/v1/ai/script", btn_script))
-    btn_cal.clicked.connect(lambda: _run2(f"{api_base}/api/v1/ai/calendar", btn_cal))
+    btn_script.clicked.connect(lambda: _run2(f"{api_base}/api/v1/ai/script"))
+    btn_cal.clicked.connect(lambda: _run2(f"{api_base}/api/v1/ai/calendar"))
 
     # ── Tab 3: Micro-Content Engine ───────────────────────────────────────────
     t3 = QWidget()
@@ -871,7 +808,7 @@ def build_content_page(api_base: str) -> QWidget:
     t3l.addWidget(grp3)
     hint = QLabel("💡 AI will break 1 big idea into 20 micro-content pieces:\n"
                   "   Reels, Carousels, Stories, Tweets, Quotes, Polls, Q&A, Tips, and more.")
-    hint.setStyleSheet(f"color:{SUBTEXT}; font-size:14px; padding:6px;")
+    hint.setStyleSheet(f"color:{SUBTEXT}; font-size:12px; padding:6px;")
     t3l.addWidget(hint)
     btn_micro = ActionButton("⚡ Generate 20 Micro-Content Pieces", ACCENT)
     t3l.addWidget(btn_micro)
@@ -886,7 +823,7 @@ def build_content_page(api_base: str) -> QWidget:
             "platform": micro_plat.currentText(),
             "tone": "Viral & Catchy",
             "language": "English",
-        }, btn=btn_micro)
+        })
         page._w3 = w
         w.result_ready.connect(lambda d: out3.set_result(d.get("data", d)))
         w.error_signal.connect(out3.set_error)
@@ -943,17 +880,17 @@ def build_analytics_page(api_base: str) -> QWidget:
             "saves": saves.value(), "follows": follows.value(),
         }
 
-    def _run1(url, payload=None, method="POST", btn=None):
+    def _run1(url, payload=None, method="POST"):
         out1.reset_color(); out1.setPlainText("Analyzing…")
-        w = ApiWorker(url, payload, method, btn=btn)
+        w = ApiWorker(url, payload, method)
         page._w1 = w
         w.result_ready.connect(lambda d: out1.set_result(d.get("data", d)))
         w.error_signal.connect(out1.set_error)
         w.start()
 
-    btn_analyze.clicked.connect(lambda: _run1(f"{api_base}/api/v1/ai/performance", _metrics(), btn=btn_analyze))
-    btn_timing.clicked.connect(lambda: _run1(f"{api_base}/api/v1/ai/timing/{platform.currentText()}", method="GET", btn=btn_timing))
-    btn_fatigue.clicked.connect(lambda: _run1(f"{api_base}/api/v1/ai/performance", _metrics(), btn=btn_fatigue))
+    btn_analyze.clicked.connect(lambda: _run1(f"{api_base}/api/v1/ai/performance", _metrics()))
+    btn_timing.clicked.connect(lambda: _run1(f"{api_base}/api/v1/ai/timing/{platform.currentText()}", method="GET"))
+    btn_fatigue.clicked.connect(lambda: _run1(f"{api_base}/api/v1/ai/performance", _metrics()))
 
     # ── Tab 2: Performance Report Generator ───────────────────────────────────
     t2 = QWidget()
@@ -992,7 +929,7 @@ def build_analytics_page(api_base: str) -> QWidget:
             },
             "goals_achieved": ["Increased engagement", "Grew follower base"],
         }
-        w = ApiWorker(f"{api_base}/api/v1/ai/report", payload, btn=btn_report)
+        w = ApiWorker(f"{api_base}/api/v1/ai/report", payload)
         page._w2 = w
         w.result_ready.connect(lambda d: out2.set_result(d.get("data", d)))
         w.error_signal.connect(out2.set_error)
@@ -1026,9 +963,9 @@ def build_analytics_page(api_base: str) -> QWidget:
     t3l.addWidget(out3, 1)
     tabs.addTab(t3, "ROI & Trust Score")
 
-    def _run3(url, payload, btn=None):
+    def _run3(url, payload):
         out3.reset_color(); out3.setPlainText("Calculating…")
-        w = ApiWorker(url, payload, btn=btn)
+        w = ApiWorker(url, payload)
         page._w3 = w
         w.result_ready.connect(lambda d: out3.set_result(d.get("data", d)))
         w.error_signal.connect(out3.set_error)
@@ -1038,12 +975,12 @@ def build_analytics_page(api_base: str) -> QWidget:
         "platform": roi_plat.currentText(),
         "views": 50000, "likes": int(50000 * roi_eng_rate.value() / 100),
         "comments": 400, "shares": 200, "saves": 150, "follows": 55,
-    }, btn_roi))
+    }))
     btn_trust.clicked.connect(lambda: _run3(f"{api_base}/api/v1/ai/performance", {
         "platform": roi_plat.currentText(),
         "views": 50000, "likes": 3500, "comments": 420, "shares": 210,
         "saves": 180, "follows": roi_followers.value(),
-    }, btn_trust))
+    }))
 
     layout.addWidget(tabs, 1)
     return page
@@ -1079,27 +1016,27 @@ def build_trends_page(api_base: str) -> QWidget:
     def _p():
         return {"platform": platform.currentText(), "niche": niche.text() or "General", "region": region.currentText()}
 
-    def _post(url, payload=None, btn=None):
+    def _post(url, payload=None):
         output.reset_color(); output.setPlainText("Scanning trends…")
-        w = ApiWorker(url, payload or _p(), btn=btn)
+        w = ApiWorker(url, payload or _p())
         page._worker = w
         w.result_ready.connect(lambda d: output.set_result(d.get("data", d)))
         w.error_signal.connect(output.set_error)
         w.start()
 
-    def _get(url, btn=None):
+    def _get(url):
         output.reset_color(); output.setPlainText("Fetching…")
-        w = ApiWorker(url, method="GET", btn=btn)
+        w = ApiWorker(url, method="GET")
         page._worker = w
         w.result_ready.connect(lambda d: output.set_result(d.get("data", d)))
         w.error_signal.connect(output.set_error)
         w.start()
 
-    btn_trend.clicked.connect(lambda: _post(f"{api_base}/api/v1/ai/trends", btn=btn_trend))
-    btn_predict.clicked.connect(lambda: _post(f"{api_base}/api/v1/ai/predict-trends", btn=btn_predict))
-    btn_opps.clicked.connect(lambda: _get(f"{api_base}/api/v1/ai/opportunities/{platform.currentText()}/{niche.text() or 'General'}", btn_opps))
-    btn_strategy.clicked.connect(lambda: _get(f"{api_base}/api/v1/ai/time-strategy/{platform.currentText()}", btn_strategy))
-    btn_fuse.clicked.connect(lambda: _post(f"{api_base}/api/v1/ai/trends", {**_p(), "cross_platform": True}, btn_fuse))
+    btn_trend.clicked.connect(lambda: _post(f"{api_base}/api/v1/ai/trends"))
+    btn_predict.clicked.connect(lambda: _post(f"{api_base}/api/v1/ai/predict-trends"))
+    btn_opps.clicked.connect(lambda: _get(f"{api_base}/api/v1/ai/opportunities/{platform.currentText()}/{niche.text() or 'General'}"))
+    btn_strategy.clicked.connect(lambda: _get(f"{api_base}/api/v1/ai/time-strategy/{platform.currentText()}"))
+    btn_fuse.clicked.connect(lambda: _post(f"{api_base}/api/v1/ai/trends", {**_p(), "cross_platform": True}))
     return page
 
 
@@ -1140,7 +1077,7 @@ def build_campaign_page(api_base: str) -> QWidget:
             "goal": goal.currentText(),
             "budget_usd": budget.value(),
             "duration_days": duration.value(),
-        }, btn=btn_campaign)
+        })
         page._w1 = w
         w.result_ready.connect(lambda d: out1.set_result(d.get("data", d)))
         w.error_signal.connect(out1.set_error)
@@ -1178,7 +1115,7 @@ def build_campaign_page(api_base: str) -> QWidget:
             "goal": bo_goal.currentText(),
             "budget_usd": bo_budget.value(),
             "duration_days": bo_days.value(),
-        }, btn=btn_budget)
+        })
         page._w2 = w
         w.result_ready.connect(lambda d: out2.set_result(d.get("data", d)))
         w.error_signal.connect(out2.set_error)
@@ -1224,7 +1161,7 @@ def build_risk_page(api_base: str) -> QWidget:
         w = ApiWorker(f"{api_base}/api/v1/ai/risk", {
             "content": content.toPlainText() or "Sample post content",
             "platform": platform.currentText(),
-        }, btn=btn_risk)
+        })
         page._w1 = w
         w.result_ready.connect(lambda d: out1.set_result(d.get("data", d)))
         w.error_signal.connect(out1.set_error)
@@ -1233,7 +1170,7 @@ def build_risk_page(api_base: str) -> QWidget:
     def _limits():
         out1.reset_color(); out1.setPlainText("Calculating safe limits…")
         url = f"{api_base}/api/v1/ai/safe-limits/{platform.currentText()}/{followers1.value()}"
-        w = ApiWorker(url, method="GET", btn=btn_limits)
+        w = ApiWorker(url, method="GET")
         page._w1b = w
         w.result_ready.connect(lambda d: out1.set_result(d.get("data", d)))
         w.error_signal.connect(out1.set_error)
@@ -1276,7 +1213,7 @@ def build_risk_page(api_base: str) -> QWidget:
             "content": f"Account: {sh_username.text() or 'demo'}, Platform: {sh_platform.currentText()}, "
                        f"Reach drop: {sh_reach_drop.value()}%, Engagement rate: {sh_eng_rate.value()}%",
             "platform": sh_platform.currentText(),
-        }, btn=btn_shadow)
+        })
         page._w2 = w
         w.result_ready.connect(lambda d: out2.set_result(d.get("data", d)))
         w.error_signal.connect(out2.set_error)
@@ -1289,7 +1226,7 @@ def build_risk_page(api_base: str) -> QWidget:
             "platform": sh_platform.currentText(),
             "followers": sh_followers.value(),
             "niche": sh_niche.text() or "General",
-        }, btn=btn_health)
+        })
         page._w2b = w
         w.result_ready.connect(lambda d: out2.set_result(d.get("data", d)))
         w.error_signal.connect(out2.set_error)
@@ -1316,7 +1253,7 @@ def build_smm_page(api_base: str) -> QWidget:
     panel_status_lbl = QLabel("● Checking panel connection…")
     panel_status_lbl.setStyleSheet(f"color:{SUBTEXT}; font-weight:bold;")
     panel_url_lbl = QLabel("")
-    panel_url_lbl.setStyleSheet(f"color:{SUBTEXT}; font-size:14px;")
+    panel_url_lbl.setStyleSheet(f"color:{SUBTEXT}; font-size:12px;")
     btn_ping = ActionButton("🔌 Check Connection", ACCENT)
     btn_ping.setFixedWidth(160)
     brow.addWidget(panel_status_lbl)
@@ -1333,7 +1270,7 @@ def build_smm_page(api_base: str) -> QWidget:
     setup_layout = QVBoxLayout(setup_box)
     setup_layout.setContentsMargins(14, 10, 14, 10)
     setup_title = QLabel("📋  How to connect a real SMM Panel")
-    setup_title.setStyleSheet(f"color:{WARNING}; font-weight:bold; font-size:14px;")
+    setup_title.setStyleSheet(f"color:{WARNING}; font-weight:bold; font-size:13px;")
     setup_steps = QLabel(
         "1. Register a free account on any SMM panel that supports API v2\n"
         "   → JustAnotherPanel.com  |  Peakerr.com  |  SMMKings.com  |  or your own panel\n\n"
@@ -1344,7 +1281,7 @@ def build_smm_page(api_base: str) -> QWidget:
         "4. Restart the backend server (python build.py --backend)\n"
         "5. Click  🔌 Check Connection  above — it will turn 🟢 Live"
     )
-    setup_steps.setStyleSheet(f"color:{TEXT}; font-size:14px; line-height:1.6;")
+    setup_steps.setStyleSheet(f"color:{TEXT}; font-size:12px; line-height:1.6;")
     setup_steps.setWordWrap(True)
     setup_layout.addWidget(setup_title)
     setup_layout.addWidget(setup_steps)
@@ -1353,11 +1290,9 @@ def build_smm_page(api_base: str) -> QWidget:
     def _ping_panel():
         panel_status_lbl.setText("● Checking…")
         panel_status_lbl.setStyleSheet(f"color:{SUBTEXT}; font-weight:bold;")
-        btn_ping.set_loading(True)
         w = ApiWorker(f"{api_base}/api/v1/smm/panel-info", method="GET")
         page._wp = w
         def _got(resp):
-            btn_ping.set_loading(False)
             d = resp.get("data", resp)
             mode = d.get("mode", "demo")
             url  = d.get("api_url", "")
@@ -1410,7 +1345,7 @@ def build_smm_page(api_base: str) -> QWidget:
     t1l.addWidget(svc_table, 1)
 
     svc_stats = QLabel("No services loaded yet")
-    svc_stats.setStyleSheet(f"color:{SUBTEXT}; font-size:14px; padding:2px 0;")
+    svc_stats.setStyleSheet(f"color:{SUBTEXT}; font-size:12px; padding:2px 0;")
     t1l.addWidget(svc_stats)
 
     bal_box = OutputBox()
@@ -1422,7 +1357,7 @@ def build_smm_page(api_base: str) -> QWidget:
         svc_stats.setText("Loading services from panel…")
         cat = cat_input.text().strip()
         url = f"{api_base}/api/v1/smm/services" + (f"?category={cat}" if cat else "")
-        w = ApiWorker(url, method="GET", btn=btn_services)
+        w = ApiWorker(url, method="GET")
         t1._w = w
         def _got(resp):
             d     = resp.get("data", resp)
@@ -1455,7 +1390,7 @@ def build_smm_page(api_base: str) -> QWidget:
 
     def _check_balance():
         bal_box.reset_color(); bal_box.setPlainText("Checking balance…")
-        w = ApiWorker(f"{api_base}/api/v1/smm/balance", method="GET", btn=btn_balance)
+        w = ApiWorker(f"{api_base}/api/v1/smm/balance", method="GET")
         t1._wb = w
         w.result_ready.connect(lambda d: bal_box.set_result(d.get("data", d)))
         w.error_signal.connect(bal_box.set_error)
@@ -1476,7 +1411,7 @@ def build_smm_page(api_base: str) -> QWidget:
     g2.addWidget(QLabel("Quantity:"),   2, 0); g2.addWidget(quantity, 2, 1)
     t2l.addWidget(grp2)
     hint2 = QLabel("💡  Tip: Click any row in the Services tab to auto-fill the Service ID field.")
-    hint2.setStyleSheet(f"color:{SUBTEXT}; font-size:14px;")
+    hint2.setStyleSheet(f"color:{SUBTEXT}; font-size:12px;")
     t2l.addWidget(hint2)
 
     # Wire table row-click → auto-fill service ID
@@ -1498,7 +1433,7 @@ def build_smm_page(api_base: str) -> QWidget:
             "service_id": svc_id.value(),
             "link":       link2.text().strip() or "https://tiktok.com/@example",
             "quantity":   quantity.value(),
-        }, btn=btn_order)
+        })
         t2._w = w
         w.result_ready.connect(lambda d: out2.set_result(d.get("data", d)))
         w.error_signal.connect(out2.set_error)
@@ -1506,283 +1441,67 @@ def build_smm_page(api_base: str) -> QWidget:
 
     btn_order.clicked.connect(_place_order)
 
-    # ── Tab 3: AI GEO Smart Order ─────────────────────────────────────────────
-    t3 = QWidget(); t3l = QVBoxLayout(t3); t3l.setContentsMargins(0, 0, 0, 0)
-    t3_scroll = QScrollArea(); t3_scroll.setWidgetResizable(True); t3_scroll.setFrameShape(QFrame.NoFrame)
-    t3_inner = QWidget(); t3_inner_l = QVBoxLayout(t3_inner); t3_inner_l.setSpacing(8)
-    t3_scroll.setWidget(t3_inner)
-    t3l.addWidget(t3_scroll)
-
-    # ── Basic Settings ────────────────────────────────────────────────────────
-    grp3b = QGroupBox("📋 Order Settings")
-    g3b = QGridLayout(grp3b); g3b.setColumnStretch(1, 2); g3b.setColumnStretch(3, 2)
+    # ── Tab 3: AI Smart Order ─────────────────────────────────────────────────
+    t3 = QWidget(); t3l = QVBoxLayout(t3)
+    grp3 = QGroupBox("AI Smart Order  — AI selects best service within your budget")
+    g3 = QGridLayout(grp3)
     smart_link   = _styled_input("Your profile or post URL")
     smart_goal   = _combo("Grow Followers", "Get Views", "Get Likes",
                           "Get Members", "Get Comments", "Get Subscribers")
     smart_budget = QDoubleSpinBox()
     smart_budget.setRange(1.0, 10_000.0); smart_budget.setValue(50.0); smart_budget.setPrefix("$ ")
     smart_plat   = _combo("TikTok", "Instagram", "Facebook", "YouTube", "Telegram")
-    g3b.addWidget(QLabel("Link:"),     0, 0); g3b.addWidget(smart_link,   0, 1, 1, 3)
-    g3b.addWidget(QLabel("Goal:"),     1, 0); g3b.addWidget(smart_goal,   1, 1)
-    g3b.addWidget(QLabel("Platform:"), 1, 2); g3b.addWidget(smart_plat,   1, 3)
-    g3b.addWidget(QLabel("Budget:"),   2, 0); g3b.addWidget(smart_budget, 2, 1)
-    t3_inner_l.addWidget(grp3b)
+    g3.addWidget(QLabel("Link:"),     0, 0); g3.addWidget(smart_link,   0, 1)
+    g3.addWidget(QLabel("Goal:"),     1, 0); g3.addWidget(smart_goal,   1, 1)
+    g3.addWidget(QLabel("Budget:"),   2, 0); g3.addWidget(smart_budget, 2, 1)
+    g3.addWidget(QLabel("Platform:"), 3, 0); g3.addWidget(smart_plat,   3, 1)
+    t3l.addWidget(grp3)
 
-    # ── Geo-Targeting ─────────────────────────────────────────────────────────
-    grp3_geo = QGroupBox("🌍 Geo-Targeting — Real Human Location Precision")
-    grp3_geo.setStyleSheet(
-        f"QGroupBox {{color:{ACCENT}; font-weight:bold; border:1px solid {ACCENT}55;"
-        f"border-radius:8px; margin-top:8px; padding-top:10px;}}"
-    )
-    g3g = QGridLayout(grp3_geo); g3g.setColumnStretch(1, 2); g3g.setColumnStretch(3, 2)
-
-    geo_scope = _combo(
-        "🌐 Global (All Regions)",
-        "🌍 By Continent / Region",
-        "🏳 By Country",
-        "📍 By State / Province",
-        "🏙 By City",
-    )
-
-    _CONTINENTS = [
-        "-- Select Continent --",
-        "North America", "South America", "Europe",
-        "Asia", "Middle East", "Africa", "Oceania",
-    ]
-    geo_continent = QComboBox()
-    for _c in _CONTINENTS:
-        geo_continent.addItem(_c)
-
-    _COUNTRIES = [
-        "-- Select Country --",
-        # ── North America ──────────────────────────────────────────────────────
-        "🇺🇸 United States (US)", "🇨🇦 Canada (CA)", "🇲🇽 Mexico (MX)",
-        # ── Europe ────────────────────────────────────────────────────────────
-        "🇬🇧 United Kingdom (GB)", "🇩🇪 Germany (DE)", "🇫🇷 France (FR)",
-        "🇮🇹 Italy (IT)", "🇪🇸 Spain (ES)", "🇳🇱 Netherlands (NL)",
-        "🇸🇪 Sweden (SE)", "🇳🇴 Norway (NO)", "🇩🇰 Denmark (DK)",
-        "🇫🇮 Finland (FI)", "🇵🇱 Poland (PL)", "🇷🇺 Russia (RU)",
-        "🇺🇦 Ukraine (UA)", "🇨🇭 Switzerland (CH)", "🇦🇹 Austria (AT)",
-        "🇧🇪 Belgium (BE)", "🇵🇹 Portugal (PT)", "🇬🇷 Greece (GR)",
-        "🇨🇿 Czech Republic (CZ)", "🇷🇴 Romania (RO)", "🇭🇺 Hungary (HU)",
-        "🇧🇬 Bulgaria (BG)", "🇭🇷 Croatia (HR)", "🇸🇰 Slovakia (SK)",
-        "🇮🇪 Ireland (IE)",
-        # ── Asia ──────────────────────────────────────────────────────────────
-        "🇰🇭 Cambodia (KH)", "🇹🇭 Thailand (TH)", "🇻🇳 Vietnam (VN)",
-        "🇵🇭 Philippines (PH)", "🇮🇩 Indonesia (ID)", "🇸🇬 Singapore (SG)",
-        "🇲🇾 Malaysia (MY)", "🇮🇳 India (IN)", "🇨🇳 China (CN)",
-        "🇯🇵 Japan (JP)", "🇰🇷 South Korea (KR)", "🇹🇼 Taiwan (TW)",
-        "🇭🇰 Hong Kong (HK)", "🇧🇩 Bangladesh (BD)", "🇵🇰 Pakistan (PK)",
-        "🇱🇰 Sri Lanka (LK)", "🇲🇲 Myanmar (MM)", "🇱🇦 Laos (LA)",
-        "🇧🇳 Brunei (BN)",
-        # ── Middle East ───────────────────────────────────────────────────────
-        "🇸🇦 Saudi Arabia (SA)", "🇦🇪 UAE (AE)", "🇰🇼 Kuwait (KW)",
-        "🇶🇦 Qatar (QA)", "🇧🇭 Bahrain (BH)", "🇴🇲 Oman (OM)",
-        "🇯🇴 Jordan (JO)", "🇱🇧 Lebanon (LB)",
-        # ── Africa ────────────────────────────────────────────────────────────
-        "🇪🇬 Egypt (EG)", "🇳🇬 Nigeria (NG)", "🇿🇦 South Africa (ZA)",
-        "🇰🇪 Kenya (KE)", "🇬🇭 Ghana (GH)",
-        # ── South America ─────────────────────────────────────────────────────
-        "🇧🇷 Brazil (BR)", "🇦🇷 Argentina (AR)", "🇨🇴 Colombia (CO)",
-        "🇨🇱 Chile (CL)", "🇵🇪 Peru (PE)", "🇻🇪 Venezuela (VE)",
-        # ── Oceania ───────────────────────────────────────────────────────────
-        "🇦🇺 Australia (AU)", "🇳🇿 New Zealand (NZ)",
-    ]
-    geo_country = QComboBox()
-    for _c in _COUNTRIES:
-        geo_country.addItem(_c)
-    geo_country.setMinimumWidth(240)
-
-    geo_state = _styled_input("State / Province (e.g. California, Bangkok, Phnom Penh)")
-    geo_city  = _styled_input("City (e.g. Los Angeles, London, Singapore)")
-
-    _LANGUAGES = [
-        "Any Language", "English", "Spanish", "French", "German", "Arabic",
-        "Hindi", "Chinese", "Japanese", "Korean", "Thai", "Vietnamese",
-        "Khmer", "Indonesian", "Malay", "Portuguese", "Russian", "Ukrainian",
-        "Italian", "Dutch", "Swedish", "Polish",
-    ]
-    geo_lang = QComboBox()
-    for _l in _LANGUAGES:
-        geo_lang.addItem(_l)
-
-    g3g.addWidget(QLabel("Scope:"),      0, 0); g3g.addWidget(geo_scope,     0, 1)
-    g3g.addWidget(QLabel("Continent:"),  0, 2); g3g.addWidget(geo_continent, 0, 3)
-    g3g.addWidget(QLabel("Country:"),    1, 0); g3g.addWidget(geo_country,   1, 1, 1, 3)
-    g3g.addWidget(QLabel("State/Prov:"), 2, 0); g3g.addWidget(geo_state,     2, 1)
-    g3g.addWidget(QLabel("City:"),       2, 2); g3g.addWidget(geo_city,      2, 3)
-    g3g.addWidget(QLabel("Language:"),   3, 0); g3g.addWidget(geo_lang,      3, 1)
-    t3_inner_l.addWidget(grp3_geo)
-
-    # ── Quality & Human Filters ───────────────────────────────────────────────
-    grp3_qual = QGroupBox("⭐ Quality & Authenticity Filters")
-    g3q = QGridLayout(grp3_qual)
-    quality_tier  = _combo("Premium Real Human", "High Quality", "Standard")
-    device_target = _combo("All Devices", "Mobile Only", "Desktop Only")
-    real_human_chk = QCheckBox("✅  Real Human Only — filter out bot/fake traffic")
-    real_human_chk.setChecked(True)
-    real_human_chk.setStyleSheet(f"color:{TEXT}; font-size:14px; padding:2px 0;")
-    g3q.addWidget(QLabel("Quality Tier:"),  0, 0); g3q.addWidget(quality_tier,  0, 1)
-    g3q.addWidget(QLabel("Device:"),        0, 2); g3q.addWidget(device_target, 0, 3)
-    g3q.addWidget(real_human_chk,           1, 0, 1, 4)
-    t3_inner_l.addWidget(grp3_qual)
-
-    # ── AI Results Table ──────────────────────────────────────────────────────
-    _GEO_COLS = ["#", "Service", "Category", "$/1K", "Qty", "Cost", "Human%", "Geo%", "AI Score%"]
-    geo_table = QTableWidget(0, len(_GEO_COLS))
-    geo_table.setHorizontalHeaderLabels(_GEO_COLS)
-    geo_table.horizontalHeader().setSectionResizeMode(1, QHeaderView.Stretch)
-    geo_table.setAlternatingRowColors(True)
-    geo_table.setEditTriggers(QTableWidget.NoEditTriggers)
-    geo_table.setSelectionBehavior(QTableWidget.SelectRows)
-    geo_table.setFixedHeight(130)
-    geo_table.setStyleSheet(svc_table.styleSheet())
-    t3_inner_l.addWidget(geo_table)
-
-    # ── Buttons ───────────────────────────────────────────────────────────────
-    btn_smart       = ActionButton("🤖 AI GEO Analyze — Find Best Real Human Service", ACCENT)
-    btn_place_smart = ActionButton("✅ Place Top-Ranked Geo Order", SUCCESS)
+    btn_smart = ActionButton("🤖 AI Smart Order — Best Value", ACCENT)
+    btn_place_smart = ActionButton("✅ Place This Smart Order", SUCCESS)
     btn_place_smart.setEnabled(False)
     btn_row3 = QHBoxLayout()
-    btn_row3.addWidget(btn_smart, 2); btn_row3.addWidget(btn_place_smart, 1)
-    t3_inner_l.addLayout(btn_row3)
+    btn_row3.addWidget(btn_smart); btn_row3.addWidget(btn_place_smart)
+    out3 = OutputBox("AI will select the highest-quality service within your budget…")
+    t3l.addLayout(btn_row3); t3l.addWidget(out3, 1)
+    tabs.addTab(t3, "🤖 AI Smart Order")
 
-    out3 = OutputBox(
-        "AI will find the BEST REAL HUMAN service matching your exact geo-target.\n\n"
-        "How the AI scores each service:\n"
-        "  🌍 Geo Match (30%)   — exact country > continent > global\n"
-        "  👤 Human Score (30%) — authenticity & real engagement probability\n"
-        "  ⭐ Quality Tier (20%) — Premium > High Quality > Standard\n"
-        "  💰 Value (10%)        — units per dollar spent\n"
-        "  ✅ Affordability (5%) — fits within your budget\n"
-        "  🔄 Refill Bonus (5%)  — long-term reliability\n\n"
-        "Set Scope → Country → State → City for maximum precision."
-    )
-    t3_inner_l.addWidget(out3, 1)
-    tabs.addTab(t3, "🌍 AI GEO Smart Order")
-
-    _geo_results = [None]
-
-    def _extract_iso(country_text: str) -> str:
-        import re
-        m = re.search(r'\(([A-Z]{2})\)', country_text)
-        return m.group(1) if m else ""
+    _smart_result = [None]
 
     def _smart_order():
-        out3.reset_color(); out3.setPlainText("🤖 AI analyzing geo-targeted services…")
+        out3.reset_color(); out3.setPlainText("AI selecting optimal service for your budget…")
         btn_place_smart.setEnabled(False)
-        geo_table.setRowCount(0)
-
-        scope_txt = geo_scope.currentText()
-        if "Continent" in scope_txt:   scope = "Continent"
-        elif "Country" in scope_txt:   scope = "Country"
-        elif "State" in scope_txt:     scope = "State"
-        elif "City" in scope_txt:      scope = "City"
-        else:                          scope = "Global"
-
-        cty_raw  = geo_country.currentText()
-        cty_code = _extract_iso(cty_raw) if "Select" not in cty_raw else ""
-        cont_val = geo_continent.currentText() if "Select" not in geo_continent.currentText() else ""
-        dev_val  = device_target.currentText().replace(" Only", "").replace(" Devices", "")
-
-        w = ApiWorker(f"{api_base}/api/v1/smm/geo-smart-order", {
-            "link":            smart_link.text().strip() or "https://tiktok.com/@example",
-            "goal":            smart_goal.currentText(),
-            "budget_usd":      smart_budget.value(),
-            "platform":        smart_plat.currentText(),
-            "geo_scope":       scope,
-            "continent":       cont_val,
-            "country":         cty_code,
-            "state":           geo_state.text().strip(),
-            "city":            geo_city.text().strip(),
-            "language":        geo_lang.currentText() if "Any" not in geo_lang.currentText() else "",
-            "quality_tier":    quality_tier.currentText(),
-            "real_human_only": real_human_chk.isChecked(),
-            "device":          dev_val,
-        }, btn=btn_smart)
+        w = ApiWorker(f"{api_base}/api/v1/smm/smart-order", {
+            "link":       smart_link.text().strip() or "https://tiktok.com/@example",
+            "goal":       smart_goal.currentText(),
+            "budget_usd": smart_budget.value(),
+            "platform":   smart_plat.currentText(),
+        })
         t3._w = w
-
         def _got(d):
             data = d.get("data", d)
-            _geo_results[0] = data
-            recs = data.get("recommendations", [])
-            geo_table.setRowCount(0)
-            for rec in recs:
-                row = geo_table.rowCount(); geo_table.insertRow(row)
-                vals = [
-                    f"#{rec.get('rank', '')}",
-                    rec.get("service_name", ""),
-                    rec.get("category", ""),
-                    rec.get("rate_per_1k", ""),
-                    str(rec.get("recommended_qty", "")),
-                    rec.get("estimated_cost", ""),
-                    rec.get("human_score", ""),
-                    rec.get("geo_match_score", ""),
-                    rec.get("ai_confidence", ""),
-                ]
-                for col, val in enumerate(vals):
-                    item = QTableWidgetItem(val)
-                    item.setFlags(item.flags() & ~Qt.ItemIsEditable)
-                    if col == 0:
-                        item.setForeground(QColor(ACCENT))
-                    elif col == 6:          # human score
-                        try:
-                            pct = int(str(val).replace("%", ""))
-                            item.setForeground(QColor(
-                                SUCCESS if pct >= 85 else WARNING if pct >= 70 else "#F38BA8"
-                            ))
-                        except ValueError:
-                            pass
-                    elif col == 8:          # AI confidence
-                        try:
-                            pct = int(str(val).replace("%", ""))
-                            item.setForeground(QColor(SUCCESS if pct >= 80 else WARNING))
-                        except ValueError:
-                            pass
-                    geo_table.setItem(row, col, item)
-            btn_place_smart.setEnabled(bool(recs))
+            _smart_result[0] = data
+            btn_place_smart.setEnabled(data.get("place_order_ready", False))
             out3.set_result(data)
-
         w.result_ready.connect(_got)
         w.error_signal.connect(out3.set_error)
         w.start()
 
     def _place_smart():
-        data = _geo_results[0]
-        if not data:
+        r = _smart_result[0]
+        if not r:
             return
-        rec = data.get("top_recommendation") or (data.get("recommendations") or [{}])[0]
-        out3.reset_color(); out3.setPlainText("🛒 Placing geo-targeted smart order…")
+        svc = r.get("selected_service", {})
+        out3.reset_color(); out3.setPlainText("Placing smart order…")
         w = ApiWorker(f"{api_base}/api/v1/smm/order", {
-            "service_id": rec.get("service_id", 1004),
-            "link":       rec.get("link") or smart_link.text().strip(),
-            "quantity":   rec.get("recommended_qty", 500),
+            "service_id": svc.get("service", 1004),
+            "link":       r.get("link", smart_link.text().strip()),
+            "quantity":   r.get("recommended_quantity", 500),
         })
         t3._wp = w
         w.result_ready.connect(lambda d: out3.set_result(d.get("data", d)))
         w.error_signal.connect(out3.set_error)
         w.start()
-
-    # Wire geo_table row click → select different ranked option
-    def _geo_row_clicked(row, _col):
-        recs = (_geo_results[0] or {}).get("recommendations", [])
-        if row < len(recs):
-            rec = recs[row]
-            out3.reset_color()
-            out3.setPlainText(
-                f"Selected Rank #{rec.get('rank')} service:\n"
-                f"  {rec.get('service_name')}\n"
-                f"  Qty: {rec.get('recommended_qty')}  Cost: {rec.get('estimated_cost')}\n"
-                f"  Geo: {rec.get('geo_target')}  Human: {rec.get('human_score')}\n"
-                f"  AI Score: {rec.get('ai_confidence')}\n\n"
-                "Click '✅ Place Top-Ranked Geo Order' to place this order."
-            )
-            # Swap selected rank to top
-            data = _geo_results[0]
-            if data:
-                data["top_recommendation"] = rec
-
-    geo_table.cellClicked.connect(_geo_row_clicked)
 
     btn_smart.clicked.connect(_smart_order)
     btn_place_smart.clicked.connect(_place_smart)
@@ -1819,7 +1538,7 @@ def build_smm_page(api_base: str) -> QWidget:
 
     def _check_status():
         out4.reset_color(); out4.setPlainText("Checking order status…")
-        w = ApiWorker(f"{api_base}/api/v1/smm/order/{order_id_input.value()}", method="GET", btn=btn_status)
+        w = ApiWorker(f"{api_base}/api/v1/smm/order/{order_id_input.value()}", method="GET")
         t4._ws = w
         w.result_ready.connect(lambda d: out4.set_result(d.get("data", d)))
         w.error_signal.connect(out4.set_error)
@@ -1827,7 +1546,7 @@ def build_smm_page(api_base: str) -> QWidget:
 
     def _request_refill():
         out4.reset_color(); out4.setPlainText(f"Requesting refill for order #{order_id_input.value()}…")
-        w = ApiWorker(f"{api_base}/api/v1/smm/refill", {"order_id": order_id_input.value()}, btn=btn_refill)
+        w = ApiWorker(f"{api_base}/api/v1/smm/refill", {"order_id": order_id_input.value()})
         t4._wr = w
         w.result_ready.connect(lambda d: out4.set_result(d.get("data", d)))
         w.error_signal.connect(out4.set_error)
@@ -1835,7 +1554,7 @@ def build_smm_page(api_base: str) -> QWidget:
 
     def _cancel_order():
         out4.reset_color(); out4.setPlainText(f"Cancelling order #{order_id_input.value()}…")
-        w = ApiWorker(f"{api_base}/api/v1/smm/cancel", {"order_ids": [order_id_input.value()]}, btn=btn_cancel)
+        w = ApiWorker(f"{api_base}/api/v1/smm/cancel", {"order_ids": [order_id_input.value()]})
         t4._wc = w
         w.result_ready.connect(lambda d: out4.set_result(d.get("data", d)))
         w.error_signal.connect(out4.set_error)
@@ -1852,7 +1571,7 @@ def build_smm_page(api_base: str) -> QWidget:
             out4.set_error("Invalid IDs — use numbers separated by commas")
             return
         out4.reset_color(); out4.setPlainText(f"Checking {len(ids)} orders…")
-        w = ApiWorker(f"{api_base}/api/v1/smm/bulk-status", {"order_ids": ids[:100]}, btn=btn_bulk)
+        w = ApiWorker(f"{api_base}/api/v1/smm/bulk-status", {"order_ids": ids[:100]})
         t4._wbk = w
         w.result_ready.connect(lambda d: out4.set_result(d.get("data", d)))
         w.error_signal.connect(out4.set_error)
@@ -1883,13 +1602,13 @@ def build_smm_page(api_base: str) -> QWidget:
     t5l.addWidget(hist_table, 1)
 
     hist_stats = QLabel("Order history not loaded yet")
-    hist_stats.setStyleSheet(f"color:{SUBTEXT}; font-size:14px; padding:2px 0;")
+    hist_stats.setStyleSheet(f"color:{SUBTEXT}; font-size:12px; padding:2px 0;")
     t5l.addWidget(hist_stats)
     tabs.addTab(t5, "📜 Order History")
 
     def _load_history():
         hist_stats.setText("Loading history…")
-        w = ApiWorker(f"{api_base}/api/v1/smm/history?limit={hist_limit.value()}", method="GET", btn=btn_hist)
+        w = ApiWorker(f"{api_base}/api/v1/smm/history?limit={hist_limit.value()}", method="GET")
         t5._w = w
         def _got(resp):
             d      = resp.get("data", resp)
@@ -1940,7 +1659,7 @@ def build_multiagent_page(api_base: str) -> QWidget:
         "Feature #99 — 5 specialized AI agents run in PARALLEL:\n"
         "  🎯 Strategy Agent  •  ✍️ Creator Agent  •  📊 Analyst Agent  •  🛡️ Compliance Agent  •  🧠 Orchestrator"
     )
-    info.setStyleSheet(f"color:{SUBTEXT}; font-size:14px; padding:4px 0;")
+    info.setStyleSheet(f"color:{SUBTEXT}; font-size:12px; padding:4px 0;")
     layout.addWidget(info)
 
     grp = QGroupBox("Account Data for Full Multi-Agent Analysis")
@@ -1985,7 +1704,7 @@ def build_multiagent_page(api_base: str) -> QWidget:
                 "likes": likes.value(),
                 "comments": int(views.value() * 0.01),
             },
-        }, btn=btn)
+        })
         page._worker = w
         w.result_ready.connect(lambda d: output.set_result(d.get("data", d)))
         w.error_signal.connect(output.set_error)
@@ -2001,7 +1720,7 @@ def build_memory_page(api_base: str) -> QWidget:
     tabs = QTabWidget()
 
     info = QLabel("Feature #9 + #10 + #16 — AI remembers every brand, campaign, and decision across sessions.")
-    info.setStyleSheet(f"color:{SUBTEXT}; font-size:14px;")
+    info.setStyleSheet(f"color:{SUBTEXT}; font-size:12px;")
     layout.addWidget(info)
 
     # ── Tab 1: Store Brand Memory ──────────────────────────────────────────────
@@ -2039,7 +1758,7 @@ def build_memory_page(api_base: str) -> QWidget:
                 "followers": brand_foll.value(),
                 "main_goal": brand_goal.text() or "Grow audience",
             },
-        }, btn=btn_store)
+        })
         page._w1 = w
         w.result_ready.connect(lambda d: out1.set_result(d.get("data", d)))
         w.error_signal.connect(out1.set_error)
@@ -2065,17 +1784,17 @@ def build_memory_page(api_base: str) -> QWidget:
     t2l.addWidget(out2, 1)
     tabs.addTab(t2, "Brand Context")
 
-    def _get_context(btn=None):
+    def _get_context():
         out2.reset_color(); out2.setPlainText("Retrieving brand memory…")
         bid = get_brand_id.text() or "default_brand"
-        w = ApiWorker(f"{api_base}/api/v1/memory/brand/{bid}", method="GET", btn=btn)
+        w = ApiWorker(f"{api_base}/api/v1/memory/brand/{bid}", method="GET")
         page._w2 = w
         w.result_ready.connect(lambda d: out2.set_result(d.get("data", d)))
         w.error_signal.connect(out2.set_error)
         w.start()
 
-    btn_get.clicked.connect(lambda: _get_context(btn_get))
-    btn_timeline.clicked.connect(lambda: _get_context(btn_timeline))
+    btn_get.clicked.connect(_get_context)
+    btn_timeline.clicked.connect(_get_context)
 
     # ── Tab 3: Knowledge Search ────────────────────────────────────────────────
     t3 = QWidget(); t3l = QVBoxLayout(t3)
@@ -2098,7 +1817,7 @@ def build_memory_page(api_base: str) -> QWidget:
         w = ApiWorker(f"{api_base}/api/v1/memory/search", {
             "brand_id": search_brand.text() or "default_brand",
             "query": search_query.text() or "growth strategy",
-        }, btn=btn_search)
+        })
         page._w3 = w
         w.result_ready.connect(lambda d: out3.set_result(d.get("data", d)))
         w.error_signal.connect(out3.set_error)
@@ -2108,156 +1827,6 @@ def build_memory_page(api_base: str) -> QWidget:
 
     layout.addWidget(tabs, 1)
     return page
-
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Embedded OAuth Browser Dialog  (PyQtWebEngine — Chromium inside the app)
-# ─────────────────────────────────────────────────────────────────────────────
-if _HAS_WEBENGINE:
-    class OAuthBrowserDialog(QDialog):
-        """
-        Secure embedded Chromium browser for all OAuth 2.0 / social login flows.
-
-        ✅ Persists cookies/session — stay logged in to Facebook, Google etc.
-        ✅ Auto-detects the OAuth callback URL and extracts code+state instantly.
-        ✅ No copy-pasting or manual steps.  Facebook Pages work out of the box.
-        ✅ Shows a real address bar so you always know where you are.
-        """
-        code_captured = pyqtSignal(str, str)   # emits (code, state)
-        _PROFILE = None                        # shared persistent profile
-
-        def __init__(self, url: str, redirect_uri: str = "", parent=None):
-            super().__init__(parent)
-            self._redirect = redirect_uri or "http://localhost:8000/oauth/callback"
-            self._code  = ""
-            self._state = ""
-            self._done  = False
-
-            self.setWindowTitle("🔐 GrowthOS — Secure Login")
-            self.setMinimumSize(980, 720)
-            self.resize(1060, 740)
-            self.setStyleSheet(f"QDialog {{ background:{DARK_BG}; }}")
-
-            root = QVBoxLayout(self)
-            root.setContentsMargins(0, 0, 0, 0)
-            root.setSpacing(0)
-
-            # ── Address / status bar ──────────────────────────────────────
-            bar = QFrame()
-            bar.setFixedHeight(44)
-            bar.setStyleSheet(
-                f"background:{SURFACE}; border-bottom:1px solid {BORDER};"
-            )
-            bar_row = QHBoxLayout(bar)
-            bar_row.setContentsMargins(10, 0, 10, 0)
-            bar_row.setSpacing(8)
-
-            self._lock = QLabel("🔒")
-            self._lock.setStyleSheet(f"font-size:16px; color:{SUCCESS};")
-            bar_row.addWidget(self._lock)
-
-            self._url_bar = QLabel("Loading…")
-            self._url_bar.setStyleSheet(
-                f"color:{TEXT}; font-size:13px; background:{HOVER}; "
-                f"border-radius:5px; padding:3px 10px; min-width:400px;"
-            )
-            self._url_bar.setTextInteractionFlags(Qt.TextSelectableByMouse)
-            bar_row.addWidget(self._url_bar, 1)
-
-            self._prog = QLabel("")
-            self._prog.setStyleSheet(f"color:{SUBTEXT}; font-size:12px; min-width:140px;")
-            bar_row.addWidget(self._prog)
-
-            cancel_btn = QPushButton("✕  Cancel")
-            cancel_btn.setStyleSheet(
-                f"background:#3d1a1a; color:#F38BA8; border:none; "
-                f"border-radius:5px; padding:5px 16px; font-size:13px; font-weight:bold;"
-            )
-            cancel_btn.setCursor(Qt.PointingHandCursor)
-            cancel_btn.clicked.connect(self.reject)
-            bar_row.addWidget(cancel_btn)
-            root.addWidget(bar)
-
-            # ── Persistent Chromium profile (keeps cookies between sessions) ─
-            if OAuthBrowserDialog._PROFILE is None:
-                prof = QWebEngineProfile("GrowthOS_OAuth_v1")
-                prof.setPersistentCookiesPolicy(
-                    QWebEngineProfile.AllowPersistentCookies
-                )
-                OAuthBrowserDialog._PROFILE = prof
-
-            self._view = QWebEngineView()
-            web_page   = QWebEnginePage(OAuthBrowserDialog._PROFILE, self._view)
-            self._view.setPage(web_page)
-            root.addWidget(self._view, 1)
-
-            # ── Wire signals ─────────────────────────────────────────────
-            self._view.urlChanged.connect(self._on_url_changed)
-            self._view.titleChanged.connect(
-                lambda t: self.setWindowTitle(
-                    f"🔐  {t}" if t else "🔐 GrowthOS — Secure Login"
-                )
-            )
-            self._view.loadProgress.connect(
-                lambda p: self._prog.setText(
-                    "✅ Captured!" if self._done else f"Loading {p}%…"
-                )
-            )
-            self._view.loadFinished.connect(
-                lambda ok: self._prog.setText(
-                    "✅ Captured!" if self._done else ("✓ Loaded" if ok else "⚠ Load error")
-                )
-            )
-
-            # Navigate to the OAuth URL
-            self._view.load(QUrl(url))
-
-        # ── URL monitor — the core of the embedded OAuth flow ────────────────
-        def _on_url_changed(self, qurl):
-            url_str = qurl.toString()
-            disp    = url_str if len(url_str) <= 90 else url_str[:87] + "…"
-            self._url_bar.setText(disp)
-
-            # Change lock icon color based on scheme
-            if url_str.startswith("https://"):
-                self._lock.setStyleSheet(f"font-size:16px; color:{SUCCESS};")
-            elif url_str.startswith("http://localhost") or url_str.startswith("http://127."):
-                self._lock.setStyleSheet(f"font-size:16px; color:{WARNING};")
-            else:
-                self._lock.setStyleSheet(f"font-size:16px; color:#F38BA8;")
-
-            if self._done:
-                return
-
-            # Check if we hit our callback URI
-            if url_str.startswith(self._redirect):
-                try:
-                    parsed = urllib.parse.urlparse(url_str)
-                    qs     = urllib.parse.parse_qs(parsed.query)
-                    error  = qs.get("error", [""])[0]
-                    code   = qs.get("code",  [""])[0]
-                    state  = qs.get("state", [""])[0]
-
-                    if error:
-                        self._prog.setText(f"⚠ Error: {error}")
-                        self._url_bar.setText(f"⚠ Platform returned error: {error}")
-                        return
-
-                    if code:
-                        self._done  = True
-                        self._code  = code
-                        self._state = state
-                        self._prog.setText("✅ Authorization complete!")
-                        self._url_bar.setText("✅  Authorization successful — returning to GrowthOS…")
-                        self._lock.setStyleSheet(f"font-size:16px; color:{SUCCESS};")
-                        self.code_captured.emit(code, state)
-                        # Give user 1.2 s to see the success message
-                        QTimer.singleShot(1200, self.accept)
-                except Exception:
-                    pass
-
-        def get_code(self)  -> str: return self._code
-        def get_state(self) -> str: return self._state
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -2276,7 +1845,7 @@ def build_social_accounts_page(api_base: str) -> QWidget:
         "Securely connect & manage all social media accounts  •  OAuth 2.0 + PKCE  •  "
         "AES-256 encrypted tokens  •  Auto-refresh  •  Multi-account support"
     )
-    sub.setStyleSheet(f"color:{SUBTEXT}; font-size:14px;")
+    sub.setStyleSheet(f"color:{SUBTEXT}; font-size:12px;")
     layout.addWidget(sub)
 
     # Platform color map
@@ -2308,7 +1877,7 @@ def build_social_accounts_page(api_base: str) -> QWidget:
     stats_bar = QLabel("📭 No accounts connected yet")
     stats_bar.setStyleSheet(
         f"background:{SURFACE}; color:{ACCENT}; padding:6px 12px; border-radius:6px; "
-        f"font-size:14px; font-weight:bold;"
+        f"font-size:12px; font-weight:bold;"
     )
     t1l.addWidget(stats_bar)
 
@@ -2496,7 +2065,7 @@ def build_social_accounts_page(api_base: str) -> QWidget:
     )
     sec_note.setStyleSheet(
         f"background:#1a2a1a; color:{SUCCESS}; padding:10px 14px; border-radius:8px; "
-        f"font-size:14px; border:1px solid #2d5a2d;"
+        f"font-size:12px; border:1px solid #2d5a2d;"
     )
     sec_note.setWordWrap(True)
     t2l.addWidget(sec_note)
@@ -2512,7 +2081,7 @@ def build_social_accounts_page(api_base: str) -> QWidget:
     oauth_client_secret.setEchoMode(QLineEdit.Password)
     oauth_client_secret.setStyleSheet(
         f"background:#252535; color:{TEXT}; border:1px solid #45475A; "
-        f"border-radius:6px; padding:8px 12px; font-size:14px;"
+        f"border-radius:6px; padding:8px 12px; font-size:13px;"
     )
     g2.addWidget(QLabel("Platform:"),      0, 0); g2.addWidget(oauth_platform,        0, 1)
     g2.addWidget(QLabel("Client ID:"),     1, 0); g2.addWidget(oauth_client_id,        1, 1)
@@ -2520,7 +2089,7 @@ def build_social_accounts_page(api_base: str) -> QWidget:
     t2l.addWidget(grp2)
 
     btn2_row = QHBoxLayout()
-    btn_start_oauth    = ActionButton("🔐 Start Secure Login  (embedded browser)" if _HAS_WEBENGINE else "🌐 Start OAuth  (opens browser)", ACCENT)
+    btn_start_oauth    = ActionButton("🌐 Start OAuth  (opens browser)", ACCENT)
     btn_complete_oauth = ActionButton("✅ Complete Connection",           SUCCESS)
     btn_complete_oauth.setEnabled(False)
     btn2_row.addWidget(btn_start_oauth); btn2_row.addWidget(btn_complete_oauth)
@@ -2530,7 +2099,7 @@ def build_social_accounts_page(api_base: str) -> QWidget:
     oauth_state_lbl = QLabel("Enter Client ID and click 'Start OAuth' to begin")
     oauth_state_lbl.setStyleSheet(
         f"background:{SURFACE}; color:{SUBTEXT}; padding:8px 12px; "
-        f"border-radius:6px; font-size:14px; font-weight:bold;"
+        f"border-radius:6px; font-size:12px; font-weight:bold;"
     )
     t2l.addWidget(oauth_state_lbl)
 
@@ -2581,82 +2150,32 @@ def build_social_accounts_page(api_base: str) -> QWidget:
             _oauth_state["state"]    = st
             _oauth_state["platform"] = platform
 
-            if _HAS_WEBENGINE:
-                # ── Embedded browser — full auto-capture ─────────────────
-                out2.reset_color()
-                out2.setPlainText(
-                    f"🔐 Opening secure embedded browser for {platform}…\n"
-                    f"{'═'*55}\n"
-                    f"• Log in to your {platform} account inside the browser window\n"
-                    f"• Authorize GrowthOS AI when prompted\n"
-                    f"• The window will close automatically and connect your account\n"
-                    f"• No copy-pasting needed — everything is automatic\n\n"
-                    f"PKCE: {'Yes ✅' if pkce else 'No'}  |  Redirect: {d.get('redirect_uri','')}"
-                )
-                oauth_state_lbl.setText(
-                    f"🔐 Browser opened — log in and authorize {platform}"
-                )
-                oauth_state_lbl.setStyleSheet(
-                    f"background:#1a1a2a; color:{ACCENT}; padding:8px 12px; "
-                    f"border-radius:6px; font-size:14px; font-weight:bold;"
-                )
+            # Open browser
+            webbrowser.open(url)
 
-                dlg = OAuthBrowserDialog(
-                    url,
-                    d.get("redirect_uri", "http://localhost:8000/oauth/callback"),
-                    parent=page.window(),
-                )
-
-                def _on_code_captured(code: str, state: str):
-                    _oauth_state["state"] = state or st
-                    oauth_manual_code.setText(code)
-                    oauth_state_lbl.setText(
-                        f"🎯 Authorization complete! Click ✅ Complete Connection"
-                    )
-                    oauth_state_lbl.setStyleSheet(
-                        f"background:#1a2a1a; color:{SUCCESS}; padding:8px 12px; "
-                        f"border-radius:6px; font-size:14px; font-weight:bold;"
-                    )
-                    btn_complete_oauth.setEnabled(True)
-                    out2.reset_color()
-                    out2.setPlainText(
-                        f"🎯 Authorization code captured for {platform}!\n"
-                        f"{'═'*55}\n"
-                        f"Click  ✅ Complete Connection  to finish linking your account.\n\n"
-                        f"(The code is pre-filled below automatically)"
-                    )
-
-                dlg.code_captured.connect(_on_code_captured)
-                dlg.exec()
-
-                # Fallback: dialog closed before signal fired but code was captured
-                if dlg.get_code() and not oauth_manual_code.text().strip():
-                    _on_code_captured(dlg.get_code(), dlg.get_state())
-
-            else:
-                # ── Fallback: open system browser + poll ─────────────────
-                import webbrowser
-                webbrowser.open(url)
-                oauth_state_lbl.setText(
-                    f"🌐 Browser opened for {platform}  •  State: {st[:12]}…"
-                )
-                oauth_state_lbl.setStyleSheet(
-                    f"background:#1a2a1a; color:{SUCCESS}; padding:8px 12px; "
-                    f"border-radius:6px; font-size:14px; font-weight:bold;"
-                )
-                btn_complete_oauth.setEnabled(True)
-                out2.reset_color()
-                out2.setPlainText(
-                    f"✅ OAuth URL generated for {platform}\n"
-                    f"{'═'*55}\n"
-                    f"1. Browser opened — log in and authorize GrowthOS AI\n"
-                    f"2. You will be redirected to: {d.get('redirect_uri','')}\n"
-                    f"3. GrowthOS auto-captures the code\n"
-                    f"4. Click ✅ Complete Connection to finish\n\n"
-                    f"   (Or paste redirect URL manually below if auto-capture fails)\n\n"
-                    f"Auth URL:\n{url}"
-                )
-                _poll_for_code(st)
+            oauth_state_lbl.setText(
+                f"🌐 Browser opened for {platform} authorization  •  State: {st[:12]}…\n"
+                f"PKCE: {'Yes ✅' if pkce else 'No'}  |  Redirect: {d.get('redirect_uri','')}"
+            )
+            oauth_state_lbl.setStyleSheet(
+                f"background:#1a2a1a; color:{SUCCESS}; padding:8px 12px; "
+                f"border-radius:6px; font-size:12px; font-weight:bold;"
+            )
+            btn_complete_oauth.setEnabled(True)
+            out2.reset_color()
+            out2.setPlainText(
+                f"✅ OAuth URL generated for {platform}\n"
+                f"{'═'*55}\n"
+                f"1. Browser has been opened automatically\n"
+                f"2. Log in and authorize GrowthOS AI\n"
+                f"3. You will be redirected to: {d.get('redirect_uri','')}\n"
+                f"   → GrowthOS auto-captures the authorization code\n"
+                f"4. Click  ✅ Complete Connection  to finish\n\n"
+                f"   (Or paste the redirect URL manually below if auto-capture fails)\n\n"
+                f"Auth URL (copy if browser didn't open):\n{url}"
+            )
+            # Start auto-polling
+            _poll_for_code(st)
 
         w.result_ready.connect(_got)
         w.error_signal.connect(lambda e: (
@@ -2667,8 +2186,7 @@ def build_social_accounts_page(api_base: str) -> QWidget:
         page._workers.append(w)
 
     def _poll_for_code(state: str, attempts: int = 0):
-        """Fallback polling used only when WebEngine is not available."""
-        if attempts > 60:
+        if attempts > 60:  # give up after 60 polls (~60 seconds)
             return
         w = ApiWorker(f"{api_base}/api/v1/auth/poll-callback/{state}", method="GET")
         page._wp = w
@@ -2680,8 +2198,9 @@ def build_social_accounts_page(api_base: str) -> QWidget:
                 )
                 oauth_state_lbl.setStyleSheet(
                     f"background:#1a2a1a; color:{SUCCESS}; padding:8px 12px; "
-                    f"border-radius:6px; font-size:14px; font-weight:bold;"
+                    f"border-radius:6px; font-size:12px; font-weight:bold;"
                 )
+                # Pre-fill manual field with code for visibility
                 oauth_manual_code.setText(code)
             else:
                 QTimer.singleShot(1000, lambda: _poll_for_code(state, attempts + 1))
@@ -2748,7 +2267,7 @@ def build_social_accounts_page(api_base: str) -> QWidget:
             )
             oauth_state_lbl.setStyleSheet(
                 f"background:#1a2a1a; color:{SUCCESS}; padding:8px 12px; "
-                f"border-radius:6px; font-size:14px; font-weight:bold;"
+                f"border-radius:6px; font-size:12px; font-weight:bold;"
             )
             oauth_client_id.clear()
             oauth_client_secret.clear()
@@ -2775,7 +2294,7 @@ def build_social_accounts_page(api_base: str) -> QWidget:
         "Connect Telegram bots (and other API-key based platforms) directly with a token.\n"
         "No OAuth needed — just paste your Bot Token from @BotFather."
     )
-    tg_info.setStyleSheet(f"color:{SUBTEXT}; font-size:14px; padding:4px 0;")
+    tg_info.setStyleSheet(f"color:{SUBTEXT}; font-size:12px; padding:4px 0;")
     t3l.addWidget(tg_info)
 
     grp3 = QGroupBox("Telegram Bot Token  — Feature #110")
@@ -2788,13 +2307,13 @@ def build_social_accounts_page(api_base: str) -> QWidget:
     tg_token_in.setEchoMode(QLineEdit.Password)
     tg_token_in.setStyleSheet(
         f"background:#252535; color:{TEXT}; border:1px solid #45475A; "
-        f"border-radius:6px; padding:8px 12px; font-size:14px;"
+        f"border-radius:6px; padding:8px 12px; font-size:13px;"
     )
     btn_show_tg  = ActionButton("👁 Show/Hide", SUBTEXT)
     btn_show_tg.setMaximumWidth(110)
     btn_connect_tg = ActionButton("✈️ Connect Bot Token", "#26A5E4")
     tg_hint = QLabel("Get token: open Telegram → @BotFather → /newbot")
-    tg_hint.setStyleSheet(f"color:{SUBTEXT}; font-size:14px;")
+    tg_hint.setStyleSheet(f"color:{SUBTEXT}; font-size:12px;")
     g3.addWidget(QLabel("Bot Token:"), 0, 0); g3.addWidget(tg_token_in,    0, 1); g3.addWidget(btn_show_tg, 0, 2)
     g3.addWidget(tg_hint,              1, 1, 1, 2)
     t3l.addWidget(grp3)
@@ -2855,135 +2374,6 @@ def build_social_accounts_page(api_base: str) -> QWidget:
     btn_connect_tg.clicked.connect(_connect_telegram)
 
     # ═════════════════════════════════════════════════════════════════════════
-    # TAB 3b — QUICK TOKEN  (paste any access token — no App ID needed)
-    # ═════════════════════════════════════════════════════════════════════════
-    t3b = QWidget(); t3bl = QVBoxLayout(t3b); t3bl.setSpacing(12)
-    t3bl.setContentsMargins(16, 16, 16, 16)
-
-    qt_hero = QLabel(
-        "🚀  Connect any account instantly by pasting a token.\n"
-        "No App ID, no App Secret, no OAuth setup required."
-    )
-    qt_hero.setStyleSheet(
-        f"background:{SURFACE}; color:{ACCENT}; font-size:15px; font-weight:bold; "
-        f"border-radius:8px; padding:12px 16px; border-left:4px solid {ACCENT};"
-    )
-    qt_hero.setWordWrap(True)
-    t3bl.addWidget(qt_hero)
-
-    # Facebook shortcut banner
-    fb_banner = QLabel(
-        "📘  For Facebook / Instagram  — get a free token in 30 seconds:\n"
-        "   1. Open https://developers.facebook.com/tools/explorer  in your browser\n"
-        "   2. Click  'Generate Access Token'  (top-right)\n"
-        "   3. Tick permissions you want  (pages_show_list, pages_read_engagement, etc.)\n"
-        "   4. Click  'Generate Token'  →  copy it  →  paste below"
-    )
-    fb_banner.setStyleSheet(
-        f"background:#1a1f3a; color:{TEXT}; font-size:13px; "
-        f"border-radius:8px; padding:12px 14px; border-left:4px solid #1877F2; line-height:1.6;"
-    )
-    fb_banner.setWordWrap(True)
-    t3bl.addWidget(fb_banner)
-
-    grp_qt = QGroupBox("Paste Your Access Token")
-    g_qt   = QFormLayout(grp_qt)
-    g_qt.setSpacing(10)
-
-    qt_platform = QComboBox()
-    qt_platform.addItems(["Facebook", "Instagram", "YouTube", "Twitter/X", "LinkedIn", "TikTok"])
-    qt_platform.setStyleSheet(
-        f"QComboBox {{ background:{DARK_BG}; color:{TEXT}; font-size:14px; "
-        f"border:1px solid {BORDER}; border-radius:6px; padding:5px 10px; min-height:30px; }}"
-        f"QComboBox::drop-down {{ border:none; width:18px; }}"
-        f"QComboBox QAbstractItemView {{ background:{SURFACE}; color:{TEXT}; "
-        f"font-size:14px; selection-background-color:{HOVER}; border:1px solid {BORDER}; }}"
-    )
-    g_qt.addRow("Platform:", qt_platform)
-
-    qt_token_in = QLineEdit()
-    qt_token_in.setPlaceholderText("Paste your access token here…  (e.g. EAABx0... for Facebook)")
-    qt_token_in.setEchoMode(QLineEdit.Password)
-    qt_token_in.setStyleSheet(
-        f"background:{DARK_BG}; color:{TEXT}; border:1px solid {BORDER}; "
-        f"border-radius:6px; padding:8px 12px; font-size:14px;"
-    )
-    qt_show_btn = QPushButton("👁")
-    qt_show_btn.setFixedSize(32, 32)
-    qt_show_btn.setStyleSheet(
-        f"background:{HOVER}; border:none; border-radius:5px; color:{TEXT}; font-size:14px;"
-    )
-    qt_show_btn.setCursor(Qt.PointingHandCursor)
-    qt_token_row = QHBoxLayout()
-    qt_token_row.addWidget(qt_token_in, 1)
-    qt_token_row.addWidget(qt_show_btn)
-    token_container = QWidget()
-    token_container.setLayout(qt_token_row)
-    g_qt.addRow("Access Token:", token_container)
-
-    t3bl.addWidget(grp_qt)
-
-    btn_qt_connect = ActionButton("🚀 Connect with This Token", ACCENT)
-    btn_qt_connect.setMinimumHeight(46)
-    t3bl.addWidget(btn_qt_connect)
-
-    out_qt = OutputBox("Token connection results will appear here…")
-    t3bl.addWidget(out_qt, 1)
-
-    tabs.addTab(t3b, "🚀 Quick Token")
-
-    _qt_showing = [False]
-    def _toggle_qt_show():
-        _qt_showing[0] = not _qt_showing[0]
-        qt_token_in.setEchoMode(QLineEdit.Normal if _qt_showing[0] else QLineEdit.Password)
-    qt_show_btn.clicked.connect(_toggle_qt_show)
-
-    def _connect_quick_token():
-        token    = qt_token_in.text().strip()
-        platform = qt_platform.currentText()
-        if not token:
-            out_qt.set_error("Please paste an access token.")
-            return
-        out_qt.reset_color()
-        out_qt.setPlainText(f"⏳ Validating {platform} token with the API…")
-        btn_qt_connect.set_loading(True)
-
-        w = ApiWorker(f"{api_base}/api/v1/auth/connect-token", {
-            "platform": platform,
-            "token":    token,
-        })
-        page._wqt = w
-        def _got(resp):
-            btn_qt_connect.set_loading(False)
-            d    = resp.get("data", resp)
-            name = d.get("display_name", platform)
-            out_qt.reset_color()
-            out_qt.setPlainText(
-                f"🎉 SUCCESS! {platform} connected via Quick Token\n"
-                f"{'═'*55}\n"
-                f"Account:    {name}\n"
-                f"Platform:   {platform}\n"
-                f"Account ID: {d.get('account_id', '')}\n\n"
-                f"✅ Token validated against {platform} API\n"
-                f"✅ Token stored with AES-256 encryption\n"
-                f"✅ Account now active in all 110 AI features\n\n"
-                f"⚠  Note: Graph API Explorer tokens expire in ~1–2 hours.\n"
-                f"   Use the OAuth flow (Connect Platform tab) for a 60-day token."
-            )
-            qt_token_in.clear()
-            _load_accounts_list()
-
-        w.result_ready.connect(_got)
-        w.error_signal.connect(lambda e: (
-            btn_qt_connect.set_loading(False),
-            out_qt.set_error(f"Connection failed:\n{e}"),
-        ))
-        w.start()
-        page._workers.append(w)
-
-    btn_qt_connect.clicked.connect(_connect_quick_token)
-
-    # ═════════════════════════════════════════════════════════════════════════
     # TAB 4 — TEST ALL CONNECTIONS
     # ═════════════════════════════════════════════════════════════════════════
     t4 = QWidget(); t4l = QVBoxLayout(t4); t4l.setSpacing(10)
@@ -2992,7 +2382,7 @@ def build_social_accounts_page(api_base: str) -> QWidget:
         "Feature #109  — Test all connected accounts at once.\n"
         "GrowthOS checks each platform API to verify tokens are still valid."
     )
-    test_info.setStyleSheet(f"color:{SUBTEXT}; font-size:14px;")
+    test_info.setStyleSheet(f"color:{SUBTEXT}; font-size:12px;")
     t4l.addWidget(test_info)
 
     btn4_row = QHBoxLayout()
@@ -3004,7 +2394,7 @@ def build_social_accounts_page(api_base: str) -> QWidget:
     test_summary = QLabel("Click 'Test All' to check all accounts")
     test_summary.setStyleSheet(
         f"background:{SURFACE}; color:{ACCENT}; padding:6px 12px; "
-        f"border-radius:6px; font-size:14px; font-weight:bold;"
+        f"border-radius:6px; font-size:12px; font-weight:bold;"
     )
     t4l.addWidget(test_summary)
 
@@ -3069,7 +2459,7 @@ def build_social_accounts_page(api_base: str) -> QWidget:
     t5 = QWidget(); t5l = QVBoxLayout(t5); t5l.setSpacing(10)
 
     guide_header = QLabel("Step-by-step developer app setup guide for each platform")
-    guide_header.setStyleSheet(f"color:{SUBTEXT}; font-size:14px;")
+    guide_header.setStyleSheet(f"color:{SUBTEXT}; font-size:12px;")
     t5l.addWidget(guide_header)
 
     guide_platform = _combo("Facebook", "Instagram", "TikTok", "YouTube", "Twitter/X", "LinkedIn", "Telegram")
@@ -3081,7 +2471,7 @@ def build_social_accounts_page(api_base: str) -> QWidget:
     )
     redirect_banner.setStyleSheet(
         f"background:#1a2a1a; color:{SUCCESS}; padding:10px 14px; "
-        f"border-radius:8px; font-size:14px; font-weight:bold; "
+        f"border-radius:8px; font-size:13px; font-weight:bold; "
         f"border:1px solid #2d5a2d;"
     )
     t5l.addWidget(redirect_banner)
@@ -3109,7 +2499,7 @@ def build_social_accounts_page(api_base: str) -> QWidget:
     guide_text.setReadOnly(True)
     guide_text.setStyleSheet(
         f"background:{SURFACE}; color:{TEXT}; border:1px solid #45475A; "
-        f"border-radius:8px; padding:14px; font-size:14px; line-height:1.6;"
+        f"border-radius:8px; padding:14px; font-size:13px; line-height:1.6;"
     )
     t5l.addWidget(guide_text, 1)
 
@@ -3173,7 +2563,7 @@ def build_settings_page(api_base: str) -> QWidget:
 
     def _test_conn():
         conn_out.reset_color(); conn_out.setPlainText("Testing connections…")
-        w = ApiWorker(f"{api_base}/", method="GET", btn=btn_test)
+        w = ApiWorker(f"{api_base}/", method="GET")
         page._wc = w
         w.result_ready.connect(lambda d: conn_out.set_result(d))
         w.error_signal.connect(conn_out.set_error)
@@ -3273,7 +2663,7 @@ def build_scheduler_page(api_base: str) -> QWidget:
     subtitle = QLabel(
         "Schedule posts ahead of time • AI picks optimal times • Auto-optimize campaigns • Batch-schedule 14-day calendars"
     )
-    subtitle.setStyleSheet(f"color:{SUBTEXT}; font-size:14px;")
+    subtitle.setStyleSheet(f"color:{SUBTEXT}; font-size:12px;")
     layout.addWidget(subtitle)
 
     tabs = QTabWidget()
@@ -3336,8 +2726,7 @@ def build_scheduler_page(api_base: str) -> QWidget:
         sched_fb.reset_color()
         sched_fb.setPlainText("AI analyzing optimal posting times…")
         w = ApiWorker(
-            f"{api_base}/api/v1/ai/timing/{sched_platform.currentText()}", method="GET",
-            btn=btn_ai_time
+            f"{api_base}/api/v1/ai/timing/{sched_platform.currentText()}", method="GET"
         )
         page._wt1 = w
         def _got(d):
@@ -3402,7 +2791,7 @@ def build_scheduler_page(api_base: str) -> QWidget:
     engine_lbl  = QLabel("● Stopped")
     engine_lbl.setStyleSheet(f"color:{WARNING}; font-weight:bold; padding:0 10px;")
     next_lbl    = QLabel("Next check: —")
-    next_lbl.setStyleSheet(f"color:{SUBTEXT}; font-size:14px;")
+    next_lbl.setStyleSheet(f"color:{SUBTEXT}; font-size:12px;")
     ef.addWidget(btn_start); ef.addWidget(btn_stop)
     ef.addWidget(engine_lbl); ef.addStretch(); ef.addWidget(next_lbl)
     t2l.addWidget(eng_frame)
@@ -3434,7 +2823,7 @@ def build_scheduler_page(api_base: str) -> QWidget:
     btn_clear_done = ActionButton("🗑 Clear Done",       "#45475A")
     btn_clear_all  = ActionButton("⚠ Clear All",         "#F38BA8")
     queue_stats    = QLabel("0 posts queued")
-    queue_stats.setStyleSheet(f"color:{SUBTEXT}; font-size:14px; padding:4px;")
+    queue_stats.setStyleSheet(f"color:{SUBTEXT}; font-size:12px; padding:4px;")
     ctrl_row.addWidget(btn_refresh)
     ctrl_row.addWidget(btn_clear_done)
     ctrl_row.addWidget(btn_clear_all)
@@ -3577,17 +2966,17 @@ def build_scheduler_page(api_base: str) -> QWidget:
     t3l.addWidget(out3, 1)
     tabs.addTab(t3, "🤖 Auto-Optimize")
 
-    def _run3_post(url, payload, btn=None):
+    def _run3_post(url, payload):
         out3.reset_color(); out3.setPlainText("Running AI optimization…")
-        w = ApiWorker(url, payload, btn=btn)
+        w = ApiWorker(url, payload)
         page._w3 = w
         w.result_ready.connect(lambda d: out3.set_result(d.get("data", d)))
         w.error_signal.connect(out3.set_error)
         w.start()
 
-    def _run3_get(url, btn=None):
+    def _run3_get(url):
         out3.reset_color(); out3.setPlainText("Fetching best posting times…")
-        w = ApiWorker(url, method="GET", btn=btn)
+        w = ApiWorker(url, method="GET")
         page._w3g = w
         w.result_ready.connect(lambda d: out3.set_result(d.get("data", d)))
         w.error_signal.connect(out3.set_error)
@@ -3599,9 +2988,9 @@ def build_scheduler_page(api_base: str) -> QWidget:
         "followers": opt_foll.value(),
         "niche":    opt_niche.text() or "General",
         "metrics":  {"views": 50_000, "likes": 3_500, "comments": 420},
-    }, btn_full_opt))
+    }))
     btn_best_t.clicked.connect(
-        lambda: _run3_get(f"{api_base}/api/v1/ai/timing/{opt_plat.currentText()}", btn_best_t)
+        lambda: _run3_get(f"{api_base}/api/v1/ai/timing/{opt_plat.currentText()}")
     )
     btn_simulate.clicked.connect(lambda: _run3_post(f"{api_base}/api/v1/ai/strategy", {
         "username":          opt_user.text() or "demo",
@@ -3610,7 +2999,7 @@ def build_scheduler_page(api_base: str) -> QWidget:
         "niche":             opt_niche.text() or "General",
         "goal_followers":    opt_foll.value() * 3,
         "duration_days":     opt_days.value(),
-    }, btn_simulate))
+    }))
 
     # ─────────────────────────────────────────────────────────────────────────
     # TAB 4 — Batch Scheduler (AI Calendar → auto-queue)
@@ -3649,7 +3038,7 @@ def build_scheduler_page(api_base: str) -> QWidget:
         "💡  Example: First post at 09:00 today, interval 24 h  →  14 posts published daily for 2 weeks.\n"
         "    All posts are generated by AI and added to the Post Queue tab automatically."
     )
-    hint4.setStyleSheet(f"color:{SUBTEXT}; font-size:14px; padding:4px 0;")
+    hint4.setStyleSheet(f"color:{SUBTEXT}; font-size:12px; padding:4px 0;")
     t4l.addWidget(hint4)
 
     btn_batch = ActionButton("📅  Generate AI Calendar + Schedule All 14 Posts", ACCENT)
@@ -3665,7 +3054,7 @@ def build_scheduler_page(api_base: str) -> QWidget:
     def _batch_schedule():
         out4.reset_color()
         out4.setPlainText("AI generating 14-day content calendar…  Please wait.")
-        btn_batch.set_loading(True)
+        btn_batch.setEnabled(False)
 
         w = ApiWorker(f"{api_base}/api/v1/ai/calendar", {
             "topic":            b_topic.text() or "Social Media Growth",
@@ -3677,7 +3066,7 @@ def build_scheduler_page(api_base: str) -> QWidget:
         page._w4 = w
 
         def _on_cal(resp):
-            btn_batch.set_loading(False)
+            btn_batch.setEnabled(True)
             data = resp.get("data", {})
 
             # Try to extract an iterable of post entries from the response
@@ -3780,7 +3169,7 @@ def build_scheduler_page(api_base: str) -> QWidget:
 
     def _re_time():
         out5.reset_color(); out5.setPlainText("Fetching AI-recommended times…")
-        w = ApiWorker(f"{api_base}/api/v1/ai/timing/{ro_plat.currentText()}", method="GET", btn=btn_re_time)
+        w = ApiWorker(f"{api_base}/api/v1/ai/timing/{ro_plat.currentText()}", method="GET")
         page._w5 = w
         def _got(d):
             data = d.get("data", d)
@@ -3838,7 +3227,7 @@ def build_inbox_page(api_base: str) -> QWidget:
         "Manage messages & comments from all platforms  •  AI smart auto-reply  •  "
         "Keyword rules engine  •  Reply templates  •  Sentiment analysis"
     )
-    subtitle.setStyleSheet(f"color:{SUBTEXT}; font-size:14px;")
+    subtitle.setStyleSheet(f"color:{SUBTEXT}; font-size:12px;")
     layout.addWidget(subtitle)
 
     tabs = QTabWidget()
@@ -3865,7 +3254,7 @@ def build_inbox_page(api_base: str) -> QWidget:
     # Stats bar
     inbox_stats = QLabel("📭 No messages loaded yet")
     inbox_stats.setStyleSheet(
-        f"background:{SURFACE}; color:{ACCENT}; padding:6px 12px; border-radius:6px; font-size:14px; font-weight:bold;"
+        f"background:{SURFACE}; color:{ACCENT}; padding:6px 12px; border-radius:6px; font-size:12px; font-weight:bold;"
     )
     t1l.addWidget(inbox_stats)
 
@@ -3898,7 +3287,7 @@ def build_inbox_page(api_base: str) -> QWidget:
     mpl = QVBoxLayout(msg_panel)
     mpl.setContentsMargins(10, 10, 10, 10)
     msg_from_lbl = QLabel("Select a message above")
-    msg_from_lbl.setStyleSheet(f"color:{ACCENT}; font-weight:bold; font-size:14px;")
+    msg_from_lbl.setStyleSheet(f"color:{ACCENT}; font-weight:bold; font-size:13px;")
     msg_full_text = QTextEdit()
     msg_full_text.setReadOnly(True)
     msg_full_text.setPlaceholderText("Full message will appear here when you click a row…")
@@ -3914,7 +3303,7 @@ def build_inbox_page(api_base: str) -> QWidget:
     rpl = QVBoxLayout(reply_panel)
     rpl.setContentsMargins(10, 10, 10, 10)
     reply_lbl = QLabel("💬 Your Reply")
-    reply_lbl.setStyleSheet(f"color:{ACCENT}; font-weight:bold; font-size:14px;")
+    reply_lbl.setStyleSheet(f"color:{ACCENT}; font-weight:bold; font-size:13px;")
     reply_tone_combo = _combo("Friendly & Warm", "Professional", "Funny & Casual",
                                "Empathetic", "Direct & Concise", "Formal")
     reply_lang_combo = _combo("English", "Khmer", "Thai", "Vietnamese", "Indonesian", "Bilingual EN+KH")
@@ -3999,7 +3388,7 @@ def build_inbox_page(api_base: str) -> QWidget:
             "platform": ib_platform.currentText(),
             "niche":    ib_niche.text() or "Fitness",
             "count":    ib_count.value(),
-        }, btn=btn_load)
+        })
         page._w_ib = w
         def _got(resp):
             d = resp.get("data", resp)
@@ -4015,7 +3404,7 @@ def build_inbox_page(api_base: str) -> QWidget:
             reply_text_edit.setPlainText("⚠ Please select a message from the table first.")
             return
         reply_text_edit.setPlainText("⏳ AI is generating reply…")
-        btn_ai_reply.set_loading(True)
+        btn_ai_reply.setEnabled(False)
         w = ApiWorker(f"{api_base}/api/v1/inbox/ai-reply", {
             "message":    msg.get("message", ""),
             "platform":   ib_platform.currentText(),
@@ -4025,13 +3414,13 @@ def build_inbox_page(api_base: str) -> QWidget:
         })
         page._w_reply = w
         def _got(resp):
-            btn_ai_reply.set_loading(False)
+            btn_ai_reply.setEnabled(True)
             d = resp.get("data", resp)
             reply_text_edit.setPlainText(d.get("suggested_reply", "Error generating reply"))
         w.result_ready.connect(_got)
         w.error_signal.connect(lambda e: (
             reply_text_edit.setPlainText(f"❌ {e}"),
-            btn_ai_reply.set_loading(False)
+            btn_ai_reply.setEnabled(True)
         ))
         w.start()
         page._workers.append(w)
@@ -4078,7 +3467,7 @@ def build_inbox_page(api_base: str) -> QWidget:
     hint2 = QLabel(
         "💡  AI generates 1 best reply + 3 alternative variations  •  Tone-aware  •  Multi-language  •  Platform-optimized"
     )
-    hint2.setStyleSheet(f"color:{SUBTEXT}; font-size:14px; padding:2px 0;")
+    hint2.setStyleSheet(f"color:{SUBTEXT}; font-size:12px; padding:2px 0;")
     t2l.addWidget(hint2)
 
     btn2_row = QHBoxLayout()
@@ -4143,7 +3532,7 @@ def build_inbox_page(api_base: str) -> QWidget:
         w = ApiWorker(f"{api_base}/api/v1/inbox/sentiment", {
             "message":  msg,
             "platform": ar_platform.currentText(),
-        }, btn=btn_sentiment2)
+        })
         page._w2s = w
         def _got(resp):
             d = resp.get("data", resp)
@@ -4182,7 +3571,7 @@ def build_inbox_page(api_base: str) -> QWidget:
         "Feature #102 — Keyword-based auto-reply rules: when a message contains specific keywords,\n"
         "the system automatically sends the pre-defined reply. Empty reply = silently ignore (spam filter)."
     )
-    info3.setStyleSheet(f"color:{SUBTEXT}; font-size:14px; padding:2px 0;")
+    info3.setStyleSheet(f"color:{SUBTEXT}; font-size:12px; padding:2px 0;")
     t3l.addWidget(info3)
 
     # Rules table
@@ -4303,7 +3692,7 @@ def build_inbox_page(api_base: str) -> QWidget:
         w = ApiWorker(f"{api_base}/api/v1/inbox/check-rules", {
             "message": msg,
             "rules":   rules,
-        }, btn=btn_test_rule)
+        })
         page._w3t = w
         def _got(resp):
             d = resp.get("data", resp)
@@ -4350,7 +3739,7 @@ def build_inbox_page(api_base: str) -> QWidget:
         "💡  Generates 10 categories × 3 templates each = 30 ready-to-use replies\n"
         "    Categories: Welcome, Thank Compliment, Handle Complaint, Price, Product, Collab, Purchase, Negative, Question, Spam"
     )
-    hint4.setStyleSheet(f"color:{SUBTEXT}; font-size:14px; padding:2px 0;")
+    hint4.setStyleSheet(f"color:{SUBTEXT}; font-size:12px; padding:2px 0;")
     t4l.addWidget(hint4)
 
     btn_gen_tpl = ActionButton("📝 Generate Templates Library", ACCENT)
@@ -4449,7 +3838,7 @@ def build_inbox_page(api_base: str) -> QWidget:
 
     sent_summary = QLabel("Run analysis to see summary")
     sent_summary.setStyleSheet(
-        f"background:{SURFACE}; color:{ACCENT}; padding:6px 12px; border-radius:6px; font-size:14px; font-weight:bold;"
+        f"background:{SURFACE}; color:{ACCENT}; padding:6px 12px; border-radius:6px; font-size:12px; font-weight:bold;"
     )
     t5l.addWidget(sent_summary)
     tabs.addTab(t5, "😊 Sentiment Analyzer")
@@ -4498,7 +3887,7 @@ def build_inbox_page(api_base: str) -> QWidget:
         w = ApiWorker(f"{api_base}/api/v1/inbox/sentiment-batch", {
             "messages": msgs,
             "platform": sent_platform.currentText(),
-        }, btn=btn_batch_sent)
+        })
         page._w5 = w
         def _got(resp):
             d = resp.get("data", resp)
@@ -4518,7 +3907,7 @@ def build_inbox_page(api_base: str) -> QWidget:
         w = ApiWorker(f"{api_base}/api/v1/inbox/sentiment", {
             "message":  first,
             "platform": sent_platform.currentText(),
-        }, btn=btn_single_sent)
+        })
         page._w5s = w
         def _got(resp):
             d = resp.get("data", resp)
@@ -4551,19 +3940,19 @@ def build_geo_page(api_base: str) -> QWidget:
         "Target any of 60+ countries • Timezone-aware scheduling • Cultural content guide • "
         "Regional trends • Platform dominance map • Audience demographics"
     )
-    subtitle.setStyleSheet(f"color:{SUBTEXT}; font-size:14px;")
+    subtitle.setStyleSheet(f"color:{SUBTEXT}; font-size:12px;")
     layout.addWidget(subtitle)
 
     # ── Country selector (shared across all tabs) ──────────────────────────────
     sel_row = QHBoxLayout()
     sel_lbl = QLabel("🎯 Target Country:")
-    sel_lbl.setStyleSheet(f"color:{TEXT}; font-weight:bold; font-size:14px;")
+    sel_lbl.setStyleSheet(f"color:{TEXT}; font-weight:bold; font-size:13px;")
 
     country_combo = QComboBox()
     country_combo.setMinimumWidth(280)
     country_combo.setEditable(True)
     country_combo.setStyleSheet(
-        f"background:{SURFACE}; color:{TEXT}; border:1px solid #45475A; border-radius:6px; padding:4px 8px; font-size:14px;"
+        f"background:{SURFACE}; color:{TEXT}; border:1px solid #45475A; border-radius:6px; padding:4px 8px; font-size:13px;"
     )
 
     # Populate with geo data via backend call (fallback built-in list)
@@ -4596,14 +3985,14 @@ def build_geo_page(api_base: str) -> QWidget:
     platform_combo = QComboBox()
     platform_combo.addItems(["TikTok", "Facebook", "Instagram", "YouTube", "Twitter/X", "LinkedIn", "WhatsApp", "Telegram"])
     platform_combo.setStyleSheet(
-        f"background:{SURFACE}; color:{TEXT}; border:1px solid #45475A; border-radius:6px; padding:4px 8px; font-size:14px;"
+        f"background:{SURFACE}; color:{TEXT}; border:1px solid #45475A; border-radius:6px; padding:4px 8px; font-size:13px;"
     )
 
     niche_input = QLineEdit()
     niche_input.setPlaceholderText("Niche (e.g. Food, Fashion, Tech)")
     niche_input.setText("General")
     niche_input.setStyleSheet(
-        f"background:{SURFACE}; color:{TEXT}; border:1px solid #45475A; border-radius:6px; padding:6px 10px; font-size:14px;"
+        f"background:{SURFACE}; color:{TEXT}; border:1px solid #45475A; border-radius:6px; padding:6px 10px; font-size:13px;"
     )
 
     sel_row.addWidget(sel_lbl)
@@ -4617,15 +4006,19 @@ def build_geo_page(api_base: str) -> QWidget:
     # Local time banner
     time_banner = QLabel("⏰  Local time: loading...")
     time_banner.setStyleSheet(
-        f"background:{SURFACE}; color:{ACCENT}; padding:6px 12px; border-radius:6px; font-size:14px; font-weight:bold;"
+        f"background:{SURFACE}; color:{ACCENT}; padding:6px 12px; border-radius:6px; font-size:12px; font-weight:bold;"
     )
     layout.addWidget(time_banner)
 
     tabs = QTabWidget()
 
     # ── Helpers ───────────────────────────────────────────────────────────────
-    def _out(parent: QVBoxLayout, btn_text: str = "▶ Run") -> tuple:
-        btn = ActionButton(btn_text)
+    def _out(parent: QVBoxLayout) -> tuple[OutputBox, QPushButton]:
+        btn = QPushButton()
+        btn.setStyleSheet(
+            f"background:{ACCENT}; color:#1E1E2E; font-weight:bold; padding:8px 20px; "
+            f"border-radius:6px; font-size:13px;"
+        )
         out = OutputBox()
         parent.addWidget(btn)
         parent.addWidget(out, 1)
@@ -4652,12 +4045,13 @@ def build_geo_page(api_base: str) -> QWidget:
     # TAB 1: COUNTRY CARD
     # ─────────────────────────────────────────────────────────────────────────
     tab1 = QWidget(); t1l = QVBoxLayout(tab1); t1l.setSpacing(8)
-    out1, btn1 = _out(t1l, "🌍 Load Country Card")
+    out1, btn1 = _out(t1l)
+    btn1.setText("🌍 Load Country Card")
 
     def _load_country():
         code = _selected_code()
         out1.setPlainText(f"Loading country info for {code}…")
-        worker = ApiWorker(f"{api_base}/api/v1/geo/country/{code}", method="GET", btn=btn1)
+        worker = ApiWorker(f"{api_base}/api/v1/geo/country/{code}", method="GET")
         def _show(d):
             if "error" in d:
                 out1.setPlainText(f"Error: {d['error']}")
@@ -4699,7 +4093,8 @@ def build_geo_page(api_base: str) -> QWidget:
     # TAB 2: GEO STRATEGY
     # ─────────────────────────────────────────────────────────────────────────
     tab2 = QWidget(); t2l = QVBoxLayout(tab2); t2l.setSpacing(8)
-    out2, btn2 = _out(t2l, "🚀 Generate Geo-Targeted Strategy")
+    out2, btn2 = _out(t2l)
+    btn2.setText("🚀 Generate Geo-Targeted Strategy")
 
     def _geo_strategy():
         code    = _selected_code()
@@ -4707,7 +4102,7 @@ def build_geo_page(api_base: str) -> QWidget:
         niche   = niche_input.text().strip() or "General"
         out2.setPlainText(f"Generating geo strategy for {code} / {plat} / {niche}…")
         worker = ApiWorker(f"{api_base}/api/v1/geo/strategy",
-                           {"country_code": code, "platform": plat, "niche": niche}, btn=btn2)
+                           {"country_code": code, "platform": plat, "niche": niche})
         def _show(d):
             if "error" in d:
                 out2.setPlainText(f"Error: {d['error']}")
@@ -4757,13 +4152,14 @@ def build_geo_page(api_base: str) -> QWidget:
     # TAB 3: TIMEZONE & BEST POSTING TIMES
     # ─────────────────────────────────────────────────────────────────────────
     tab3 = QWidget(); t3l = QVBoxLayout(tab3); t3l.setSpacing(8)
-    out3, btn3 = _out(t3l, "⏰ Get Timezone & Best Posting Times")
+    out3, btn3 = _out(t3l)
+    btn3.setText("⏰ Get Timezone & Best Posting Times")
 
     def _best_times():
         code = _selected_code()
         plat = platform_combo.currentText()
         out3.setPlainText(f"Loading timezone schedule for {code} / {plat}…")
-        worker = ApiWorker(f"{api_base}/api/v1/geo/best-times/{code}/{plat}", method="GET", btn=btn3)
+        worker = ApiWorker(f"{api_base}/api/v1/geo/best-times/{code}/{plat}", method="GET")
         def _show(d):
             if "error" in d:
                 out3.setPlainText(f"Error: {d['error']}")
@@ -4800,13 +4196,14 @@ def build_geo_page(api_base: str) -> QWidget:
     # TAB 4: REGIONAL TRENDS
     # ─────────────────────────────────────────────────────────────────────────
     tab4 = QWidget(); t4l = QVBoxLayout(tab4); t4l.setSpacing(8)
-    out4, btn4 = _out(t4l, "📈 Scan Regional Trends")
+    out4, btn4 = _out(t4l)
+    btn4.setText("📈 Scan Regional Trends")
 
     def _regional_trends():
         code  = _selected_code()
         niche = niche_input.text().strip() or "General"
         out4.setPlainText(f"Scanning trends in {code} for niche: {niche}…")
-        worker = ApiWorker(f"{api_base}/api/v1/geo/trends/{code}", {"niche": niche}, "GET", btn=btn4)
+        worker = ApiWorker(f"{api_base}/api/v1/geo/trends/{code}", {"niche": niche}, "GET")
         def _show(d):
             if "error" in d:
                 out4.setPlainText(f"Error: {d['error']}")
@@ -4844,13 +4241,14 @@ def build_geo_page(api_base: str) -> QWidget:
     # TAB 5: CULTURAL CONTENT GUIDE
     # ─────────────────────────────────────────────────────────────────────────
     tab5 = QWidget(); t5l = QVBoxLayout(tab5); t5l.setSpacing(8)
-    out5, btn5 = _out(t5l, "🎨 Get Cultural Content Guide")
+    out5, btn5 = _out(t5l)
+    btn5.setText("🎨 Get Cultural Content Guide")
 
     def _cultural_guide():
         code  = _selected_code()
         niche = niche_input.text().strip() or "General"
         out5.setPlainText(f"Loading cultural guide for {code} / {niche}…")
-        worker = ApiWorker(f"{api_base}/api/v1/geo/cultural-guide/{code}", {"niche": niche}, "GET", btn=btn5)
+        worker = ApiWorker(f"{api_base}/api/v1/geo/cultural-guide/{code}", {"niche": niche}, "GET")
         def _show(d):
             if "error" in d:
                 out5.setPlainText(f"Error: {d['error']}")
@@ -4894,7 +4292,8 @@ def build_geo_page(api_base: str) -> QWidget:
     # TAB 6: AUDIENCE DEMOGRAPHICS
     # ─────────────────────────────────────────────────────────────────────────
     tab6 = QWidget(); t6l = QVBoxLayout(tab6); t6l.setSpacing(8)
-    out6, btn6 = _out(t6l, "👥 Analyse Regional Audience")
+    out6, btn6 = _out(t6l)
+    btn6.setText("👥 Analyse Regional Audience")
 
     def _audience():
         code  = _selected_code()
@@ -4902,7 +4301,7 @@ def build_geo_page(api_base: str) -> QWidget:
         niche = niche_input.text().strip() or "General"
         out6.setPlainText(f"Loading audience data for {code} / {plat} / {niche}…")
         worker = ApiWorker(f"{api_base}/api/v1/geo/audience",
-                           {"country_code": code, "platform": plat, "niche": niche}, btn=btn6)
+                           {"country_code": code, "platform": plat, "niche": niche})
         def _show(d):
             if "error" in d:
                 out6.setPlainText(f"Error: {d['error']}")
@@ -4956,12 +4355,13 @@ def build_geo_page(api_base: str) -> QWidget:
     # TAB 7: PLATFORM MAP
     # ─────────────────────────────────────────────────────────────────────────
     tab7 = QWidget(); t7l = QVBoxLayout(tab7); t7l.setSpacing(8)
-    out7, btn7 = _out(t7l, "📱 Load Platform Dominance Map")
+    out7, btn7 = _out(t7l)
+    btn7.setText("📱 Load Platform Dominance Map")
 
     def _platform_map():
         code = _selected_code()
         out7.setPlainText(f"Loading platform map for {code}…")
-        worker = ApiWorker(f"{api_base}/api/v1/geo/platforms/{code}", method="GET", btn=btn7)
+        worker = ApiWorker(f"{api_base}/api/v1/geo/platforms/{code}", method="GET")
         def _show(d):
             if "error" in d:
                 out7.setPlainText(f"Error: {d['error']}")
@@ -5018,7 +4418,7 @@ def build_social_manager_page(api_base: str) -> QWidget:
         "Expert ads guidance  •  Performance insights  •  Audience targeting"
     )
     sub.setWordWrap(True)
-    sub.setStyleSheet(f"color:{SUBTEXT}; font-size:14px;")
+    sub.setStyleSheet(f"color:{SUBTEXT}; font-size:12px;")
     layout.addWidget(sub)
 
     # ── Shared platform / account state ─────────────────────────────────────
@@ -5037,11 +4437,11 @@ def build_social_manager_page(api_base: str) -> QWidget:
         QTableWidget {{
             background:{SURFACE}; color:{TEXT};
             border:1px solid {BORDER}; border-radius:6px; gridline-color:{BORDER};
-            font-size:14px;
+            font-size:13px;
         }}
         QHeaderView::section {{
             background:{DARK_BG}; color:{ACCENT}; padding:8px; border:none;
-            font-weight:bold; font-size:14px;
+            font-weight:bold; font-size:13px;
         }}
         QTableWidget::item:alternate {{ background:#252535; }}
         QTableWidget::item:selected  {{ background:#313244; color:{TEXT}; }}
@@ -5098,7 +4498,7 @@ def build_social_manager_page(api_base: str) -> QWidget:
     content_editor.setStyleSheet(f"""
         QTextEdit {{
             background:{SURFACE}; color:{TEXT}; border:1px solid {BORDER};
-            border-radius:8px; padding:12px; font-size:14px; line-height:1.5;
+            border-radius:8px; padding:12px; font-size:13px; line-height:1.5;
         }}
     """)
     t1l.addWidget(content_editor)
@@ -5106,7 +4506,7 @@ def build_social_manager_page(api_base: str) -> QWidget:
     # Character counter + scheduled time
     footer_row = QHBoxLayout()
     char_count_lbl = QLabel("Characters: 0")
-    char_count_lbl.setStyleSheet(f"color:{SUBTEXT}; font-size:14px;")
+    char_count_lbl.setStyleSheet(f"color:{SUBTEXT}; font-size:12px;")
     footer_row.addWidget(char_count_lbl)
     footer_row.addStretch()
     footer_row.addWidget(QLabel("Schedule (optional):"))
@@ -5137,7 +4537,7 @@ def build_social_manager_page(api_base: str) -> QWidget:
         limit = limits.get(post_plt_combo.currentText(), 2200)
         color = SUCCESS if n <= limit * 0.8 else WARNING if n <= limit else "#F38BA8"
         char_count_lbl.setText(f"Characters: {n:,} / {limit:,}")
-        char_count_lbl.setStyleSheet(f"color:{color}; font-size:14px; font-weight:bold;")
+        char_count_lbl.setStyleSheet(f"color:{color}; font-size:12px; font-weight:bold;")
     content_editor.textChanged.connect(lambda: _update_char(content_editor.toPlainText()))
 
     def _ai_generate_post():
@@ -5204,7 +4604,7 @@ def build_social_manager_page(api_base: str) -> QWidget:
     ads_info.setWordWrap(True)
     ads_info.setStyleSheet(
         f"background:{SURFACE}; color:{ACCENT}; padding:10px 14px; "
-        f"border-radius:8px; font-size:14px; border-left:4px solid {ACCENT};"
+        f"border-radius:8px; font-size:13px; border-left:4px solid {ACCENT};"
     )
     t2l.addWidget(ads_info)
 
@@ -5236,7 +4636,7 @@ def build_social_manager_page(api_base: str) -> QWidget:
     r3 = QHBoxLayout()
     r3.addWidget(QLabel("Variants:"))
     ads_variants_spin = QSpinBox(); ads_variants_spin.setRange(1, 6); ads_variants_spin.setValue(3)
-    ads_variants_spin.setStyleSheet(f"background:{SURFACE}; color:{TEXT}; border:1px solid {BORDER}; border-radius:6px; padding:6px; font-size:14px;")
+    ads_variants_spin.setStyleSheet(f"background:{SURFACE}; color:{TEXT}; border:1px solid {BORDER}; border-radius:6px; padding:6px; font-size:13px;")
     r3.addWidget(ads_variants_spin); r3.addStretch()
     left_l.addLayout(r3)
 
@@ -5257,7 +4657,7 @@ def build_social_manager_page(api_base: str) -> QWidget:
     platform_tip_lbl.setWordWrap(True)
     platform_tip_lbl.setStyleSheet(
         f"background:{DARK_BG}; color:{WARNING}; padding:8px 12px; "
-        f"border-radius:6px; font-size:14px;"
+        f"border-radius:6px; font-size:12px;"
     )
     right_l.addWidget(platform_tip_lbl)
 
@@ -5312,7 +4712,7 @@ def build_social_manager_page(api_base: str) -> QWidget:
     expert_header.setStyleSheet(
         f"background:qlineargradient(x1:0,y1:0,x2:1,y2:0,"
         f"stop:0 {SURFACE},stop:1 {DARK_BG}); "
-        f"color:{TEXT}; padding:12px; border-radius:8px; font-size:14px; "
+        f"color:{TEXT}; padding:12px; border-radius:8px; font-size:13px; "
         f"border-left:4px solid {SUCCESS};"
     )
     t3l.addWidget(expert_header)
@@ -5346,7 +4746,7 @@ def build_social_manager_page(api_base: str) -> QWidget:
         QTextEdit {{
             background:{DARK_BG}; color:{TEXT};
             border:1px solid {BORDER}; border-radius:8px;
-            padding:14px; font-size:14px; line-height:1.6;
+            padding:14px; font-size:13px; line-height:1.6;
         }}
     """)
     chat_display.setPlainText(
@@ -5379,7 +4779,7 @@ def build_social_manager_page(api_base: str) -> QWidget:
         qbtn = QPushButton(qp)
         qbtn.setStyleSheet(
             f"background:{SURFACE}; color:{SUBTEXT}; border:1px solid {BORDER}; "
-            f"border-radius:12px; padding:4px 10px; font-size:14px;"
+            f"border-radius:12px; padding:4px 10px; font-size:12px;"
         )
         qbtn.setCursor(Qt.PointingHandCursor)
         def _set_q(text=qp): exp_question_inp.setText(text)
@@ -5450,7 +4850,7 @@ def build_social_manager_page(api_base: str) -> QWidget:
 
     perf_info = QLabel("📊  Enter your account or ad metrics for AI-powered performance analysis and optimization tips.")
     perf_info.setWordWrap(True)
-    perf_info.setStyleSheet(f"color:{SUBTEXT}; font-size:14px; padding:4px 0;")
+    perf_info.setStyleSheet(f"color:{SUBTEXT}; font-size:12px; padding:4px 0;")
     t4l.addWidget(perf_info)
 
     # Metrics split
@@ -5492,7 +4892,7 @@ def build_social_manager_page(api_base: str) -> QWidget:
         card.setStyleSheet(f"background:{SURFACE}; border-radius:8px; border:1px solid {BORDER};")
         card_l = QVBoxLayout(card); card_l.setContentsMargins(10, 8, 10, 8)
         lbl_name = QLabel(name)
-        lbl_name.setStyleSheet(f"color:{SUBTEXT}; font-size:14px;")
+        lbl_name.setStyleSheet(f"color:{SUBTEXT}; font-size:12px;")
         lbl_val = QLabel(val)
         lbl_val.setStyleSheet(f"color:{ACCENT}; font-size:18px; font-weight:bold;")
         card_l.addWidget(lbl_name); card_l.addWidget(lbl_val)
@@ -5583,7 +4983,7 @@ def build_social_manager_page(api_base: str) -> QWidget:
     aud_info.setWordWrap(True)
     aud_info.setStyleSheet(
         f"background:{SURFACE}; color:{TEXT}; padding:10px 14px; "
-        f"border-radius:8px; font-size:14px; border-left:4px solid {WARNING};"
+        f"border-radius:8px; font-size:13px; border-left:4px solid {WARNING};"
     )
     t5l.addWidget(aud_info)
 
@@ -5614,7 +5014,7 @@ def build_social_manager_page(api_base: str) -> QWidget:
     cheat_sheet.setStyleSheet(f"""
         QTextEdit {{
             background:{DARK_BG}; color:{SUBTEXT}; border:1px solid {BORDER};
-            border-radius:6px; padding:10px; font-size:14px;
+            border-radius:6px; padding:10px; font-size:12px;
         }}
     """)
     cheat_sheet.setPlainText(
@@ -5686,7 +5086,7 @@ def build_social_manager_page(api_base: str) -> QWidget:
     cp_info.setWordWrap(True)
     cp_info.setStyleSheet(
         f"background:{SURFACE}; color:{TEXT}; padding:10px 14px; "
-        f"border-radius:8px; font-size:14px; border-left:4px solid {SUCCESS};"
+        f"border-radius:8px; font-size:13px; border-left:4px solid {SUCCESS};"
     )
     t6l.addWidget(cp_info)
 
@@ -5730,11 +5130,11 @@ def build_social_manager_page(api_base: str) -> QWidget:
     roi_frame.setStyleSheet(f"background:{SURFACE}; border-radius:8px; border:1px solid {BORDER};")
     roi_fl = QVBoxLayout(roi_frame); roi_fl.setContentsMargins(12, 10, 12, 10); roi_fl.setSpacing(4)
     roi_title = QLabel("📐 Quick ROI Estimator")
-    roi_title.setStyleSheet(f"color:{ACCENT}; font-size:14px; font-weight:bold;")
+    roi_title.setStyleSheet(f"color:{ACCENT}; font-size:13px; font-weight:bold;")
     roi_fl.addWidget(roi_title)
     roi_vals_lbl = QLabel("Enter budget and duration above →")
     roi_vals_lbl.setWordWrap(True)
-    roi_vals_lbl.setStyleSheet(f"color:{SUBTEXT}; font-size:14px;")
+    roi_vals_lbl.setStyleSheet(f"color:{SUBTEXT}; font-size:12px;")
     roi_fl.addWidget(roi_vals_lbl)
     cp_left_l.addRow(roi_frame)
 
@@ -5849,7 +5249,7 @@ def _btn(label: str) -> QPushButton:
     b.setCursor(Qt.PointingHandCursor)
     b.setStyleSheet(
         f"QPushButton {{ background:{ACCENT}; color:#11111B; border:none; border-radius:8px; "
-        f"padding:8px 18px; font-weight:bold; font-size:14px; }}"
+        f"padding:8px 18px; font-weight:bold; font-size:13px; }}"
         f"QPushButton:hover {{ background:rgba(255,255,255,0.15); }}"
         f"QPushButton:disabled {{ background:{BORDER}; color:{SUBTEXT}; }}"
     )
@@ -5864,24 +5264,21 @@ def _out(min_rows: int = 15) -> QTextEdit:
     w.setPlaceholderText("Results will appear here…")
     w.setStyleSheet(
         f"QTextEdit {{ background:{SURFACE}; color:{SUCCESS}; border:1px solid {BORDER}; "
-        f"border-radius:8px; padding:10px; font-size:14px; }}"
+        f"border-radius:8px; padding:10px; font-size:13px; }}"
     )
     return w
 
 
-def _disable_btn(btn: QPushButton, text: str = "⏳ Processing…") -> None:
-    """Disable a button and update its label (stores original text for restore)."""
-    if not hasattr(btn, '_orig_text'):
-        btn._orig_text = btn.text()
+def _disable_btn(btn: QPushButton, text: str) -> None:
+    """Disable a button and update its label."""
     btn.setEnabled(False)
     btn.setText(text)
 
 
-def _enable_btn(btn: QPushButton, text: str = None) -> None:
+def _enable_btn(btn: QPushButton, text: str) -> None:
     """Re-enable a button and restore its label."""
     btn.setEnabled(True)
-    restore = text if text is not None else getattr(btn, '_orig_text', btn.text())
-    btn.setText(restore)
+    btn.setText(text)
 
 
 class _ApiWorker(QThread):
@@ -5889,26 +5286,11 @@ class _ApiWorker(QThread):
     finished = pyqtSignal(dict)
     error    = pyqtSignal(str)
 
-    def __init__(self, url: str, payload=None, method: str = "POST", btn=None):
+    def __init__(self, url: str, payload: dict = None, method: str = "POST"):
         super().__init__()
-        # Detect old-style: _ApiWorker(base_url, "endpoint", payload_dict, callback)
-        if isinstance(payload, str) and isinstance(method, dict):
-            endpoint = payload
-            actual_payload = method
-            callback = btn
-            self.url     = f"{url}/api/v1/{endpoint}"
-            self.payload = actual_payload
-            self.method  = "POST"
-            if callable(callback):
-                self.finished.connect(lambda r: callback(r, None))
-                self.error.connect(lambda e: callback({}, e))
-            return
         self.url     = url
         self.payload = payload or {}
-        self.method  = method.upper() if isinstance(method, str) else "POST"
-        if btn is not None:
-            btn.set_loading(True)
-            self.finished.connect(lambda: btn.set_loading(False))
+        self.method  = method.upper()
 
     def run(self):
         try:
@@ -7543,7 +6925,7 @@ def build_admin_page(user_info: dict) -> QWidget:
 
     uname = user_info.get("display_name", user_info.get("username", "admin"))
     sub = QLabel(f"Signed in as  {uname}  (admin)  •  Full system access")
-    sub.setStyleSheet(f"color: {SUBTEXT}; font-size: 14px;")
+    sub.setStyleSheet(f"color: {SUBTEXT}; font-size: 12px;")
     layout.addWidget(sub)
 
     tabs = QTabWidget()
@@ -7878,1290 +7260,6 @@ def build_admin_page(user_info: dict) -> QWidget:
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# PAGE 27 — FACEBOOK PAGES MANAGER
-# ═══════════════════════════════════════════════════════════════════════════════
-
-def build_facebook_manager_page(api_base: str) -> QWidget:
-    """Facebook Pages Manager — Posts, Comments, Messenger, AI Content Studio, Insights."""
-    page, layout = _make_page_layout("Facebook Pages Manager", "📘")
-    tabs = QTabWidget()
-    layout.addWidget(tabs, 1)
-
-    _fb_base = api_base
-
-    # ─────────────────────────────────────────────────────────────────────────
-    # Shared helpers
-    # ─────────────────────────────────────────────────────────────────────────
-    def _fb_get(endpoint, params=None):
-        """Blocking GET via requests (called inside QThread)."""
-        import requests as _req
-        r = _req.get(f"{_fb_base}{endpoint}", params=params or {}, timeout=25)
-        return r.json()
-
-    def _fb_post(endpoint, payload):
-        import requests as _req
-        r = _req.post(f"{_fb_base}{endpoint}", json=payload, timeout=25)
-        return r.json()
-
-    # ─────────────────────────────────────────────────────────────────────────
-    # TAB 1 — Pages & Posts
-    # ─────────────────────────────────────────────────────────────────────────
-    t1 = QWidget()
-    t1_layout = QVBoxLayout(t1)
-    t1_layout.setContentsMargins(14, 14, 14, 14)
-    t1_layout.setSpacing(10)
-
-    # Account + Page selectors row
-    sel_row = QHBoxLayout()
-    acct_combo = QComboBox()
-    acct_combo.setMinimumWidth(200)
-    acct_combo.setStyleSheet(f"QComboBox{{background:{SURFACE};color:{TEXT};border:1px solid {BORDER};border-radius:6px;padding:4px 8px;font-size:13px;}}")
-    acct_combo.setPlaceholderText("Select account…")
-    page_combo = QComboBox()
-    page_combo.setMinimumWidth(240)
-    page_combo.setStyleSheet(acct_combo.styleSheet())
-    page_combo.setPlaceholderText("Select Page…")
-    btn_load_accounts = QPushButton("🔄 Load Accounts")
-    btn_load_pages    = QPushButton("📄 Load Pages")
-    btn_load_posts    = QPushButton("📰 Load Posts")
-    for b in (btn_load_accounts, btn_load_pages, btn_load_posts):
-        b.setStyleSheet(f"QPushButton{{background:{ACCENT};color:#11111B;border-radius:6px;padding:6px 14px;font-weight:bold;font-size:13px;}}QPushButton:hover{{opacity:0.85;}}")
-        b.setCursor(Qt.PointingHandCursor)
-    sel_row.addWidget(QLabel("Account:"))
-    sel_row.addWidget(acct_combo)
-    sel_row.addWidget(btn_load_accounts)
-    sel_row.addSpacing(12)
-    sel_row.addWidget(QLabel("Page:"))
-    sel_row.addWidget(page_combo)
-    sel_row.addWidget(btn_load_pages)
-    sel_row.addSpacing(12)
-    sel_row.addWidget(btn_load_posts)
-    sel_row.addStretch()
-    t1_layout.addLayout(sel_row)
-
-    # Posts table — 6 cols: Page ID | Post ID | Message | Likes | Comments | Date
-    posts_table = QTableWidget(0, 6)
-    posts_table.setHorizontalHeaderLabels(["📋 Page ID", "🆔 Post ID", "Message", "👍 Likes", "💬 Comments", "📅 Date"])
-    posts_table.horizontalHeader().setSectionResizeMode(2, QHeaderView.Stretch)
-    posts_table.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeToContents)
-    posts_table.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeToContents)
-    posts_table.setSelectionBehavior(QTableWidget.SelectRows)
-    posts_table.setAlternatingRowColors(True)
-    posts_table.setStyleSheet(f"""
-        QTableWidget{{background:{SURFACE};color:{TEXT};border:1px solid {BORDER};border-radius:8px;font-size:13px;gridline-color:{BORDER};}}
-        QHeaderView::section{{background:{SIDEBAR};color:{ACCENT};font-weight:bold;padding:5px;border:none;}}
-        QTableWidget::item{{padding:4px 8px;}}
-        QTableWidget::item:selected{{background:{ACCENT}33;}}
-    """)
-    posts_table.verticalHeader().setVisible(False)
-    # Tooltip on header: remind user cols 0 & 1 are click-to-copy
-    posts_table.horizontalHeaderItem(0).setToolTip("Click any cell to copy Page ID")
-    posts_table.horizontalHeaderItem(1).setToolTip("Click any cell to copy Post ID")
-    t1_layout.addWidget(posts_table, 1)
-
-    # Floating copy-toast label (hidden by default)
-    _copy_toast = QLabel("", page)
-    _copy_toast.setStyleSheet(
-        f"background:#A6E3A1; color:#11111B; border-radius:8px;"
-        f"padding:4px 14px; font-weight:bold; font-size:13px;"
-    )
-    _copy_toast.setVisible(False)
-    _copy_toast_timer = QTimer(page)
-    _copy_toast_timer.setSingleShot(True)
-    _copy_toast_timer.timeout.connect(lambda: _copy_toast.setVisible(False))
-
-    def _show_copy_toast(text: str, cell_widget: QTableWidget, row: int, col: int):
-        """Show a floating toast near the clicked cell for 1.5 s."""
-        _copy_toast.setText(f"✅ Copied: {text}")
-        _copy_toast.adjustSize()
-        # Position relative to the cell rect inside the viewport
-        cell_rect = cell_widget.visualItemRect(cell_widget.item(row, col))
-        vp_pos    = cell_widget.viewport().mapTo(page, cell_rect.topLeft())
-        _copy_toast.move(vp_pos.x(), max(0, vp_pos.y() - _copy_toast.height() - 4))
-        _copy_toast.raise_()
-        _copy_toast.setVisible(True)
-        _copy_toast_timer.start(1500)
-
-    def _posts_cell_clicked(row: int, col: int):
-        """Col 0 = Page ID, col 1 = Post ID — both click-to-copy.
-           Any column click also auto-fills the Post ID input in Tab 2."""
-        item = posts_table.item(row, col)
-        if item is None:
-            return
-        # Auto-fill Tab 2 Post ID input from col 1
-        post_id_item = posts_table.item(row, 1)
-        if post_id_item:
-            cmt_post_id.setText(post_id_item.text())
-        # Copy to clipboard for cols 0 and 1
-        if col in (0, 1):
-            QApplication.clipboard().setText(item.text())
-            _show_copy_toast(item.text(), posts_table, row, col)
-
-    posts_table.cellClicked.connect(_posts_cell_clicked)
-
-    # Publish form
-    pub_group = QGroupBox("📝 Publish New Post")
-    pub_group.setStyleSheet(f"QGroupBox{{color:{ACCENT};font-weight:bold;font-size:14px;border:1px solid {BORDER};border-radius:8px;padding:10px;margin-top:8px;}}QGroupBox::title{{subcontrol-origin:margin;left:10px;top:3px;}}")
-    pub_form = QVBoxLayout(pub_group)
-    pub_msg = QTextEdit()
-    pub_msg.setPlaceholderText("Write your post message here… (or use AI to generate ↓)")
-    pub_msg.setMaximumHeight(90)
-    pub_msg.setStyleSheet(f"background:{SURFACE};color:{TEXT};border:1px solid {BORDER};border-radius:6px;font-size:13px;padding:6px;")
-    pub_link = QLineEdit()
-    pub_link.setPlaceholderText("Optional link URL (https://…)")
-    pub_link.setStyleSheet(f"background:{SURFACE};color:{TEXT};border:1px solid {BORDER};border-radius:6px;font-size:13px;padding:6px;")
-    pub_img  = QLineEdit()
-    pub_img.setPlaceholderText("Optional image URL (https://…)")
-    pub_img.setStyleSheet(pub_link.styleSheet())
-    pub_form.addWidget(pub_msg)
-    pub_link_row = QHBoxLayout()
-    pub_link_row.addWidget(QLabel("Link:"))
-    pub_link_row.addWidget(pub_link, 1)
-    pub_link_row.addSpacing(8)
-    pub_link_row.addWidget(QLabel("Image URL:"))
-    pub_link_row.addWidget(pub_img, 1)
-    pub_form.addLayout(pub_link_row)
-    btn_publish = QPushButton("🚀 Publish Now")
-    btn_publish.setStyleSheet(f"QPushButton{{background:#A6E3A1;color:#11111B;border-radius:6px;padding:8px 20px;font-weight:bold;font-size:13px;}}QPushButton:hover{{background:#94D898;}}")
-    btn_publish.setCursor(Qt.PointingHandCursor)
-    pub_out = OutputBox()
-    pub_out.setMaximumHeight(60)
-    pub_row = QHBoxLayout()
-    pub_row.addWidget(btn_publish)
-    pub_row.addStretch()
-    pub_form.addLayout(pub_row)
-    pub_form.addWidget(pub_out)
-    t1_layout.addWidget(pub_group)
-
-    # Internal state store
-    _t1_state = {"accounts": [], "pages": [], "page_tokens": {}}
-
-    def _load_accounts_cb(resp, err):
-        if err or resp.get("status") == "error":
-            pub_out.set_error(resp.get("message", err or "Error loading accounts"))
-            return
-        accs = resp.get("accounts", [])
-        _t1_state["accounts"] = accs
-        acct_combo.clear()
-        for a in accs:
-            acct_combo.addItem(f"{a.get('display_name', 'Facebook')} ({a.get('status', '?')})", a.get("id", ""))
-        if accs:
-            pub_out.setPlainText(f"✅ {len(accs)} account(s) loaded.")
-        else:
-            pub_out.setPlainText("⚠ No Facebook accounts found. Connect one in 🔐 Social Accounts.")
-        _enable_btn(btn_load_accounts, "🔄 Load Accounts")
-
-    def _do_load_accounts():
-        _disable_btn(btn_load_accounts)
-        w = _ApiWorker(f"{_fb_base}/api/v1/facebook/accounts", {}, "GET", None)
-        w.finished.connect(lambda r: _load_accounts_cb(r, None))
-        w.error.connect(lambda e: (_enable_btn(btn_load_accounts, "🔄 Load Accounts"), pub_out.set_error(e)))
-        w.start(); _do_load_accounts._w = w
-
-    btn_load_accounts.clicked.connect(_do_load_accounts)
-
-    def _load_pages_cb(resp, err):
-        if err or resp.get("status") == "error":
-            pub_out.set_error(resp.get("message", err or "Error loading pages"))
-            _enable_btn(btn_load_pages, "📄 Load Pages")
-            return
-        pages = resp.get("pages", [])
-        _t1_state["pages"] = pages
-        _t1_state["page_tokens"] = {p["id"]: p.get("access_token", "") for p in pages}
-        page_combo.clear()
-        for p in pages:
-            fans = p.get("fan_count", 0)
-            page_combo.addItem(f"{p.get('name', p['id'])} ({fans:,} fans)", p["id"])
-        if not pages:
-            pub_out.setPlainText("⚠ No Pages found. Make sure your token has pages_show_list scope.")
-        else:
-            pub_out.setPlainText(f"✅ {len(pages)} Page(s) loaded.")
-        _enable_btn(btn_load_pages, "📄 Load Pages")
-
-    def _do_load_pages():
-        acct_id = acct_combo.currentData() or ""
-        _disable_btn(btn_load_pages)
-        w = _ApiWorker(f"{_fb_base}/api/v1/facebook/pages?account_id={acct_id}", {}, "GET", None)
-        w.finished.connect(lambda r: _load_pages_cb(r, None))
-        w.error.connect(lambda e: (_enable_btn(btn_load_pages, "📄 Load Pages"), pub_out.set_error(e)))
-        w.start(); _do_load_pages._w = w
-
-    btn_load_pages.clicked.connect(_do_load_pages)
-
-    def _load_posts_cb(resp, err):
-        if err or resp.get("status") == "error":
-            pub_out.set_error(resp.get("message", err or "Error loading posts"))
-            _enable_btn(btn_load_posts, "📰 Load Posts")
-            return
-        posts   = resp.get("posts", [])
-        cur_pid = page_combo.currentData() or ""      # active Page ID
-        posts_table.setRowCount(0)
-        for post in posts:
-            row = posts_table.rowCount()
-            posts_table.insertRow(row)
-            # derive page_id: prefer field in response, fall back to selector
-            pg_id   = str(post.get("page_id") or post.get("id", "").split("_")[0] or cur_pid)
-            pid     = str(post.get("id", ""))
-            msg     = (post.get("message") or post.get("story") or "")[:80]
-            likes   = str(post.get("likes",   {}).get("summary", {}).get("total_count", 0))
-            comments= str(post.get("comments",{}).get("summary", {}).get("total_count", 0))
-            created = post.get("created_time", "")[:10]
-            for col, val in enumerate([pg_id, pid, msg, likes, comments, created]):
-                item = QTableWidgetItem(val)
-                item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
-                # Color Page ID and Post ID columns distinctly to signal click-to-copy
-                if col == 0:
-                    item.setForeground(QColor(WARNING))     # amber — Page ID
-                    item.setToolTip("🖱 Click to copy Page ID")
-                elif col == 1:
-                    item.setForeground(QColor(ACCENT))      # blue — Post ID
-                    item.setToolTip("🖱 Click to copy Post ID")
-                posts_table.setItem(row, col, item)
-        pub_out.setPlainText(f"✅ {len(posts)} post(s) loaded.  💡 Click Page ID (amber) or Post ID (blue) to copy.")
-        _enable_btn(btn_load_posts, "📰 Load Posts")
-
-    def _do_load_posts():
-        page_id = page_combo.currentData()
-        if not page_id:
-            pub_out.set_error("Select a page first."); return
-        acct_id = acct_combo.currentData() or ""
-        _disable_btn(btn_load_posts)
-        w = _ApiWorker(f"{_fb_base}/api/v1/facebook/pages/{page_id}/posts?account_id={acct_id}", {}, "GET", None)
-        w.finished.connect(lambda r: _load_posts_cb(r, None))
-        w.error.connect(lambda e: (_enable_btn(btn_load_posts, "📰 Load Posts"), pub_out.set_error(e)))
-        w.start(); _do_load_posts._w = w
-
-    btn_load_posts.clicked.connect(_do_load_posts)
-
-    def _do_publish():
-        page_id = page_combo.currentData()
-        if not page_id:
-            pub_out.set_error("Select a page first."); return
-        msg = pub_msg.toPlainText().strip()
-        if not msg:
-            pub_out.set_error("Post message cannot be empty."); return
-        payload = {
-            "account_id": acct_combo.currentData() or "",
-            "page_id": page_id,
-            "message": msg,
-            "link": pub_link.text().strip(),
-            "image_url": pub_img.text().strip(),
-        }
-        _disable_btn(btn_publish)
-        w = _ApiWorker(f"{_fb_base}/api/v1/facebook/pages/{page_id}/publish", payload)
-        def _cb(r, e):
-            _enable_btn(btn_publish, "🚀 Publish Now")
-            if e or r.get("status") == "error":
-                pub_out.set_error(r.get("message", e or "Publish failed"))
-            else:
-                pub_out.setPlainText(f"✅ {r.get('message', 'Published!')}  Post ID: {r.get('post_id','')}")
-                pub_msg.clear(); pub_link.clear(); pub_img.clear()
-        w.finished.connect(lambda r: _cb(r, None))
-        w.error.connect(lambda e: _cb({}, e))
-        w.start(); _do_publish._w = w
-
-    btn_publish.clicked.connect(_do_publish)
-
-    tabs.addTab(t1, "📄 Pages & Posts")
-
-    # ─────────────────────────────────────────────────────────────────────────
-    # TAB 2 — Comments Manager
-    # ─────────────────────────────────────────────────────────────────────────
-    t2 = QWidget()
-    t2_layout = QVBoxLayout(t2)
-    t2_layout.setContentsMargins(14, 14, 14, 14)
-    t2_layout.setSpacing(10)
-
-    cmt_row = QHBoxLayout()
-    cmt_post_id = QLineEdit()
-    cmt_post_id.setPlaceholderText("Paste Post ID (from Posts tab)…")
-    cmt_post_id.setStyleSheet(f"background:{SURFACE};color:{TEXT};border:1px solid {BORDER};border-radius:6px;font-size:13px;padding:6px;")
-    btn_load_cmts = QPushButton("💬 Load Comments")
-    btn_load_cmts.setStyleSheet(f"QPushButton{{background:{ACCENT};color:#11111B;border-radius:6px;padding:6px 14px;font-weight:bold;}}QPushButton:hover{{opacity:0.85;}}")
-    btn_load_cmts.setCursor(Qt.PointingHandCursor)
-    cmt_row.addWidget(QLabel("Post ID:"))
-    cmt_row.addWidget(cmt_post_id, 1)
-    cmt_row.addWidget(btn_load_cmts)
-    cmt_row.addStretch()
-    t2_layout.addLayout(cmt_row)
-
-    cmt_table = QTableWidget(0, 4)
-    cmt_table.setHorizontalHeaderLabels(["Comment ID", "Author", "Message", "👍 Likes"])
-    cmt_table.horizontalHeader().setSectionResizeMode(2, QHeaderView.Stretch)
-    cmt_table.setSelectionBehavior(QTableWidget.SelectRows)
-    cmt_table.setAlternatingRowColors(True)
-    cmt_table.setStyleSheet(posts_table.styleSheet())
-    cmt_table.verticalHeader().setVisible(False)
-    t2_layout.addWidget(cmt_table, 1)
-
-    # Reply panel
-    reply_group = QGroupBox("✉️ Reply to Selected Comment")
-    reply_group.setStyleSheet(pub_group.styleSheet())
-    reply_form = QVBoxLayout(reply_group)
-    reply_txt = QLineEdit()
-    reply_txt.setPlaceholderText("Type reply or use AI Suggest below…")
-    reply_txt.setStyleSheet(pub_link.styleSheet())
-    btn_ai_suggest = QPushButton("🤖 AI Suggest Reply")
-    btn_reply_send = QPushButton("📤 Send Reply")
-    btn_ai_suggest.setStyleSheet(f"QPushButton{{background:{SURFACE};color:{ACCENT};border:1px solid {ACCENT};border-radius:6px;padding:6px 14px;font-size:13px;}}QPushButton:hover{{background:{ACCENT};color:#11111B;}}")
-    btn_reply_send.setStyleSheet(f"QPushButton{{background:{ACCENT};color:#11111B;border-radius:6px;padding:6px 14px;font-weight:bold;font-size:13px;}}QPushButton:hover{{opacity:0.85;}}")
-    for b in (btn_ai_suggest, btn_reply_send):
-        b.setCursor(Qt.PointingHandCursor)
-    cmt_reply_row = QHBoxLayout()
-    cmt_reply_row.addWidget(reply_txt, 1)
-    cmt_reply_row.addWidget(btn_ai_suggest)
-    cmt_reply_row.addWidget(btn_reply_send)
-    reply_form.addLayout(cmt_reply_row)
-    cmt_out = OutputBox()
-    cmt_out.setMaximumHeight(70)
-    reply_form.addWidget(cmt_out)
-    t2_layout.addWidget(reply_group)
-
-    def _load_comments_cb(resp, err):
-        if err or resp.get("status") == "error":
-            cmt_out.set_error(resp.get("message", err or "Error"))
-            _enable_btn(btn_load_cmts, "💬 Load Comments")
-            return
-        cmts = resp.get("comments", [])
-        cmt_table.setRowCount(0)
-        for c in cmts:
-            row = cmt_table.rowCount()
-            cmt_table.insertRow(row)
-            author = c.get("from", {}).get("name", "Unknown")
-            for col, val in enumerate([c.get("id",""), author, c.get("message","")[:100], str(c.get("like_count",0))]):
-                item = QTableWidgetItem(val)
-                item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
-                cmt_table.setItem(row, col, item)
-        cmt_out.setPlainText(f"✅ {len(cmts)} comment(s) loaded. Total: {resp.get('total', len(cmts))}")
-        _enable_btn(btn_load_cmts, "💬 Load Comments")
-
-    def _do_load_comments():
-        pid = cmt_post_id.text().strip()
-        if not pid:
-            cmt_out.set_error("Enter a Post ID first."); return
-        acct_id = acct_combo.currentData() or ""
-        _disable_btn(btn_load_cmts)
-        w = _ApiWorker(f"{_fb_base}/api/v1/facebook/posts/{pid}/comments?account_id={acct_id}", {}, "GET", None)
-        w.finished.connect(lambda r: _load_comments_cb(r, None))
-        w.error.connect(lambda e: (_enable_btn(btn_load_cmts, "💬 Load Comments"), cmt_out.set_error(e)))
-        w.start(); _do_load_comments._w = w
-
-    btn_load_cmts.clicked.connect(_do_load_comments)
-
-    def _do_ai_suggest():
-        sel = cmt_table.selectedItems()
-        if not sel:
-            cmt_out.set_error("Select a comment row first."); return
-        row = cmt_table.currentRow()
-        orig = cmt_table.item(row, 2).text() if cmt_table.item(row, 2) else ""
-        if not orig:
-            cmt_out.set_error("No comment text found."); return
-        payload = {"original_text": orig, "tone": "friendly", "account_id": acct_combo.currentData() or ""}
-        _disable_btn(btn_ai_suggest)
-        w = _ApiWorker(f"{_fb_base}/api/v1/facebook/ai/suggest-reply", payload)
-        def _cb(r, e):
-            _enable_btn(btn_ai_suggest, "🤖 AI Suggest Reply")
-            if e or r.get("status") == "error":
-                cmt_out.set_error(r.get("message", e or "AI error"))
-            else:
-                reply_txt.setText(r.get("reply", ""))
-                cmt_out.setPlainText("✅ AI reply suggestion ready — edit if needed, then Send.")
-        w.finished.connect(lambda r: _cb(r, None))
-        w.error.connect(lambda e: _cb({}, e))
-        w.start(); _do_ai_suggest._w = w
-
-    btn_ai_suggest.clicked.connect(_do_ai_suggest)
-
-    def _do_reply():
-        sel = cmt_table.selectedItems()
-        if not sel:
-            cmt_out.set_error("Select a comment row first."); return
-        row = cmt_table.currentRow()
-        cmt_id = cmt_table.item(row, 0).text() if cmt_table.item(row, 0) else ""
-        msg = reply_txt.text().strip()
-        if not cmt_id:
-            cmt_out.set_error("Could not get Comment ID."); return
-        if not msg:
-            cmt_out.set_error("Reply message cannot be empty."); return
-        payload = {"comment_id": cmt_id, "message": msg, "account_id": acct_combo.currentData() or ""}
-        _disable_btn(btn_reply_send)
-        w = _ApiWorker(f"{_fb_base}/api/v1/facebook/comments/{cmt_id}/reply", payload)
-        def _cb(r, e):
-            _enable_btn(btn_reply_send, "📤 Send Reply")
-            if e or r.get("status") == "error":
-                cmt_out.set_error(r.get("message", e or "Reply failed"))
-            else:
-                cmt_out.setPlainText(f"✅ {r.get('message', 'Reply sent!')}")
-                reply_txt.clear()
-        w.finished.connect(lambda r: _cb(r, None))
-        w.error.connect(lambda e: _cb({}, e))
-        w.start(); _do_reply._w = w
-
-    btn_reply_send.clicked.connect(_do_reply)
-
-    tabs.addTab(t2, "💬 Comments")
-
-    # ─────────────────────────────────────────────────────────────────────────
-    # TAB 3 — Messenger
-    # ─────────────────────────────────────────────────────────────────────────
-    t3 = QWidget()
-    t3_layout = QVBoxLayout(t3)
-    t3_layout.setContentsMargins(14, 14, 14, 14)
-    t3_layout.setSpacing(10)
-
-    msg_page_row = QHBoxLayout()
-    msg_page_id = QLineEdit()
-    msg_page_id.setPlaceholderText("Page ID (from Pages & Posts tab)…")
-    msg_page_id.setStyleSheet(pub_link.styleSheet())
-    btn_load_convs = QPushButton("📩 Load Conversations")
-    btn_load_convs.setStyleSheet(btn_load_cmts.styleSheet())
-    btn_load_convs.setCursor(Qt.PointingHandCursor)
-    msg_page_row.addWidget(QLabel("Page ID:"))
-    msg_page_row.addWidget(msg_page_id, 1)
-    msg_page_row.addWidget(btn_load_convs)
-    msg_page_row.addStretch()
-    t3_layout.addLayout(msg_page_row)
-
-    # Splitter: conversation list | message thread
-    conv_splitter = QSplitter(Qt.Horizontal)
-    conv_list = QListWidget()
-    conv_list.setStyleSheet(f"QListWidget{{background:{SURFACE};color:{TEXT};border:1px solid {BORDER};border-radius:8px;font-size:13px;}}QListWidget::item{{padding:8px;}}QListWidget::item:selected{{background:{ACCENT}33;}}")
-    conv_list.setMaximumWidth(280)
-    thread_view = QTextEdit()
-    thread_view.setReadOnly(True)
-    thread_view.setStyleSheet(f"background:{SURFACE};color:{TEXT};border:1px solid {BORDER};border-radius:8px;font-size:13px;padding:8px;")
-    conv_splitter.addWidget(conv_list)
-    conv_splitter.addWidget(thread_view)
-    conv_splitter.setSizes([260, 500])
-    t3_layout.addWidget(conv_splitter, 1)
-
-    # Reply row
-    msg_reply_row = QHBoxLayout()
-    msg_reply_txt = QLineEdit()
-    msg_reply_txt.setPlaceholderText("Type reply or use AI Suggest…")
-    msg_reply_txt.setStyleSheet(pub_link.styleSheet())
-    btn_msg_ai = QPushButton("🤖 AI Reply")
-    btn_msg_send = QPushButton("📤 Send")
-    btn_msg_ai.setStyleSheet(btn_ai_suggest.styleSheet())
-    btn_msg_send.setStyleSheet(btn_reply_send.styleSheet())
-    btn_msg_ai.setCursor(Qt.PointingHandCursor)
-    btn_msg_send.setCursor(Qt.PointingHandCursor)
-    msg_reply_row.addWidget(msg_reply_txt, 1)
-    msg_reply_row.addWidget(btn_msg_ai)
-    msg_reply_row.addWidget(btn_msg_send)
-    t3_layout.addLayout(msg_reply_row)
-    msg_out = OutputBox()
-    msg_out.setMaximumHeight(55)
-    t3_layout.addWidget(msg_out)
-
-    _t3_state = {"conversations": [], "current_psid": ""}
-
-    def _load_convs_cb(resp, err):
-        if err or resp.get("status") == "error":
-            msg_out.set_error(resp.get("message", err or "Error"))
-            _enable_btn(btn_load_convs, "📩 Load Conversations")
-            return
-        convs = resp.get("conversations", [])
-        _t3_state["conversations"] = convs
-        conv_list.clear()
-        for c in convs:
-            participants = c.get("participants", {}).get("data", [])
-            names = [p.get("name", "?") for p in participants]
-            updated = c.get("updated_time", "")[:10]
-            label = ", ".join(names) + f"  ({updated})"
-            item = QListWidgetItem(label)
-            item.setData(Qt.UserRole, c)
-            conv_list.addItem(item)
-        msg_out.setPlainText(f"✅ {len(convs)} conversation(s) loaded.")
-        _enable_btn(btn_load_convs, "📩 Load Conversations")
-
-    def _do_load_convs():
-        pid = msg_page_id.text().strip()
-        if not pid:
-            msg_out.set_error("Enter a Page ID first."); return
-        acct_id = acct_combo.currentData() or ""
-        _disable_btn(btn_load_convs)
-        w = _ApiWorker(f"{_fb_base}/api/v1/facebook/pages/{pid}/conversations?account_id={acct_id}", {}, "GET", None)
-        w.finished.connect(lambda r: _load_convs_cb(r, None))
-        w.error.connect(lambda e: (_enable_btn(btn_load_convs, "📩 Load Conversations"), msg_out.set_error(e)))
-        w.start(); _do_load_convs._w = w
-
-    btn_load_convs.clicked.connect(_do_load_convs)
-
-    def _on_conv_selected(item):
-        conv = item.data(Qt.UserRole)
-        if not conv:
-            return
-        participants = conv.get("participants", {}).get("data", [])
-        # Find non-page participant (the customer) for PSID
-        psid = ""
-        for p in participants:
-            if p.get("id"):
-                psid = p["id"]
-                break
-        _t3_state["current_psid"] = psid
-        msgs = conv.get("messages", {}).get("data", [])
-        lines = []
-        for m in reversed(msgs):
-            sender = m.get("from", {}).get("name", "?")
-            ts = m.get("created_time", "")[:16].replace("T", " ")
-            lines.append(f"[{ts}] {sender}:\n{m.get('message', '')}\n")
-        thread_view.setPlainText("\n".join(lines) if lines else "(No messages loaded)")
-
-    conv_list.itemClicked.connect(_on_conv_selected)
-
-    def _do_msg_ai():
-        last_msg = ""
-        items = conv_list.selectedItems()
-        if items:
-            conv = items[0].data(Qt.UserRole)
-            msgs = conv.get("messages", {}).get("data", [])
-            if msgs:
-                last_msg = msgs[0].get("message", "")
-        if not last_msg:
-            msg_out.set_error("Select a conversation with messages first."); return
-        payload = {"original_text": last_msg, "tone": "friendly", "account_id": acct_combo.currentData() or ""}
-        _disable_btn(btn_msg_ai)
-        w = _ApiWorker(f"{_fb_base}/api/v1/facebook/ai/suggest-reply", payload)
-        def _cb(r, e):
-            _enable_btn(btn_msg_ai, "🤖 AI Reply")
-            if e or r.get("status") == "error":
-                msg_out.set_error(r.get("message", e or "AI error"))
-            else:
-                msg_reply_txt.setText(r.get("reply", ""))
-                msg_out.setPlainText("✅ AI reply ready — edit then Send.")
-        w.finished.connect(lambda r: _cb(r, None))
-        w.error.connect(lambda e: _cb({}, e))
-        w.start(); _do_msg_ai._w = w
-
-    btn_msg_ai.clicked.connect(_do_msg_ai)
-
-    def _do_msg_send():
-        psid = _t3_state.get("current_psid", "")
-        if not psid:
-            msg_out.set_error("Select a conversation first."); return
-        txt = msg_reply_txt.text().strip()
-        if not txt:
-            msg_out.set_error("Message cannot be empty."); return
-        payload = {"recipient_id": psid, "message": txt, "account_id": acct_combo.currentData() or "", "page_id": msg_page_id.text().strip()}
-        _disable_btn(btn_msg_send)
-        w = _ApiWorker(f"{_fb_base}/api/v1/facebook/messenger/reply", payload)
-        def _cb(r, e):
-            _enable_btn(btn_msg_send, "📤 Send")
-            if e or r.get("status") == "error":
-                msg_out.set_error(r.get("message", e or "Send failed"))
-            else:
-                msg_out.setPlainText(f"✅ {r.get('message', 'Message sent!')}")
-                msg_reply_txt.clear()
-        w.finished.connect(lambda r: _cb(r, None))
-        w.error.connect(lambda e: _cb({}, e))
-        w.start(); _do_msg_send._w = w
-
-    btn_msg_send.clicked.connect(_do_msg_send)
-
-    tabs.addTab(t3, "📩 Messenger")
-
-    # ─────────────────────────────────────────────────────────────────────────
-    # TAB 4 — AI Content Studio
-    # ─────────────────────────────────────────────────────────────────────────
-    t4 = QWidget()
-    t4_layout = QVBoxLayout(t4)
-    t4_layout.setContentsMargins(14, 14, 14, 14)
-    t4_layout.setSpacing(12)
-
-    ai_form = QFormLayout()
-    ai_page_name = _entry("My Business Page")
-    ai_topic     = _entry("digital marketing tips")
-    ai_tone      = _combo("engaging", "inspiring", "educational", "funny", "professional", "casual", "urgent")
-    ai_goal      = _combo("grow followers", "drive traffic", "sell products", "build trust", "generate leads", "boost engagement")
-    ai_audience  = _entry("entrepreneurs and small business owners")
-    ai_num       = QSpinBox()
-    ai_num.setRange(1, 10)
-    ai_num.setValue(3)
-    ai_num.setStyleSheet(f"background:{SURFACE};color:{TEXT};border:1px solid {BORDER};border-radius:6px;padding:4px;min-width:70px;")
-    for lbl, w in [("Page Name:", ai_page_name), ("Topic / Niche:", ai_topic), ("Tone:", ai_tone),
-                   ("Goal:", ai_goal), ("Target Audience:", ai_audience), ("# Posts (Bulk):", ai_num)]:
-        ai_form.addRow(lbl, w)
-    t4_layout.addLayout(ai_form)
-
-    ai_btn_row = QHBoxLayout()
-    btn_ai_single = QPushButton("✨ Generate Single Post")
-    btn_ai_bulk   = QPushButton("📦 Bulk Generate Posts")
-    for b in (btn_ai_single, btn_ai_bulk):
-        b.setStyleSheet(f"QPushButton{{background:{ACCENT};color:#11111B;border-radius:6px;padding:8px 18px;font-weight:bold;font-size:13px;}}QPushButton:hover{{opacity:0.85;}}")
-        b.setCursor(Qt.PointingHandCursor)
-    ai_btn_row.addWidget(btn_ai_single)
-    ai_btn_row.addWidget(btn_ai_bulk)
-    ai_btn_row.addStretch()
-    t4_layout.addLayout(ai_btn_row)
-
-    ai_out = OutputBox()
-    ai_out.setMinimumHeight(300)
-    t4_layout.addWidget(ai_out, 1)
-
-    btn_copy_ai = QPushButton("📋 Copy to Post Editor (Tab 1)")
-    btn_copy_ai.setStyleSheet(f"QPushButton{{background:{SURFACE};color:{ACCENT};border:1px solid {ACCENT};border-radius:6px;padding:7px 16px;font-size:13px;}}QPushButton:hover{{background:{ACCENT};color:#11111B;}}")
-    btn_copy_ai.setCursor(Qt.PointingHandCursor)
-    t4_layout.addWidget(btn_copy_ai)
-
-    def _do_ai_single():
-        payload = {
-            "account_id": acct_combo.currentData() or "",
-            "page_name": ai_page_name.text().strip(),
-            "tone": ai_tone.currentText(),
-            "goal": ai_goal.currentText(),
-            "audience": ai_audience.text().strip(),
-            "topic": ai_topic.text().strip(),
-        }
-        _disable_btn(btn_ai_single)
-        w = _ApiWorker(f"{_fb_base}/api/v1/facebook/ai/generate-post", payload)
-        def _cb(r, e):
-            _enable_btn(btn_ai_single, "✨ Generate Single Post")
-            if e or r.get("status") == "error":
-                ai_out.set_error(r.get("message", e or "AI error"))
-            else:
-                ai_out.setPlainText(r.get("post", ""))
-        w.finished.connect(lambda r: _cb(r, None))
-        w.error.connect(lambda e: _cb({}, e))
-        w.start(); _do_ai_single._w = w
-
-    btn_ai_single.clicked.connect(_do_ai_single)
-
-    def _do_ai_bulk():
-        payload = {
-            "account_id": acct_combo.currentData() or "",
-            "page_name": ai_page_name.text().strip(),
-            "topic": ai_topic.text().strip() or "social media growth",
-            "num_posts": ai_num.value(),
-            "tone": ai_tone.currentText(),
-            "goal": ai_goal.currentText(),
-        }
-        _disable_btn(btn_ai_bulk)
-        w = _ApiWorker(f"{_fb_base}/api/v1/facebook/ai/bulk-schedule", payload)
-        def _cb(r, e):
-            _enable_btn(btn_ai_bulk, "📦 Bulk Generate Posts")
-            if e or r.get("status") == "error":
-                ai_out.set_error(r.get("message", e or "AI error"))
-            else:
-                posts = r.get("posts", [])
-                ai_out.setPlainText("\n\n" + "─"*60 + "\n\n".join(
-                    [f"── POST {i+1} ──\n{p}" for i, p in enumerate(posts)]
-                ))
-        w.finished.connect(lambda r: _cb(r, None))
-        w.error.connect(lambda e: _cb({}, e))
-        w.start(); _do_ai_bulk._w = w
-
-    btn_ai_bulk.clicked.connect(_do_ai_bulk)
-
-    def _copy_to_editor():
-        txt = ai_out.toPlainText().strip()
-        if txt:
-            pub_msg.setPlainText(txt)
-            tabs.setCurrentIndex(0)
-
-    btn_copy_ai.clicked.connect(_copy_to_editor)
-
-    tabs.addTab(t4, "🤖 AI Content Studio")
-
-    # ─────────────────────────────────────────────────────────────────────────
-    # TAB 5 — Page Insights & Analytics
-    # ─────────────────────────────────────────────────────────────────────────
-    t5 = QWidget()
-    t5_layout = QVBoxLayout(t5)
-    t5_layout.setContentsMargins(14, 14, 14, 14)
-    t5_layout.setSpacing(12)
-
-    ins_row = QHBoxLayout()
-    ins_page_id = QLineEdit()
-    ins_page_id.setPlaceholderText("Page ID…")
-    ins_page_id.setStyleSheet(pub_link.styleSheet())
-    ins_since = QLineEdit()
-    ins_since.setPlaceholderText("Since YYYY-MM-DD (optional)")
-    ins_since.setStyleSheet(pub_link.styleSheet())
-    ins_until = QLineEdit()
-    ins_until.setPlaceholderText("Until YYYY-MM-DD (optional)")
-    ins_until.setStyleSheet(pub_link.styleSheet())
-    btn_load_ins = QPushButton("📊 Load Insights")
-    btn_load_ins.setStyleSheet(btn_load_cmts.styleSheet())
-    btn_load_ins.setCursor(Qt.PointingHandCursor)
-    ins_row.addWidget(QLabel("Page ID:"))
-    ins_row.addWidget(ins_page_id)
-    ins_row.addWidget(QLabel("Since:"))
-    ins_row.addWidget(ins_since)
-    ins_row.addWidget(QLabel("Until:"))
-    ins_row.addWidget(ins_until)
-    ins_row.addWidget(btn_load_ins)
-    ins_row.addStretch()
-    t5_layout.addLayout(ins_row)
-
-    # Insight cards row
-    cards_row = QHBoxLayout()
-    _ins_cards = {}
-    for metric in ("Fans", "Reach", "Impressions", "Engagement", "New Fans", "Page Views"):
-        card = QFrame()
-        card.setStyleSheet(f"background:{SURFACE};border:1px solid {BORDER};border-radius:10px;padding:10px;")
-        card_lay = QVBoxLayout(card)
-        card_lay.setContentsMargins(10, 8, 10, 8)
-        lbl = QLabel(metric)
-        lbl.setStyleSheet(f"color:{SUBTEXT};font-size:12px;")
-        lbl.setAlignment(Qt.AlignCenter)
-        val = QLabel("—")
-        val.setStyleSheet(f"color:{ACCENT};font-size:22px;font-weight:bold;")
-        val.setAlignment(Qt.AlignCenter)
-        card_lay.addWidget(lbl)
-        card_lay.addWidget(val)
-        _ins_cards[metric] = val
-        cards_row.addWidget(card)
-    t5_layout.addLayout(cards_row)
-
-    ins_raw = OutputBox()
-    ins_raw.setMinimumHeight(200)
-    t5_layout.addWidget(ins_raw, 1)
-
-    # AI analysis button
-    btn_ai_analyze_ins = QPushButton("🤖 AI Analyze Insights")
-    btn_ai_analyze_ins.setStyleSheet(btn_ai_single.styleSheet())
-    btn_ai_analyze_ins.setCursor(Qt.PointingHandCursor)
-    t5_layout.addWidget(btn_ai_analyze_ins)
-
-    _t5_state = {"page_id": "", "metrics": {}}
-
-    def _load_insights_cb(resp, err):
-        if err or resp.get("status") == "error":
-            ins_raw.set_error(resp.get("message", err or "Error"))
-            _enable_btn(btn_load_ins, "📊 Load Insights")
-            return
-        fan_count = resp.get("fan_count", 0)
-        _ins_cards["Fans"].setText(f"{fan_count:,}")
-        insights = resp.get("insights", [])
-        # Map metric names to card keys
-        metric_map = {
-            "page_fans": "Fans",
-            "page_reach": "Reach",              # legacy name (kept for compat)
-            "page_impressions_unique": "Reach",  # new name (replaces page_reach)
-            "page_impressions": "Impressions",
-            "page_engaged_users": "Engagement",
-            "page_fan_adds": "New Fans",
-            "page_views_total": "Page Views",    # kept for compat if ever returned
-        }
-        summary = {}
-        for ins in insights:
-            name  = ins.get("name", "")
-            key   = metric_map.get(name)
-            vals  = ins.get("values", [])
-            total = sum(v.get("value", 0) for v in vals if isinstance(v.get("value", 0), (int, float)))
-            summary[name] = total
-            if key:
-                _ins_cards[key].setText(f"{total:,.0f}")
-        _t5_state["metrics"] = summary
-        _t5_state["page_id"] = resp.get("page_name", "")
-        # Show raw insight data
-        lines = [f"📊 {resp.get('page_name','Page')} • {len(insights)} metrics\n"]
-        for ins in insights:
-            name = ins.get("name", "")
-            vals = ins.get("values", [])
-            total = sum(v.get("value", 0) for v in vals if isinstance(v.get("value", 0), (int, float)))
-            lines.append(f"  {name}: {total:,.0f}")
-        ins_raw.setPlainText("\n".join(lines))
-        _enable_btn(btn_load_ins, "📊 Load Insights")
-
-    def _do_load_insights():
-        pid = ins_page_id.text().strip()
-        if not pid:
-            ins_raw.set_error("Enter a Page ID first."); return
-        acct_id = acct_combo.currentData() or ""
-        _disable_btn(btn_load_ins)
-        params_str = f"?account_id={acct_id}"
-        if ins_since.text().strip():
-            params_str += f"&since={ins_since.text().strip()}"
-        if ins_until.text().strip():
-            params_str += f"&until={ins_until.text().strip()}"
-        w = _ApiWorker(f"{_fb_base}/api/v1/facebook/pages/{pid}/insights{params_str}", {}, "GET", None)
-        w.finished.connect(lambda r: _load_insights_cb(r, None))
-        w.error.connect(lambda e: (_enable_btn(btn_load_ins, "📊 Load Insights"), ins_raw.set_error(e)))
-        w.start(); _do_load_insights._w = w
-
-    btn_load_ins.clicked.connect(_do_load_insights)
-
-    def _do_ai_insights():
-        metrics = _t5_state.get("metrics", {})
-        if not metrics:
-            ins_raw.set_error("Load insights first."); return
-        # Use post-analysis endpoint with aggregated data
-        reach = metrics.get("page_reach", 0)
-        payload = {
-            "post_id": "page_insights",
-            "post_text": f"Page: {_t5_state.get('page_id', 'Facebook Page')} — Insights analysis",
-            "likes": int(metrics.get("page_engaged_users", 0)),
-            "comments": 0,
-            "shares": 0,
-            "reach": int(reach),
-            "account_id": acct_combo.currentData() or "",
-        }
-        _disable_btn(btn_ai_analyze_ins)
-        w = _ApiWorker(f"{_fb_base}/api/v1/facebook/ai/analyze-post", payload)
-        def _cb(r, e):
-            _enable_btn(btn_ai_analyze_ins, "🤖 AI Analyze Insights")
-            if e or r.get("status") == "error":
-                ins_raw.set_error(r.get("message", e or "AI error"))
-            else:
-                ins_raw.setPlainText(
-                    ins_raw.toPlainText() + "\n\n── 🤖 AI Analysis ──\n" + r.get("analysis", "")
-                )
-        w.finished.connect(lambda r: _cb(r, None))
-        w.error.connect(lambda e: _cb({}, e))
-        w.start(); _do_ai_insights._w = w
-
-    btn_ai_analyze_ins.clicked.connect(_do_ai_insights)
-
-    tabs.addTab(t5, "📊 Page Insights")
-
-    return page
-
-
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# TELEGRAM BOT MANAGER PAGE
-# ═══════════════════════════════════════════════════════════════════════════════
-
-def build_telegram_bot_page(api_base: str) -> QWidget:
-    """Telegram Bot Manager — configure, start/stop and monitor the AI bot 24/7."""
-    page = QWidget()
-    pl = QVBoxLayout(page)
-    pl.setContentsMargins(20, 16, 20, 16)
-    pl.setSpacing(10)
-
-    # ── Header ────────────────────────────────────────────────────────────────
-    hdr = QLabel("📱  Telegram Bot Manager")
-    hdr.setFont(QFont("Segoe UI", 17, QFont.Bold))
-    hdr.setStyleSheet(f"color:{ACCENT};")
-    pl.addWidget(hdr)
-
-    sub = QLabel("Manage your 24/7 AI growth bot — all 110 features accessible via Telegram")
-    sub.setStyleSheet(f"color:{SUBTEXT}; font-size:13px;")
-    pl.addWidget(sub)
-
-    # ── Status card ───────────────────────────────────────────────────────────
-    status_card = QFrame()
-    status_card.setStyleSheet(f"background:{SURFACE};border-radius:10px;border:1px solid {BORDER};")
-    sc_lay = QHBoxLayout(status_card)
-    sc_lay.setContentsMargins(16, 10, 16, 10)
-    _dot        = QLabel("⚫")
-    _dot.setFont(QFont("Segoe UI", 18))
-    _status_lbl = QLabel("Bot: Stopped")
-    _status_lbl.setFont(QFont("Segoe UI", 13, QFont.Bold))
-    _status_lbl.setStyleSheet(f"color:{SUBTEXT};")
-    _uptime_lbl = QLabel("—")
-    _uptime_lbl.setStyleSheet(f"color:{SUBTEXT}; font-size:12px;")
-    _msg_lbl    = QLabel("📨 Msgs: 0")
-    _msg_lbl.setStyleSheet(f"color:{SUBTEXT}; font-size:12px;")
-    sc_lay.addWidget(_dot)
-    sc_lay.addWidget(_status_lbl)
-    sc_lay.addSpacing(16)
-    sc_lay.addWidget(_uptime_lbl)
-    sc_lay.addStretch()
-    sc_lay.addWidget(_msg_lbl)
-    pl.addWidget(status_card)
-
-    # ── Tabs ──────────────────────────────────────────────────────────────────
-    tabs = QTabWidget()
-    tabs.setStyleSheet(f"""
-        QTabWidget::pane{{background:{DARK_BG};border:1px solid {BORDER};border-radius:8px;}}
-        QTabBar::tab{{background:{SURFACE};color:{SUBTEXT};padding:8px 16px;font-size:13px;border-radius:6px 6px 0 0;margin-right:2px;}}
-        QTabBar::tab:selected{{background:{ACCENT};color:#11111B;font-weight:bold;}}
-        QTabBar::tab:hover{{background:{HOVER};color:{TEXT};}}
-    """)
-    pl.addWidget(tabs, 1)
-
-    _grp_style = (
-        f"QGroupBox{{color:{ACCENT};font-weight:bold;border:1px solid {BORDER};"
-        f"border-radius:8px;padding-top:8px;margin-top:4px;}}"
-        f"QGroupBox::title{{subcontrol-origin:margin;left:8px;padding:0 4px;}}"
-    )
-    _tbl_style = (
-        f"QTableWidget{{background:{SURFACE};color:{TEXT};border:1px solid {BORDER};"
-        f"border-radius:8px;gridline-color:{BORDER};font-size:12px;}}"
-        f"QTableWidget::item{{padding:5px;}}"
-        f"QTableWidget::item:selected{{background:{ACCENT}33;}}"
-        f"QHeaderView::section{{background:{SIDEBAR};color:{ACCENT};font-weight:bold;padding:5px;border:none;}}"
-        f"QTableWidget::item:alternate{{background:{DARK_BG};}}"
-    )
-
-    # ──────────────────────────────────────────────────────────────────────────
-    # TAB 1 — Setup & Control
-    # ──────────────────────────────────────────────────────────────────────────
-    t1 = QWidget(); t1l = QVBoxLayout(t1)
-    t1l.setContentsMargins(14, 14, 14, 14); t1l.setSpacing(10)
-
-    # Config group
-    cfg_grp = QGroupBox("🔑 Bot Configuration")
-    cfg_grp.setStyleSheet(_grp_style)
-    cfg_lay = QGridLayout(cfg_grp)
-    cfg_lay.setSpacing(8)
-
-    cfg_lay.addWidget(QLabel("Bot Token:"), 0, 0)
-    tok_input = QLineEdit()
-    tok_input.setEchoMode(QLineEdit.Password)
-    tok_input.setPlaceholderText("1234567890:AAFxxxxx...  (get from @BotFather on Telegram)")
-    tok_input.setStyleSheet(f"background:{DARK_BG};color:{TEXT};border:1px solid {BORDER};border-radius:6px;padding:6px;font-size:13px;")
-    # Pre-fill if token already set in config
-    try:
-        from config import TELEGRAM_BOT_TOKEN as _cfg_tok
-        if _cfg_tok and _cfg_tok not in ("", "your_token", "YOUR_TELEGRAM_BOT_TOKEN_HERE"):
-            tok_input.setText(_cfg_tok)
-    except Exception:
-        pass
-
-    tok_eye = QPushButton("👁")
-    tok_eye.setFixedWidth(34)
-    tok_eye.setCursor(Qt.PointingHandCursor)
-    tok_eye.setStyleSheet(f"background:{SURFACE};color:{TEXT};border:1px solid {BORDER};border-radius:6px;padding:3px;")
-    def _toggle_eye():
-        if tok_input.echoMode() == QLineEdit.Password:
-            tok_input.setEchoMode(QLineEdit.Normal); tok_eye.setText("🔒")
-        else:
-            tok_input.setEchoMode(QLineEdit.Password); tok_eye.setText("👁")
-    tok_eye.clicked.connect(_toggle_eye)
-
-    tok_row_w = QWidget(); tok_row = QHBoxLayout(tok_row_w)
-    tok_row.setContentsMargins(0, 0, 0, 0); tok_row.addWidget(tok_input, 1); tok_row.addWidget(tok_eye)
-    cfg_lay.addWidget(tok_row_w, 0, 1)
-
-    cfg_lay.addWidget(QLabel("Backend URL:"), 1, 0)
-    url_input = QLineEdit(api_base)
-    url_input.setStyleSheet(tok_input.styleSheet())
-    cfg_lay.addWidget(url_input, 1, 1)
-
-    btn_save_cfg = QPushButton("💾  Save to .env")
-    btn_save_cfg.setCursor(Qt.PointingHandCursor)
-    btn_save_cfg.setStyleSheet(f"background:{ACCENT};color:#11111B;border:none;border-radius:6px;padding:7px 18px;font-weight:bold;font-size:13px;")
-    cfg_lay.addWidget(btn_save_cfg, 2, 1)
-    t1l.addWidget(cfg_grp)
-
-    # Controls group
-    ctrl_grp = QGroupBox("▶  Bot Controls")
-    ctrl_grp.setStyleSheet(_grp_style)
-    ctrl_lay = QHBoxLayout(ctrl_grp)
-    ctrl_lay.setContentsMargins(14, 10, 14, 10); ctrl_lay.setSpacing(10)
-
-    _btn_s = "border:none;border-radius:8px;font-weight:bold;font-size:14px;padding:0 22px;"
-    btn_start   = QPushButton("▶  Start Bot");  btn_start.setFixedHeight(38);   btn_start.setCursor(Qt.PointingHandCursor)
-    btn_stop    = QPushButton("⏹  Stop");       btn_stop.setFixedHeight(38);    btn_stop.setCursor(Qt.PointingHandCursor);    btn_stop.setEnabled(False)
-    btn_restart = QPushButton("🔄  Restart");   btn_restart.setFixedHeight(38); btn_restart.setCursor(Qt.PointingHandCursor); btn_restart.setEnabled(False)
-    btn_start.setStyleSheet(f"background:{SUCCESS};color:#11111B;{_btn_s}")
-    btn_stop.setStyleSheet(f"background:#F38BA8;color:#11111B;{_btn_s}")
-    btn_restart.setStyleSheet(f"background:{WARNING};color:#11111B;{_btn_s}")
-    ctrl_lay.addWidget(btn_start); ctrl_lay.addWidget(btn_stop); ctrl_lay.addWidget(btn_restart); ctrl_lay.addStretch()
-    t1l.addWidget(ctrl_grp)
-
-    # Log group
-    log_grp = QGroupBox("📜  Live Bot Log")
-    log_grp.setStyleSheet(_grp_style)
-    log_lay = QVBoxLayout(log_grp)
-    log_lay.setContentsMargins(10, 8, 10, 8)
-
-    log_view = QTextEdit()
-    log_view.setReadOnly(True)
-    log_view.setStyleSheet(f"background:#11111B;color:{SUCCESS};font-family:Consolas,monospace;font-size:12px;border:1px solid {BORDER};border-radius:6px;padding:8px;")
-    log_view.setMinimumHeight(180)
-    log_view.setPlaceholderText("Bot logs appear here when the bot is running…")
-
-    log_ctrl_row = QHBoxLayout()
-    btn_clear_log = QPushButton("🗑  Clear"); btn_clear_log.setFixedWidth(90)
-    btn_clear_log.setCursor(Qt.PointingHandCursor)
-    btn_clear_log.setStyleSheet(f"background:{SURFACE};color:{SUBTEXT};border:1px solid {BORDER};border-radius:6px;padding:4px;font-size:12px;")
-    btn_clear_log.clicked.connect(log_view.clear)
-    auto_scroll = QCheckBox("Auto-scroll"); auto_scroll.setChecked(True)
-    auto_scroll.setStyleSheet(f"color:{SUBTEXT};font-size:12px;")
-    log_ctrl_row.addWidget(btn_clear_log); log_ctrl_row.addWidget(auto_scroll); log_ctrl_row.addStretch()
-    log_lay.addLayout(log_ctrl_row)
-    log_lay.addWidget(log_view, 1)
-    t1l.addWidget(log_grp, 1)
-    tabs.addTab(t1, "⚙️ Setup & Control")
-
-    # ──────────────────────────────────────────────────────────────────────────
-    # TAB 2 — Commands Reference
-    # ──────────────────────────────────────────────────────────────────────────
-    t2 = QWidget(); t2l = QVBoxLayout(t2)
-    t2l.setContentsMargins(14, 14, 14, 14); t2l.setSpacing(8)
-
-    cmd_note = QLabel("💡 All commands work 24/7 via Telegram — the bot connects to the same backend API as the Desktop App.")
-    cmd_note.setWordWrap(True)
-    cmd_note.setStyleSheet(f"color:{SUBTEXT};font-size:12px;background:{SURFACE};border-radius:6px;padding:8px;")
-    t2l.addWidget(cmd_note)
-
-    cmd_table = QTableWidget(0, 4)
-    cmd_table.setHorizontalHeaderLabels(["Command", "Category", "Description", "Usage Example"])
-    cmd_table.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeToContents)
-    cmd_table.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeToContents)
-    cmd_table.horizontalHeader().setSectionResizeMode(2, QHeaderView.Stretch)
-    cmd_table.horizontalHeader().setSectionResizeMode(3, QHeaderView.ResizeToContents)
-    cmd_table.setSelectionBehavior(QTableWidget.SelectRows)
-    cmd_table.setEditTriggers(QTableWidget.NoEditTriggers)
-    cmd_table.setAlternatingRowColors(True)
-    cmd_table.setStyleSheet(_tbl_style)
-    t2l.addWidget(cmd_table, 1)
-
-    _cmd_data = [
-        ("/start",     "Core",        "Welcome screen + interactive keyboard",                "/start"),
-        ("/help",      "Core",        "Full command list with descriptions",                  "/help"),
-        ("/strategy",  "AI Brain",    "Generate 30-day AI growth strategy",                   "/strategy"),
-        ("/content",   "AI Brain",    "Viral content package (hook/caption/hashtags/script)", "/content"),
-        ("/audit",     "AI Brain",    "Deep account performance audit",                       "/audit"),
-        ("/trends",    "AI Brain",    "Scan live trending topics by platform",                "/trends"),
-        ("/risk",      "AI Brain",    "Content safety & policy compliance check",             "/risk"),
-        ("/agents",    "AI Brain",    "Run full 5-agent AI team parallel analysis",           "/agents"),
-        ("/campaign",  "AI Brain",    "Build AI-optimised campaign plan",                     "/campaign"),
-        ("/report",    "AI Brain",    "Generate detailed performance report",                 "/report"),
-        ("/viral",     "Growth",      "Viral hooks, captions, trending hashtags",             "/viral"),
-        ("/brand",     "Growth",      "Brand authority & positioning score",                  "/brand"),
-        ("/creator",   "Growth",      "Creator toolkit — scripts, ideas, repurpose",          "/creator"),
-        ("/community", "Growth",      "Community engagement strategies & tips",               "/community"),
-        ("/analytics", "Analytics",   "Quick analytics dashboard by platform",                "/analytics"),
-        ("/business",  "Business",    "Business intelligence & market analysis",              "/business"),
-        ("/geo",       "SMM/Geo",     "🌍 AI GEO-targeted order — country/city precision",   "/geo"),
-        ("/panel",     "SMM",         "SMM panel services catalog",                           "/panel"),
-        ("/order",     "SMM",         "Place AI smart SMM order",                             "/order"),
-        ("/balance",   "SMM",         "Check SMM panel balance",                              "/balance"),
-        ("/facebook",  "Facebook",    "Facebook page tools — posts, AI content, schedule",   "/facebook"),
-        ("/schedule",  "Scheduler",   "Content scheduling — week plan / best times",         "/schedule"),
-        ("/inbox",     "Inbox",       "Auto-reply templates & comment strategies",            "/inbox"),
-    ]
-    _cat_colors = {
-        "Core": ACCENT, "AI Brain": SUCCESS, "Growth": "#CBA6F7",
-        "Analytics": "#89DCEB", "Business": "#A6E3A1", "SMM/Geo": "#FAB387",
-        "SMM": WARNING, "Facebook": "#4C9EEB", "Scheduler": "#ABE9B3", "Inbox": "#DDB6F2",
-    }
-    for cmd, cat, desc, ex in _cmd_data:
-        r = cmd_table.rowCount(); cmd_table.insertRow(r)
-        for col, val in enumerate([cmd, cat, desc, ex]):
-            item = QTableWidgetItem(val)
-            item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
-            if col == 0:
-                item.setForeground(QColor(ACCENT))
-                item.setFont(QFont("Consolas", 12, QFont.Bold))
-            elif col == 1:
-                item.setForeground(QColor(_cat_colors.get(cat, TEXT)))
-                item.setFont(QFont("Segoe UI", 11, QFont.Bold))
-            cmd_table.setItem(r, col, item)
-    tabs.addTab(t2, "📋 Commands")
-
-    # ──────────────────────────────────────────────────────────────────────────
-    # TAB 3 — AI Features Map
-    # ──────────────────────────────────────────────────────────────────────────
-    t3 = QWidget(); t3l = QVBoxLayout(t3)
-    t3l.setContentsMargins(14, 14, 14, 14); t3l.setSpacing(8)
-
-    feat_note = QLabel(
-        "Every AI feature in the Desktop App is also available on the Telegram Bot — same backend API, delivered to your chat 24/7."
-    )
-    feat_note.setWordWrap(True)
-    feat_note.setStyleSheet(f"color:{TEXT};font-size:13px;background:{SURFACE};border-radius:8px;padding:10px;")
-    t3l.addWidget(feat_note)
-
-    feat_table = QTableWidget(0, 3)
-    feat_table.setHorizontalHeaderLabels(["Desktop Page", "Bot Command(s)", "Features Covered"])
-    feat_table.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeToContents)
-    feat_table.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeToContents)
-    feat_table.horizontalHeader().setSectionResizeMode(2, QHeaderView.Stretch)
-    feat_table.setEditTriggers(QTableWidget.NoEditTriggers)
-    feat_table.setAlternatingRowColors(True)
-    feat_table.setStyleSheet(_tbl_style)
-    t3l.addWidget(feat_table, 1)
-
-    _feature_map = [
-        ("📊 Dashboard",         "/start",                  "Status overview, quick stats"),
-        ("🧠 Strategy Brain",    "/strategy",               "30-day growth plan, posting schedule, goal modeling"),
-        ("✍️ Content Studio",    "/content + /creator",     "Viral hooks, captions, hashtags, video scripts, repurpose"),
-        ("📈 Analytics",         "/analytics + /report",    "Performance metrics, engagement rate, ROI analysis"),
-        ("🔮 Trend Radar",       "/trends",                 "Live trending topics, viral sounds, hashtag waves"),
-        ("⚙️ Campaign Engine",   "/campaign",               "Campaign planning, budget allocation, timeline"),
-        ("🛡️ Risk Engine",       "/risk",                   "Content safety, shadowban detection, policy compliance"),
-        ("🛒 SMM Panel",         "/panel + /order",         "Service catalog, smart orders, balance management"),
-        ("🤖 Multi-Agent AI",    "/agents",                 "5-agent parallel analysis, orchestrated insights"),
-        ("📅 Auto-Scheduler",    "/schedule",               "Content calendar, best time to post, weekly plan"),
-        ("💬 Social Inbox",      "/inbox",                  "Auto-reply templates, comment strategies, DM tips"),
-        ("🌍 Geo Intelligence",  "/geo",                    "Country/city-targeted orders, Real Human delivery"),
-        ("📱 Social Manager",    "/facebook + /content",    "Multi-platform management, post analytics"),
-        ("🔍 Intelligence Hub",  "/business",               "Competitor analysis, market intelligence"),
-        ("🔥 Viral & Growth",    "/viral",                  "Hook formulas, viral formats, growth hacks"),
-        ("💼 Business Intel",    "/business",               "Market analysis, customer personas, revenue tracking"),
-        ("🎨 Creator Tools",     "/creator",                "Script writing, content repurpose, idea generation"),
-        ("💰 Sales Engine",      "/business",               "Sales funnels, DM scripts, conversion tactics"),
-        ("🏆 Brand Authority",   "/brand",                  "Brand positioning, authority score, trust building"),
-        ("🤝 Community Hub",     "/community",              "Engagement tactics, loyalty programs, growth hacks"),
-        ("📘 Facebook Manager",  "/facebook",               "Page insights, AI post generation, bulk schedule"),
-    ]
-    for desk, bot_cmd, feats in _feature_map:
-        r = feat_table.rowCount(); feat_table.insertRow(r)
-        for col, val in enumerate([desk, bot_cmd, feats]):
-            item = QTableWidgetItem(val)
-            item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
-            if col == 1:
-                item.setForeground(QColor(ACCENT))
-                item.setFont(QFont("Consolas", 12))
-            feat_table.setItem(r, col, item)
-    tabs.addTab(t3, "🚀 AI Features Map")
-
-    # ──────────────────────────────────────────────────────────────────────────
-    # TAB 4 — Stats & Setup Guide
-    # ──────────────────────────────────────────────────────────────────────────
-    t4 = QWidget(); t4l = QVBoxLayout(t4)
-    t4l.setContentsMargins(14, 14, 14, 14); t4l.setSpacing(10)
-
-    stats_row = QHBoxLayout()
-    _stat_cards = {}
-    for lbl, val, clr in [("⏱ Uptime", "—", ACCENT), ("📨 Messages", "0", SUCCESS), ("⌨️ Commands", "0", WARNING), ("👥 Sessions", "0", "#CBA6F7")]:
-        card = QFrame()
-        card.setStyleSheet(f"background:{SURFACE};border-radius:10px;border:1px solid {BORDER};")
-        cl = QVBoxLayout(card); cl.setContentsMargins(14, 10, 14, 10)
-        vl = QLabel(val); vl.setFont(QFont("Segoe UI", 20, QFont.Bold))
-        vl.setStyleSheet(f"color:{clr};"); vl.setAlignment(Qt.AlignCenter)
-        ll = QLabel(lbl); ll.setStyleSheet(f"color:{SUBTEXT};font-size:12px;"); ll.setAlignment(Qt.AlignCenter)
-        cl.addWidget(vl); cl.addWidget(ll)
-        stats_row.addWidget(card); _stat_cards[lbl] = vl
-    t4l.addLayout(stats_row)
-
-    guide = QTextEdit()
-    guide.setReadOnly(True)
-    guide.setStyleSheet(f"background:{SURFACE};color:{TEXT};border:1px solid {BORDER};border-radius:8px;padding:12px;font-size:13px;")
-    guide.setHtml(f"""
-    <h3 style='color:{ACCENT};margin-top:0;'>Quick Setup Guide (3 steps)</h3>
-    <ol style='color:{TEXT};line-height:2.0;'>
-      <li><b>Get a bot token:</b> Open Telegram → search <code style='color:{ACCENT};'>@BotFather</code> → send <code style='color:{ACCENT};'>/newbot</code> → copy the token</li>
-      <li><b>Paste & save:</b> Go to ⚙️ Setup tab → paste token → click <b>💾 Save to .env</b></li>
-      <li><b>Launch:</b> Click <b>▶ Start Bot</b> → open Telegram → send <code style='color:{ACCENT};'>/start</code></li>
-    </ol>
-    <h3 style='color:{SUCCESS};'>What your 24/7 AI bot does:</h3>
-    <table style='color:{TEXT};width:100%;border-collapse:collapse;'>
-      <tr><td style='padding:4px;'>🧠</td><td>Generates 30-day AI growth strategies on demand</td></tr>
-      <tr><td style='padding:4px;'>✍️</td><td>Creates viral content packages — hook, caption, hashtags, script</td></tr>
-      <tr><td style='padding:4px;'>📊</td><td>Delivers analytics reports and competitor insights to your chat</td></tr>
-      <tr><td style='padding:4px;'>🌍</td><td>Places geo-targeted Real Human SMM orders from your phone</td></tr>
-      <tr><td style='padding:4px;'>🛡️</td><td>Checks content safety before you publish — no more bans</td></tr>
-      <tr><td style='padding:4px;'>🤖</td><td>Runs full 5-agent AI team analysis in one /agents command</td></tr>
-      <tr><td style='padding:4px;'>📘</td><td>Generates AI Facebook posts, shows page insights, bulk schedules</td></tr>
-      <tr><td style='padding:4px;'>🔥</td><td>Delivers viral hooks, trending hashtags, growth hacks instantly</td></tr>
-      <tr><td style='padding:4px;'>💬</td><td>Auto-reply templates and comment engagement strategies</td></tr>
-      <tr><td style='padding:4px;'>📅</td><td>Schedules content calendars and tells you best posting times</td></tr>
-    </table>
-    <p style='color:{SUBTEXT};margin-top:12px;font-size:12px;'>
-      💡 Set <code>GROQ_API_KEY</code> or <code>OPENAI_API_KEY</code> in your .env for real GPT-4o / LLaMA 3 AI responses.
-    </p>
-    """)
-    t4l.addWidget(guide, 1)
-    tabs.addTab(t4, "📊 Stats & Guide")
-
-    # ──────────────────────────────────────────────────────────────────────────
-    # Bot lifecycle logic
-    # ──────────────────────────────────────────────────────────────────────────
-    _state = {"thread": None, "start_time": None, "msg_count": 0, "cmd_count": 0, "sessions": set()}
-
-    def _append_log(line: str):
-        ts = _dt_cls.now().strftime("%H:%M:%S")
-        safe = line.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
-        color = WARNING if "ERROR" in line.upper() or "error" in line else (SUCCESS if any(k in line for k in ["start", "poll", "✅"]) else TEXT)
-        log_view.append(f"<span style='color:{SUBTEXT};font-size:11px;'>[{ts}]</span> <span style='color:{color};'>{safe}</span>")
-        if auto_scroll.isChecked():
-            sb = log_view.verticalScrollBar(); sb.setValue(sb.maximum())
-        lo = line.lower()
-        if any(k in lo for k in ["message", "update", "received"]):
-            _state["msg_count"] += 1
-            _stat_cards["📨 Messages"].setText(str(_state["msg_count"]))
-            _msg_lbl.setText(f"📨 Msgs: {_state['msg_count']}")
-        if any(k in lo for k in ["/strategy", "/content", "/geo", "/viral", "/agents", "/audit"]):
-            _state["cmd_count"] += 1
-            _stat_cards["⌨️ Commands"].setText(str(_state["cmd_count"]))
-
-    def _on_status(s: str):
-        if s == "running":
-            _state["start_time"] = _dt_cls.now()
-            _dot.setText("🟢"); _status_lbl.setText("Bot: Running ✓")
-            _status_lbl.setStyleSheet(f"color:{SUCCESS};font-weight:bold;font-size:13px;")
-            btn_start.setEnabled(False); btn_stop.setEnabled(True); btn_restart.setEnabled(True)
-            _append_log("✅ GrowthOS AI Bot is LIVE — polling Telegram for messages…")
-        elif s == "stopped":
-            _dot.setText("⚫"); _status_lbl.setText("Bot: Stopped")
-            _status_lbl.setStyleSheet(f"color:{SUBTEXT};font-weight:bold;font-size:13px;")
-            btn_start.setEnabled(True); btn_stop.setEnabled(False); btn_restart.setEnabled(False)
-            _uptime_lbl.setText("—"); _state["start_time"] = None; _state["thread"] = None
-            _append_log("⏹ Bot stopped.")
-        elif s.startswith("error:"):
-            _dot.setText("🔴"); _status_lbl.setText("Bot: Error")
-            _status_lbl.setStyleSheet(f"color:#F38BA8;font-weight:bold;font-size:13px;")
-            btn_start.setEnabled(True); btn_stop.setEnabled(False); btn_restart.setEnabled(False)
-            _state["thread"] = None; _append_log(f"❌ {s}")
-
-    def _save_config():
-        tok = tok_input.text().strip()
-        url = url_input.text().strip()
-        if not tok:
-            _append_log("⚠️ Token is empty — nothing saved."); return
-        env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env")
-        lines = []
-        if os.path.exists(env_path):
-            with open(env_path, "r", encoding="utf-8") as f:
-                lines = f.readlines()
-        updated_tok = False; updated_url = False
-        for i, line in enumerate(lines):
-            if line.startswith("TELEGRAM_BOT_TOKEN="):
-                lines[i] = f"TELEGRAM_BOT_TOKEN={tok}\n"; updated_tok = True
-            if line.startswith("BACKEND_URL="):
-                lines[i] = f"BACKEND_URL={url}\n"; updated_url = True
-        if not updated_tok: lines.append(f"TELEGRAM_BOT_TOKEN={tok}\n")
-        if not updated_url: lines.append(f"BACKEND_URL={url}\n")
-        with open(env_path, "w", encoding="utf-8") as f:
-            f.writelines(lines)
-        _append_log("💾 Saved — TELEGRAM_BOT_TOKEN & BACKEND_URL written to .env")
-        _dot.setText("🟡"); _status_lbl.setText("Bot: Ready (token saved)")
-        _status_lbl.setStyleSheet(f"color:{WARNING};font-weight:bold;font-size:13px;")
-
-    def _start_bot():
-        if _state["thread"] and _state["thread"].isRunning():
-            return
-        tok = tok_input.text().strip()
-        if not tok:
-            _append_log("⚠️ No token set. Paste your token and click 💾 Save first."); return
-        os.environ["TELEGRAM_BOT_TOKEN"] = tok
-        os.environ["BACKEND_URL"] = url_input.text().strip() or api_base
-        t = BotThread()
-        t.log_line.connect(_append_log)
-        t.status_change.connect(_on_status)
-        _state["thread"] = t; _state["msg_count"] = 0; _state["cmd_count"] = 0
-        _dot.setText("🟡"); _status_lbl.setText("Bot: Starting…")
-        _status_lbl.setStyleSheet(f"color:{WARNING};font-weight:bold;font-size:13px;")
-        _append_log("▶ Launching GrowthOS AI Telegram Bot…")
-        t.start()
-
-    def _stop_bot():
-        t = _state.get("thread")
-        if t and t.isRunning():
-            t.stop_bot(); _append_log("⏹ Sending stop signal…")
-
-    def _restart_bot():
-        _stop_bot(); QTimer.singleShot(1600, _start_bot)
-
-    # Uptime ticker (1-second)
-    _uptime_timer = QTimer()
-    def _tick():
-        st = _state.get("start_time")
-        if st:
-            delta = _dt_cls.now() - st
-            h, rem = divmod(int(delta.total_seconds()), 3600)
-            m, s = divmod(rem, 60)
-            txt = f"⏱ {h:02d}:{m:02d}:{s:02d}"
-            _uptime_lbl.setText(txt); _stat_cards["⏱ Uptime"].setText(f"{h:02d}:{m:02d}:{s:02d}")
-    _uptime_timer.timeout.connect(_tick); _uptime_timer.start(1000)
-
-    btn_save_cfg.clicked.connect(_save_config)
-    btn_start.clicked.connect(_start_bot)
-    btn_stop.clicked.connect(_stop_bot)
-    btn_restart.clicked.connect(_restart_bot)
-
-    return page
-
-
-# ═══════════════════════════════════════════════════════════════════════════════
 # MAIN WINDOW
 # ═══════════════════════════════════════════════════════════════════════════════
 
@@ -9197,30 +7295,23 @@ class GrowthOS_Desktop(QMainWindow):
 
     @classmethod
     def _ensure_backend(cls):
-        """Start uvicorn backend in background if it is not already running."""
+        """Start backend_api.py in background if it is not already running."""
         if cls._backend_alive():
             return  # already up
         if cls._backend_proc is not None and cls._backend_proc.poll() is None:
             return  # already started by us, still running
 
         import subprocess
-        _cwd = os.path.dirname(os.path.abspath(__file__))
-        _flags = subprocess.CREATE_NO_WINDOW if sys.platform == "win32" else 0
+        backend_script = os.path.join(os.path.dirname(os.path.abspath(__file__)), "backend_api.py")
         try:
-            # Launch uvicorn directly (no --reload) so no child-process
-            # spawning is needed — avoids Windows multiprocessing issues.
             cls._backend_proc = subprocess.Popen(
-                [
-                    sys.executable, "-m", "uvicorn",
-                    "backend_api:app",
-                    "--host", "127.0.0.1",
-                    "--port", "8000",
-                ],
-                cwd=_cwd,
+                [sys.executable, backend_script],
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
-                creationflags=_flags,
+                creationflags=subprocess.CREATE_NO_WINDOW if sys.platform == "win32" else 0,
             )
+            # Non-blocking: _ping_backend (QTimer 1500 ms) will update the
+            # status label once the server is up. No sleep on the main thread.
         except Exception:
             pass  # will surface as a normal "Cannot connect" error in the UI
 
@@ -9241,7 +7332,7 @@ class GrowthOS_Desktop(QMainWindow):
 
         ver = QLabel(f"v{APP_VERSION}  •  110 AI Features")
         ver.setAlignment(Qt.AlignCenter)
-        ver.setStyleSheet(f"color: {SUBTEXT}; font-size: 14px;")
+        ver.setStyleSheet(f"color: {SUBTEXT}; font-size: 12px;")
         sl.addWidget(ver)
         sl.addSpacing(8)
 
@@ -9257,9 +7348,9 @@ class GrowthOS_Desktop(QMainWindow):
             b_lay.setContentsMargins(10, 7, 10, 7)
             b_lay.setSpacing(2)
             name_lbl = QLabel(f"{role_icon}  {disp_name}")
-            name_lbl.setStyleSheet(f"color:{TEXT}; font-size:14px; font-weight:bold;")
+            name_lbl.setStyleSheet(f"color:{TEXT}; font-size:13px; font-weight:bold;")
             role_lbl = QLabel(role.upper())
-            role_lbl.setStyleSheet(f"color:{role_color}; font-size:14px; letter-spacing:1px;")
+            role_lbl.setStyleSheet(f"color:{role_color}; font-size:12px; letter-spacing:1px;")
             b_lay.addWidget(name_lbl)
             b_lay.addWidget(role_lbl)
             sl.addWidget(banner)
@@ -9293,11 +7384,9 @@ class GrowthOS_Desktop(QMainWindow):
             (23, "🏆", "Brand Authority"),
             (24, "🤝", "Community Hub"),
             (25, "⚡", "Real-Time Intel"),
-            (26, "📘", "Facebook Manager"),
-            (27, "📱", "Telegram Bot"),
         ]
         if self._user_info.get("role") == "admin":
-            nav_items.append((28, "👑", "Admin Panel"))
+            nav_items.append((26, "👑", "Admin Panel"))
 
         self._nav_buttons = {}
         nav_container = QWidget()
@@ -9348,7 +7437,7 @@ class GrowthOS_Desktop(QMainWindow):
 
         # ── Status indicator ──────────────────────────────────────────────────
         self._status_label = QLabel("● Backend: Unknown")
-        self._status_label.setStyleSheet(f"color:{SUBTEXT}; font-size:14px; padding:4px;")
+        self._status_label.setStyleSheet(f"color:{SUBTEXT}; font-size:12px; padding:4px;")
         self._status_label.setAlignment(Qt.AlignCenter)
         sl.addWidget(self._status_label)
 
@@ -9360,7 +7449,7 @@ class GrowthOS_Desktop(QMainWindow):
                 QPushButton {{
                     background: transparent; color: {SUBTEXT};
                     border: 1px solid {SURFACE}; border-radius: 6px;
-                    padding: 7px 10px; font-size: 14px; text-align: left;
+                    padding: 7px 10px; font-size: 12px; text-align: left;
                 }}
                 QPushButton:hover {{ background: #F38BA820; color: #F38BA8; border-color: #F38BA8; }}
             """)
@@ -9375,7 +7464,7 @@ class GrowthOS_Desktop(QMainWindow):
         sl.addWidget(_div)
 
         _theme_lbl = QLabel("🎨  Theme")
-        _theme_lbl.setStyleSheet(f"color: {SUBTEXT}; font-size: 14px; padding: 4px 2px 1px 2px;")
+        _theme_lbl.setStyleSheet(f"color: {SUBTEXT}; font-size: 12px; padding: 4px 2px 1px 2px;")
         sl.addWidget(_theme_lbl)
 
         self._theme_cbo = QComboBox()
@@ -9386,14 +7475,14 @@ class GrowthOS_Desktop(QMainWindow):
             pass
         self._theme_cbo.setStyleSheet(f"""
             QComboBox {{
-                background: {SURFACE}; color: {TEXT}; font-size: 14px;
+                background: {SURFACE}; color: {TEXT}; font-size: 12px;
                 border: 1px solid {BORDER}; border-radius: 6px;
                 padding: 4px 8px; min-height: 30px;
             }}
             QComboBox:focus {{ border: 1px solid {ACCENT}; }}
             QComboBox::drop-down {{ border: none; width: 20px; }}
             QComboBox QAbstractItemView {{
-                background: {SURFACE}; color: {TEXT}; font-size: 14px;
+                background: {SURFACE}; color: {TEXT}; font-size: 12px;
                 selection-background-color: {HOVER}; border: 1px solid {BORDER};
             }}
         """)
@@ -9406,7 +7495,7 @@ class GrowthOS_Desktop(QMainWindow):
             QPushButton {{
                 background: {SURFACE}; color: {ACCENT};
                 border: 1px solid {ACCENT}; border-radius: 6px;
-                font-size: 14px; font-weight: bold; padding: 4px;
+                font-size: 12px; font-weight: bold; padding: 4px;
             }}
             QPushButton:hover {{ background: {ACCENT}; color: #11111B; }}
         """)
@@ -9424,17 +7513,17 @@ class GrowthOS_Desktop(QMainWindow):
             r = requests.get(f"{BACKEND_URL}/api/v1/health", timeout=2)
             if r.status_code == 200:
                 self._status_label.setText("● Backend: Online ✓")
-                self._status_label.setStyleSheet(f"color:{SUCCESS}; font-size:14px; padding:4px;")
+                self._status_label.setStyleSheet(f"color:{SUCCESS}; font-size:12px; padding:4px;")
                 # Load connected accounts once when backend first comes online
                 if not _ACCOUNTS_CACHE:
                     self._do_refresh_accounts()
                 return  # done — backend is up, stop retrying
             else:
                 self._status_label.setText("● Backend: Error")
-                self._status_label.setStyleSheet(f"color:{WARNING}; font-size:14px; padding:4px;")
+                self._status_label.setStyleSheet(f"color:{WARNING}; font-size:12px; padding:4px;")
         except Exception:
             self._status_label.setText("● Backend: Starting…")
-            self._status_label.setStyleSheet(f"color:{WARNING}; font-size:14px; padding:4px;")
+            self._status_label.setStyleSheet(f"color:{WARNING}; font-size:12px; padding:4px;")
         # Not yet online — retry in 2 seconds
         QTimer.singleShot(2000, self._ping_backend)
 
@@ -9449,7 +7538,7 @@ class GrowthOS_Desktop(QMainWindow):
                 self._status_label.setText(
                     f"● Online ✓  |  🔗 {connected} acct{'s' if connected != 1 else ''}"
                 )
-                self._status_label.setStyleSheet(f"color:{SUCCESS}; font-size:14px; padding:4px;")
+                self._status_label.setStyleSheet(f"color:{SUCCESS}; font-size:12px; padding:4px;")
         w.result_ready.connect(_done)
         w.start()
         self._acc_cache_worker = w  # prevent GC
@@ -9484,11 +7573,9 @@ class GrowthOS_Desktop(QMainWindow):
             build_brand_authority_page(api),     # 23
             build_community_page(api),           # 24
             build_realtime_intel_page(api),      # 25
-            build_facebook_manager_page(api),    # 26
-            build_telegram_bot_page(api),         # 27
         ]
         if self._user_info.get("role") == "admin":
-            pages.append(build_admin_page(self._user_info))  # 28
+            pages.append(build_admin_page(self._user_info))  # 26
         for p in pages:
             self.stack.addWidget(p)
         parent_layout.addWidget(self.stack, 1)
@@ -9498,19 +7585,6 @@ class GrowthOS_Desktop(QMainWindow):
         for i, btn in self._nav_buttons.items():
             btn.setChecked(i == index)
 
-    def closeEvent(self, event):
-        """Terminate the auto-started backend process when the window closes."""
-        proc = GrowthOS_Desktop._backend_proc
-        if proc is not None and proc.poll() is None:
-            try:
-                proc.terminate()
-                proc.wait(timeout=3)
-            except Exception:
-                try:
-                    proc.kill()
-                except Exception:
-                    pass
-        event.accept()
 
     def _apply_theme(self):
         selected = self._theme_cbo.currentText()
