@@ -18,9 +18,34 @@ Commands:
 """
 import asyncio
 import logging
+import sys
 import httpx
 import json
 import aiohttp
+
+# ── Windows DNS fix ──────────────────────────────────────────────────────────
+# On Windows, aiodns/c-ares cannot read the system DNS configuration when the
+# event loop is ProactorEventLoop (Python 3.8+ default).  This manifests as
+# "Could not contact DNS servers" (c-ares error 11 / ARES_ENOSERVERS) every
+# time aiohttp tries to resolve api.telegram.org.
+#
+# Fix A — monkey-patch TCPConnector so every instance (including the one
+#          AiohttpSession.close() creates internally) uses Python's built-in
+#          socket.getaddrinfo via ThreadedResolver, bypassing aiodns entirely.
+# Fix B — fall back to SelectorEventLoop on Windows so aiodns can work even if
+#          ThreadedResolver somehow isn't picked up.
+if sys.platform == "win32":
+    _orig_tcp_connector_init = aiohttp.TCPConnector.__init__
+
+    def _patched_tcp_connector_init(self, *args, **kwargs):
+        kwargs.setdefault("resolver", aiohttp.ThreadedResolver())
+        _orig_tcp_connector_init(self, *args, **kwargs)
+
+    aiohttp.TCPConnector.__init__ = _patched_tcp_connector_init  # type: ignore[method-assign]
+    # Fix B: selector event loop is required by aiodns on Windows (fallback)
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+# ─────────────────────────────────────────────────────────────────────────────
+
 from aiogram import Bot, Dispatcher, F
 from aiogram.client.session.aiohttp import AiohttpSession
 from aiogram.filters import CommandStart, Command
@@ -44,20 +69,20 @@ logging.basicConfig(level=logging.INFO)
 log = logging.getLogger(__name__)
 
 _SETUP_MSG = """
-╔══════════════════════════════════════════════════════╗
-║        GrowthOS AI — Telegram Bot Setup              ║
-╠══════════════════════════════════════════════════════╣
-║  TELEGRAM_BOT_TOKEN is missing or invalid.           ║
-║                                                      ║
-║  How to get your token:                              ║
-║  1. Open Telegram and search for @BotFather          ║
-║  2. Send /newbot and follow the prompts              ║
-║  3. Copy the token (format: 123456789:AAFxxx...)     ║
-║  4. Add it to your .env file:                        ║
-║     TELEGRAM_BOT_TOKEN=123456789:AAFxxx...           ║
-║                                                      ║
-║  Backend API is running — other features work fine.  ║
-╚══════════════════════════════════════════════════════╝
+========================================================
+   GrowthOS AI -- Telegram Bot Setup
+========================================================
+  TELEGRAM_BOT_TOKEN is missing or invalid.
+
+  How to get your token:
+  1. Open Telegram and search for @BotFather
+  2. Send /newbot and follow the prompts
+  3. Copy the token (format: 123456789:AAFxxx...)
+  4. Add it to your .env file:
+     TELEGRAM_BOT_TOKEN=123456789:AAFxxx...
+
+  Backend API is running -- other features work fine.
+========================================================
 """
 
 _PLACEHOLDER_VALUES = {"", "your_token", "YOUR_TELEGRAM_BOT_TOKEN_HERE"}
@@ -66,20 +91,8 @@ if not TELEGRAM_BOT_TOKEN or TELEGRAM_BOT_TOKEN in _PLACEHOLDER_VALUES:
     print(_SETUP_MSG)
     raise SystemExit(1)
 
-try:
-    # Use aiohttp.DefaultResolver to bypass aiodns (fixes DNS failure on Windows)
-    _bot_session = AiohttpSession(
-        connector=aiohttp.TCPConnector(
-            resolver=aiohttp.DefaultResolver(),
-            ssl=True,
-        )
-    )
-    bot = Bot(token=TELEGRAM_BOT_TOKEN, session=_bot_session)
-except Exception as e:
-    print(_SETUP_MSG)
-    print(f"Token error: {e}")
-    raise SystemExit(1)
-
+# Bot is created inside main() so ThreadedResolver has a running event loop
+bot: Bot = None  # type: ignore — assigned in main() before polling
 dp = Dispatcher(storage=MemoryStorage())
 
 TIMEOUT = httpx.Timeout(30.0)
@@ -1233,6 +1246,17 @@ async def inbox_handler(callback: CallbackQuery):
 
 # ─── Main ─────────────────────────────────────────────────────────────────────
 async def main():
+    global bot
+    # The Windows DNS fix (ThreadedResolver monkey-patch + SelectorEventLoop)
+    # is applied at module import time above, so a plain AiohttpSession() is
+    # sufficient — every TCPConnector() it creates internally will already use
+    # the patched resolver.
+    try:
+        bot = Bot(token=TELEGRAM_BOT_TOKEN)
+    except Exception as e:
+        log.error("Bot token error: %s", e)
+        raise SystemExit(1)
+
     log.info("GrowthOS AI Telegram Bot starting...")
     await dp.start_polling(bot)
 
