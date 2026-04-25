@@ -42,8 +42,8 @@ if sys.platform == "win32":
         _orig_tcp_connector_init(self, *args, **kwargs)
 
     aiohttp.TCPConnector.__init__ = _patched_tcp_connector_init  # type: ignore[method-assign]
-    # Fix B: selector event loop is required by aiodns on Windows (fallback)
-    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+    # Fix B removed: WindowsSelectorEventLoopPolicy is deprecated in Python 3.14+
+    # ThreadedResolver (Fix A) is sufficient to bypass aiodns on Windows.
 # ─────────────────────────────────────────────────────────────────────────────
 
 from aiogram import Bot, Dispatcher, F
@@ -2095,7 +2095,7 @@ async def main():
         raise SystemExit(1)
 
     log.info("GrowthOS AI Telegram Bot starting...")
-    await dp.start_polling(bot)
+    await dp.start_polling(bot, drop_pending_updates=True)
 
 if __name__ == "__main__":
     asyncio.run(main())
