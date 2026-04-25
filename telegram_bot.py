@@ -2095,6 +2095,9 @@ async def main():
         raise SystemExit(1)
 
     log.info("GrowthOS AI Telegram Bot starting...")
+    # Delete any active webhook and drop pending updates before polling.
+    # This resolves TelegramConflictError when a previous instance or webhook is still active.
+    await bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(bot, drop_pending_updates=True)
 
 if __name__ == "__main__":
