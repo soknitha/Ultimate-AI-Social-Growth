@@ -257,6 +257,12 @@ class OrchestrateData(BaseModel):
     niche: str
     metrics: Optional[dict] = {}
 
+class OmniTaskData(BaseModel):
+    task_id: str
+    task_name: str
+    input_data: str
+    language: str = "English"
+
 # ─── Social Inbox Models ─────────────────────────────────────────────────────
 class InboxSimulateData(BaseModel):
     platform: str = Field(default="TikTok")
@@ -329,7 +335,7 @@ def read_root():
         "status": "🚀 All systems operational",
         "ai_enabled": USE_REAL_AI,
         "smm_panel_enabled": USE_SMM_PANEL,
-        "features_count": 99,
+        "features_count": 150,
         "timestamp": datetime.now().isoformat(),
     }
 
@@ -350,7 +356,7 @@ async def get_dashboard():
         "status": "success",
         "data": {
             "quick_stats": {
-                "total_features": 99,
+                "total_features": 150,
                 "ai_models_active": 1 if USE_REAL_AI else 0,
                 "smm_services": 13,
                 "platforms_supported": 7,
@@ -368,6 +374,28 @@ async def get_dashboard():
         },
     }
 
+# ═══════════════════════════════════════════════════════════════════════════════
+# MODULE 0: OMNI AI HUB (150 FEATURES ROUTER)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+@app.post("/api/v1/omni-task", tags=["Omni Hub"])
+async def api_omni_task(data: OmniTaskData):
+    """Universal endpoint handling 150 advanced Omni AI tasks."""
+    try:
+        from ai_core.llm_client import LLM_CLIENT, LLM_MODEL, USE_AI
+        if not USE_AI or not LLM_CLIENT:
+            return {"status": "success", "data": f"[Demo Mode] Executed: {data.task_name}\nInput: {data.input_data[:100]}...\n\nEnable Real AI in .env to run this advanced omni-task."}
+        
+        system = f"You are GrowthOS AI. Your current objective is to execute the following advanced Omni AI feature: '{data.task_name}'. Provide a highly accurate, structured, and professional response in {data.language}. If the task implies a multimodal output (like generating an image or video), provide a highly detailed prompt or script that fulfills the user's intent."
+        
+        resp = await LLM_CLIENT.chat.completions.create(
+            model=LLM_MODEL,
+            messages=[{"role": "system", "content": system}, {"role": "user", "content": data.input_data}],
+            temperature=0.7, max_tokens=2500,
+        )
+        return {"status": "success", "data": resp.choices[0].message.content}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # MODULE 1: AI STRATEGY BRAIN
@@ -2622,6 +2650,218 @@ async def fb_ai_bulk_schedule(data: FBAIBulkSchedule):
                 f"Best day: {days[i % len(days)]} | Best time: {times[i % len(times)]}"
             )
     return {"status": "ok", "posts": posts[:num], "count": min(len(posts), num)}
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# AI SOCIAL NETWORK ENDPOINTS
+# ═══════════════════════════════════════════════════════════════════════════════
+
+try:
+    from ai_core.social_platform import (
+        is_registered, register_user, get_user_profile, update_profile,
+        list_all_users, create_post, get_feed, get_post, toggle_like,
+        add_comment, reply_comment, get_platform_stats,
+        admin_get_all_users, admin_get_recent_posts, admin_delete_post,
+        admin_ban_user, ai_enhance_caption, ai_suggest_reply,
+    )
+    _SOCIAL_OK = True
+except Exception:
+    _SOCIAL_OK = False
+
+
+class SocialRegisterData(BaseModel):
+    telegram_id:   str
+    first_name:    str
+    last_name:     str = ""
+    username:      str = ""
+    phone:         str = ""
+    sex:           str = ""
+    date_of_birth: str = ""
+    bio:           str = ""
+    language_code: str = "en"
+
+
+class SocialPostData(BaseModel):
+    telegram_id:  str
+    content:      str
+    media_type:   str = "text"
+    media_file_id:str = ""
+    media_url:    str = ""
+    location:     str = ""
+    tags:         List[str] = []
+
+
+class SocialLikeData(BaseModel):
+    telegram_id: str
+    post_id:     str
+
+
+class SocialCommentData(BaseModel):
+    telegram_id: str
+    post_id:     str
+    text:        str
+
+
+class SocialReplyData(BaseModel):
+    telegram_id: str
+    post_id:     str
+    comment_id:  str
+    text:        str
+
+
+class SocialEnhanceData(BaseModel):
+    text:     str
+    platform: str = "Social"
+
+
+@app.post("/api/v1/social/register", tags=["Social Network"])
+async def api_social_register(data: SocialRegisterData):
+    """Register or update a Telegram user in the AI Social Network."""
+    if not _SOCIAL_OK:
+        raise HTTPException(status_code=503, detail="Social platform module not loaded")
+    user = register_user(
+        telegram_id   = data.telegram_id,
+        first_name    = data.first_name,
+        last_name     = data.last_name,
+        username      = data.username,
+        phone         = data.phone,
+        sex           = data.sex,
+        date_of_birth = data.date_of_birth,
+        bio           = data.bio,
+        language_code = data.language_code,
+    )
+    return {"status": "success", "data": user}
+
+
+@app.get("/api/v1/social/profile/{telegram_id}", tags=["Social Network"])
+async def api_social_profile(telegram_id: str):
+    """Get a user's social profile by Telegram ID."""
+    if not _SOCIAL_OK:
+        raise HTTPException(status_code=503, detail="Social platform module not loaded")
+    profile = get_user_profile(telegram_id)
+    if not profile:
+        raise HTTPException(status_code=404, detail="User not found")
+    return {"status": "success", "data": profile}
+
+
+@app.get("/api/v1/social/feed", tags=["Social Network"])
+async def api_social_feed(page: int = 1, per_page: int = 10, author_id: Optional[str] = None):
+    """Get social feed with pagination."""
+    if not _SOCIAL_OK:
+        raise HTTPException(status_code=503, detail="Social platform module not loaded")
+    posts = get_feed(page=page, per_page=per_page, author_id=author_id)
+    return {"status": "success", "data": posts, "page": page}
+
+
+@app.post("/api/v1/social/post", tags=["Social Network"])
+async def api_social_post(data: SocialPostData):
+    """Create a new social post (text/image/video)."""
+    if not _SOCIAL_OK:
+        raise HTTPException(status_code=503, detail="Social platform module not loaded")
+    try:
+        post = create_post(
+            telegram_id   = data.telegram_id,
+            content       = data.content,
+            media_type    = data.media_type,
+            media_file_id = data.media_file_id,
+            media_url     = data.media_url,
+            location      = data.location,
+            tags          = data.tags,
+        )
+        return {"status": "success", "data": post}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@app.post("/api/v1/social/like", tags=["Social Network"])
+async def api_social_like(data: SocialLikeData):
+    """Toggle like on a post."""
+    if not _SOCIAL_OK:
+        raise HTTPException(status_code=503, detail="Social platform module not loaded")
+    try:
+        result = toggle_like(data.telegram_id, data.post_id)
+        return {"status": "success", "data": result}
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+
+@app.post("/api/v1/social/comment", tags=["Social Network"])
+async def api_social_comment(data: SocialCommentData):
+    """Add a comment to a post."""
+    if not _SOCIAL_OK:
+        raise HTTPException(status_code=503, detail="Social platform module not loaded")
+    try:
+        comment = add_comment(data.telegram_id, data.post_id, data.text)
+        return {"status": "success", "data": comment}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@app.post("/api/v1/social/reply", tags=["Social Network"])
+async def api_social_reply(data: SocialReplyData):
+    """Reply to a comment."""
+    if not _SOCIAL_OK:
+        raise HTTPException(status_code=503, detail="Social platform module not loaded")
+    try:
+        reply = reply_comment(data.telegram_id, data.post_id, data.comment_id, data.text)
+        return {"status": "success", "data": reply}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@app.post("/api/v1/social/enhance-caption", tags=["Social Network"])
+async def api_social_enhance(data: SocialEnhanceData):
+    """AI-enhance a post caption with emojis and hashtags."""
+    if not _SOCIAL_OK:
+        raise HTTPException(status_code=503, detail="Social platform module not loaded")
+    enhanced = ai_enhance_caption(data.text, data.platform)
+    return {"status": "success", "data": {"enhanced": enhanced, "original": data.text}}
+
+
+@app.get("/api/v1/social/stats", tags=["Social Network"])
+async def api_social_stats():
+    """Get platform-wide social network statistics."""
+    if not _SOCIAL_OK:
+        raise HTTPException(status_code=503, detail="Social platform module not loaded")
+    return {"status": "success", "data": get_platform_stats()}
+
+
+@app.get("/api/v1/social/admin/users", tags=["Social Network"])
+async def api_social_admin_users():
+    """Admin: Get all registered Telegram users."""
+    if not _SOCIAL_OK:
+        raise HTTPException(status_code=503, detail="Social platform module not loaded")
+    users = admin_get_all_users()
+    return {"status": "success", "data": users, "total": len(users)}
+
+
+@app.get("/api/v1/social/admin/posts", tags=["Social Network"])
+async def api_social_admin_posts(limit: int = 50):
+    """Admin: Get recent posts for moderation."""
+    if not _SOCIAL_OK:
+        raise HTTPException(status_code=503, detail="Social platform module not loaded")
+    posts = admin_get_recent_posts(limit=limit)
+    return {"status": "success", "data": posts, "total": len(posts)}
+
+
+@app.delete("/api/v1/social/admin/posts/{post_id}", tags=["Social Network"])
+async def api_social_admin_delete_post(post_id: str):
+    """Admin: Soft-delete a post."""
+    if not _SOCIAL_OK:
+        raise HTTPException(status_code=503, detail="Social platform module not loaded")
+    ok = admin_delete_post(post_id)
+    if not ok:
+        raise HTTPException(status_code=404, detail="Post not found")
+    return {"status": "success", "deleted": post_id}
+
+
+@app.post("/api/v1/social/admin/ban/{telegram_id}", tags=["Social Network"])
+async def api_social_admin_ban(telegram_id: str):
+    """Admin: Ban a user from the social network."""
+    if not _SOCIAL_OK:
+        raise HTTPException(status_code=503, detail="Social platform module not loaded")
+    ok = admin_ban_user(telegram_id)
+    return {"status": "success" if ok else "not_found", "telegram_id": telegram_id}
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

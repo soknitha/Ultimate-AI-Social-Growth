@@ -65,6 +65,21 @@ except ImportError:
     TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
     BACKEND_URL        = os.getenv("BACKEND_URL", "http://localhost:8000")
 
+# ── AI Social Platform ───────────────────────────────────────────────────────
+try:
+    import sys as _sys
+    import os as _os
+    _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))
+    from ai_core.social_platform import (
+        is_registered, register_user, get_user_profile, update_profile,
+        create_post, get_feed, toggle_like, add_comment, reply_comment,
+        get_post, get_platform_stats, ai_enhance_caption, ai_suggest_reply,
+    )
+    _SOCIAL_OK = True
+except Exception as _e:
+    _SOCIAL_OK = False
+    log.warning("social_platform not available: %s", _e)
+
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger(__name__)
 
@@ -152,6 +167,10 @@ class ContentState(StatesGroup):
 class AuditState(StatesGroup):
     waiting_info = State()
 
+class OmniState(StatesGroup):
+    waiting_task = State()
+    waiting_input = State()
+
 class RiskState(StatesGroup):
     waiting_content = State()
 
@@ -175,6 +194,34 @@ class BusinessState(StatesGroup):
     waiting_niche    = State()
     waiting_platform = State()
 
+# ── Registration FSM ─────────────────────────────────────────────────────────
+class RegState(StatesGroup):
+    waiting_phone = State()
+    waiting_sex   = State()
+    waiting_dob   = State()
+
+# ── Social Media FSM ─────────────────────────────────────────────────────────
+class SocialPostState(StatesGroup):
+    waiting_caption = State()
+    waiting_media   = State()   # optional photo/video after caption
+
+class SocialPhotoState(StatesGroup):
+    waiting_caption = State()
+    waiting_photo   = State()
+
+class SocialVideoState(StatesGroup):
+    waiting_caption = State()
+    waiting_video   = State()
+
+class SocialCommentState(StatesGroup):
+    waiting_post_id = State()
+    waiting_text    = State()
+
+class SocialReplyState(StatesGroup):
+    waiting_post_id    = State()
+    waiting_comment_id = State()
+    waiting_text       = State()
+
 
 # ─── Keyboards ────────────────────────────────────────────────────────────────
 PLATFORM_KB = InlineKeyboardMarkup(inline_keyboard=[
@@ -194,33 +241,192 @@ PLATFORM_KB = InlineKeyboardMarkup(inline_keyboard=[
 
 MAIN_KB = ReplyKeyboardMarkup(
     keyboard=[
-        [KeyboardButton(text="Strategy"),   KeyboardButton(text="Content")],
-        [KeyboardButton(text="Audit"),      KeyboardButton(text="Trends")],
-        [KeyboardButton(text="Risk"),       KeyboardButton(text="Agents")],
-        [KeyboardButton(text="GEO Order"),  KeyboardButton(text="Facebook")],
-        [KeyboardButton(text="Viral"),      KeyboardButton(text="Business")],
-        [KeyboardButton(text="SMM Panel"),  KeyboardButton(text="Help")],
+        [KeyboardButton(text="📱 Social Network"), KeyboardButton(text="🌌 Omni Hub")],
+        [KeyboardButton(text="Omni Hub"),   KeyboardButton(text="Strategy")],
+        [KeyboardButton(text="Content"),    KeyboardButton(text="Audit")],
+        [KeyboardButton(text="Trends"),     KeyboardButton(text="Risk")],
+        [KeyboardButton(text="Agents"),     KeyboardButton(text="GEO Order")],
+        [KeyboardButton(text="Facebook"),   KeyboardButton(text="Viral")],
+        [KeyboardButton(text="Business"),   KeyboardButton(text="SMM Panel")],
+        [KeyboardButton(text="Help")],
     ],
     resize_keyboard=True,
 )
 
+# ── Social Network Keyboards ──────────────────────────────────────────────────
+SOCIAL_MAIN_KB = ReplyKeyboardMarkup(
+    keyboard=[
+        [KeyboardButton(text="📰 View Feed"),      KeyboardButton(text="✍️ Post Text")],
+        [KeyboardButton(text="📸 Post Photo"),     KeyboardButton(text="🎬 Post Video")],
+        [KeyboardButton(text="❤️ Like Post"),      KeyboardButton(text="💬 Comment")],
+        [KeyboardButton(text="↩️ Reply Comment"),  KeyboardButton(text="👤 My Profile")],
+        [KeyboardButton(text="🏠 Main Menu")],
+    ],
+    resize_keyboard=True,
+)
+
+SEX_KB = InlineKeyboardMarkup(inline_keyboard=[
+    [
+        InlineKeyboardButton(text="👦 Male",   callback_data="reg_sex_male"),
+        InlineKeyboardButton(text="👧 Female", callback_data="reg_sex_female"),
+        InlineKeyboardButton(text="🌈 Other",  callback_data="reg_sex_other"),
+    ]
+])
+
+MEDIA_TYPE_KB = InlineKeyboardMarkup(inline_keyboard=[
+    [
+        InlineKeyboardButton(text="✍️ Text Only",      callback_data="post_type_text"),
+        InlineKeyboardButton(text="📸 Add Photo",      callback_data="post_type_photo"),
+    ],
+    [
+        InlineKeyboardButton(text="🎬 Add Video",      callback_data="post_type_video"),
+        InlineKeyboardButton(text="❌ Cancel",          callback_data="post_cancel"),
+    ],
+])
+
 
 # ─── /start ───────────────────────────────────────────────────────────────────
 @dp.message(CommandStart())
-async def cmd_start(message: Message):
-    name = message.from_user.first_name or "there"
+async def cmd_start(message: Message, state: FSMContext):
+    user = message.from_user
+    tid  = user.id
+
+    # ── Auto-registration check ───────────────────────────────────────────────
+    if _SOCIAL_OK:
+        if not is_registered(tid):
+            # Save basic Telegram info immediately
+            register_user(
+                telegram_id  = tid,
+                first_name   = user.first_name or "",
+                last_name    = user.last_name  or "",
+                username     = user.username   or "",
+                language_code= user.language_code or "en",
+            )
+            # Start registration wizard to collect phone / sex / dob
+            await state.set_state(RegState.waiting_phone)
+            phone_kb = ReplyKeyboardMarkup(
+                keyboard=[[KeyboardButton(text="📱 Share My Phone Number", request_contact=True)]],
+                resize_keyboard=True,
+                one_time_keyboard=True,
+            )
+            await message.answer(
+                f"🎉 <b>Welcome, {user.first_name}!</b>\n\n"
+                f"🚀 You are joining <b>GrowthOS AI Social Network</b> — "
+                f"the most advanced AI-powered social platform!\n\n"
+                f"📋 <b>Quick Registration (2 steps):</b>\n"
+                f"Please share your phone number to complete sign-up.\n\n"
+                f"<i>Your data is secure and private.</i>",
+                parse_mode="HTML",
+                reply_markup=phone_kb,
+            )
+            return
+        else:
+            # Already registered — update last seen
+            register_user(
+                telegram_id   = tid,
+                first_name    = user.first_name or "",
+                last_name     = user.last_name  or "",
+                username      = user.username   or "",
+                language_code = user.language_code or "en",
+            )
+
+    name = user.first_name or "there"
     await message.answer(
-        f"<b>Welcome to GrowthOS AI, {name}! 🚀</b>\n\n"
+        f"<b>Welcome back to GrowthOS AI, {name}! 🚀</b>\n\n"
         "Your autonomous AI Social Growth OS — <b>110 features</b> in one bot.\n\n"
+        "<b>🌟 AI Social Network:</b>\n"
+        "📱 /social  — Open Social Network hub\n"
+        "📰 /feed    — Browse latest posts\n"
+        "✍️ /post    — Share a text post\n"
+        "📸 /photo   — Share a photo post\n"
+        "🎬 /video   — Share a short video\n"
+        "👤 /profile — View your profile\n\n"
         "<b>Quick Start:</b>\n"
+        "🌌 /omni     — Omni AI Hub (150 Features)\n"
         "🧠 /strategy — 30-day AI growth plan\n"
         "✍️ /content  — Viral content package\n"
-        "🌍 /geo      — GEO-targeted SMM order\n"
-        "🔥 /viral    — Viral hooks & captions\n"
-        "🤖 /agents   — 5-agent AI team analysis\n"
-        "📘 /facebook — Facebook page tools\n"
-        "💼 /business — Business intelligence\n\n"
-        "Type /help for all 23 commands.",
+        "🤖 /agents   — 5-agent AI team analysis\n\n"
+        "Type /help for all commands.",
+        parse_mode="HTML",
+        reply_markup=MAIN_KB,
+    )
+
+
+# ─── Registration: Phone ──────────────────────────────────────────────────────
+@dp.message(RegState.waiting_phone)
+async def reg_got_phone(message: Message, state: FSMContext):
+    tid = message.from_user.id
+    phone = ""
+    if message.contact:
+        phone = message.contact.phone_number or ""
+    elif message.text and message.text.replace("+", "").replace("-", "").replace(" ", "").isdigit():
+        phone = message.text.strip()
+
+    if _SOCIAL_OK:
+        update_profile(tid, phone=phone)
+
+    await state.update_data(phone=phone)
+    await state.set_state(RegState.waiting_sex)
+    await message.answer(
+        "✅ Phone saved!\n\n"
+        "👤 What is your <b>gender</b>?",
+        parse_mode="HTML",
+        reply_markup=SEX_KB,
+    )
+
+
+@dp.callback_query(F.data.startswith("reg_sex_"))
+async def reg_got_sex(callback: CallbackQuery, state: FSMContext):
+    sex_map = {"reg_sex_male": "Male", "reg_sex_female": "Female", "reg_sex_other": "Other"}
+    sex = sex_map.get(callback.data, "")
+    tid = callback.from_user.id
+    if _SOCIAL_OK:
+        update_profile(tid, sex=sex)
+
+    await state.update_data(sex=sex)
+    await state.set_state(RegState.waiting_dob)
+    await callback.message.answer(
+        f"✅ Gender: <b>{sex}</b>\n\n"
+        "🎂 Please enter your <b>Date of Birth</b>:\n"
+        "<i>Format: DD/MM/YYYY  (e.g. 15/03/2000)</i>",
+        parse_mode="HTML",
+        reply_markup=ReplyKeyboardMarkup(
+            keyboard=[[KeyboardButton(text="⏭ Skip")]],
+            resize_keyboard=True,
+            one_time_keyboard=True,
+        ),
+    )
+    await callback.answer()
+
+
+@dp.message(RegState.waiting_dob)
+async def reg_got_dob(message: Message, state: FSMContext):
+    tid  = message.from_user.id
+    text = message.text.strip() if message.text else ""
+    dob  = ""
+    if text and text.lower() not in ("skip", "⏭ skip"):
+        # Validate simple date format
+        import re as _re
+        if _re.match(r"^\d{1,2}[/\-\.]\d{1,2}[/\-\.]\d{4}$", text):
+            dob = text
+        else:
+            dob = text  # store as-is
+
+    if _SOCIAL_OK and dob:
+        update_profile(tid, date_of_birth=dob)
+
+    await state.clear()
+
+    name = message.from_user.first_name or "Friend"
+    await message.answer(
+        f"🎉 <b>Registration Complete, {name}!</b>\n\n"
+        f"✅ You are now a member of <b>GrowthOS AI Social Network</b>!\n\n"
+        f"<b>What you can do:</b>\n"
+        f"📰 Browse the community feed\n"
+        f"✍️ Post text, photos & short videos\n"
+        f"❤️ Like & comment on posts\n"
+        f"🤖 Access all AI Growth Tools\n\n"
+        f"👇 <b>Tap 📱 Social Network below to get started!</b>",
         parse_mode="HTML",
         reply_markup=MAIN_KB,
     )
@@ -232,6 +438,8 @@ async def cmd_start(message: Message):
 async def cmd_help(message: Message):
     await message.answer(
         "<b>🚀 GrowthOS AI — All 23 Commands</b>\n\n"
+        "<b>── Omni AI Hub ──</b>\n"
+        "/omni — Run any of the 150 Advanced AI Features\n\n"
         "<b>── Core AI Brain ──</b>\n"
         "/strategy — 30-day AI growth strategy\n"
         "/content  — Viral content package\n"
@@ -1242,6 +1450,635 @@ async def inbox_handler(callback: CallbackQuery):
     }
     await callback.message.answer(replies.get(action, ""), parse_mode="HTML")
     await callback.answer()
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# AI SOCIAL NETWORK — Full Social Media Platform
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# ─── /social — Social Network Hub ────────────────────────────────────────────
+@dp.message(Command("social"))
+@dp.message(F.text == "📱 Social Network")
+@dp.message(F.text == "🌌 Omni Hub")
+async def cmd_social(message: Message):
+    tid  = message.from_user.id
+    name = message.from_user.first_name or "Friend"
+
+    if _SOCIAL_OK:
+        stats = get_platform_stats()
+        profile = get_user_profile(tid)
+        member_since = ""
+        if profile:
+            member_since = profile.get("registered_at", "")[:10]
+        post_count = profile.get("post_count", 0) if profile else 0
+
+        await message.answer(
+            f"📱 <b>GrowthOS AI Social Network</b>\n\n"
+            f"👋 Hey <b>{name}</b>!\n"
+            f"📅 Member since: <b>{member_since or 'Today'}</b>\n"
+            f"📝 Your posts: <b>{post_count}</b>\n\n"
+            f"<b>🌐 Platform Stats:</b>\n"
+            f"👥 Members: <b>{stats['total_users']}</b>\n"
+            f"📝 Posts: <b>{stats['total_posts']}</b>\n"
+            f"❤️ Likes: <b>{stats['total_likes']}</b>\n"
+            f"💬 Comments: <b>{stats['total_comments']}</b>\n"
+            f"🆕 New today: <b>{stats['registered_today']}</b> members  |  <b>{stats['posts_today']}</b> posts\n\n"
+            f"<b>What do you want to do?</b>",
+            parse_mode="HTML",
+            reply_markup=SOCIAL_MAIN_KB,
+        )
+    else:
+        await message.answer(
+            f"📱 <b>GrowthOS AI Social Network</b>\n\n"
+            f"👋 Hey <b>{name}</b>!\n\n"
+            f"Choose an action below:",
+            parse_mode="HTML",
+            reply_markup=SOCIAL_MAIN_KB,
+        )
+
+
+# ─── /feed — Browse Feed ─────────────────────────────────────────────────────
+@dp.message(Command("feed"))
+@dp.message(F.text == "📰 View Feed")
+async def cmd_feed(message: Message):
+    if not _SOCIAL_OK:
+        await message.answer("❌ Social platform unavailable.", parse_mode="HTML")
+        return
+
+    posts = get_feed(page=1, per_page=5)
+    if not posts:
+        await message.answer(
+            "📭 <b>The feed is empty!</b>\n\n"
+            "Be the first to post!\n"
+            "Use /post to share something amazing 🚀",
+            parse_mode="HTML",
+        )
+        return
+
+    for p in posts:
+        media_icon = {"image": "📸", "video": "🎬", "audio": "🎵"}.get(p.get("media_type", "text"), "📝")
+        likes_count    = len(p.get("likes", []))
+        comments_count = len(p.get("comments", []))
+        content        = p.get("content", "")[:800]
+        author         = p.get("author_name", "Unknown")
+        uname          = p.get("author_uname", "")
+        uname_str      = f"@{uname}" if uname else ""
+        created        = p.get("created_at", "")[:16]
+        pid            = p.get("post_id", "")
+
+        text = (
+            f"{media_icon} <b>{author}</b> {uname_str}\n"
+            f"<i>{created}</i>\n\n"
+            f"{content}\n\n"
+            f"❤️ <b>{likes_count}</b>  💬 <b>{comments_count}</b>  🆔 <code>{pid}</code>"
+        )
+
+        feed_kb = InlineKeyboardMarkup(inline_keyboard=[
+            [
+                InlineKeyboardButton(text=f"❤️ Like ({likes_count})", callback_data=f"like_{pid}"),
+                InlineKeyboardButton(text=f"💬 Comment ({comments_count})", callback_data=f"comment_{pid}"),
+            ],
+            [
+                InlineKeyboardButton(text="👁 View Comments", callback_data=f"view_comments_{pid}"),
+            ],
+        ])
+        await message.answer(text, parse_mode="HTML", reply_markup=feed_kb)
+
+
+# ─── /post — Text Post ───────────────────────────────────────────────────────
+@dp.message(Command("post"))
+@dp.message(F.text == "✍️ Post Text")
+async def cmd_post(message: Message, state: FSMContext):
+    tid = message.from_user.id
+    if _SOCIAL_OK and not is_registered(tid):
+        await message.answer("❗ Please send /start to register first.", parse_mode="HTML")
+        return
+
+    await state.set_state(SocialPostState.waiting_caption)
+    await message.answer(
+        "✍️ <b>Create a Text Post</b>\n\n"
+        "Write your post below. You can include hashtags, emojis, and links.\n\n"
+        "<i>💡 Tip: AI will automatically enhance your caption with emojis and hashtags!</i>\n\n"
+        "📝 <b>Type your post now:</b>",
+        parse_mode="HTML",
+    )
+
+
+@dp.message(SocialPostState.waiting_caption)
+async def social_post_caption(message: Message, state: FSMContext):
+    await state.clear()
+    tid     = message.from_user.id
+    raw     = message.text or ""
+
+    if not raw.strip():
+        await message.answer("❌ Post cannot be empty. Try again with /post", parse_mode="HTML")
+        return
+
+    # AI enhance the caption
+    enhanced = ai_enhance_caption(raw) if _SOCIAL_OK else raw
+
+    if not _SOCIAL_OK:
+        await message.answer("❌ Social platform unavailable.", parse_mode="HTML")
+        return
+
+    post = create_post(telegram_id=tid, content=enhanced, media_type="text")
+    pid  = post.get("post_id", "")
+    await message.answer(
+        f"✅ <b>Post Published!</b>\n\n"
+        f"{enhanced}\n\n"
+        f"🆔 Post ID: <code>{pid}</code>\n"
+        f"📅 Posted at: <code>{post.get('created_at', '')[:16]}</code>\n\n"
+        f"🔔 Your post is now live in the feed!",
+        parse_mode="HTML",
+        reply_markup=InlineKeyboardMarkup(inline_keyboard=[[
+            InlineKeyboardButton(text="📰 View Feed", callback_data="goto_feed"),
+        ]]),
+    )
+
+
+# ─── /photo — Photo Post ─────────────────────────────────────────────────────
+@dp.message(Command("photo"))
+@dp.message(F.text == "📸 Post Photo")
+async def cmd_photo(message: Message, state: FSMContext):
+    tid = message.from_user.id
+    if _SOCIAL_OK and not is_registered(tid):
+        await message.answer("❗ Please send /start to register first.", parse_mode="HTML")
+        return
+
+    await state.set_state(SocialPhotoState.waiting_caption)
+    await message.answer(
+        "📸 <b>Share a Photo Post</b>\n\n"
+        "Step 1: Write your caption first.\n\n"
+        "✏️ <b>Type your caption now:</b>",
+        parse_mode="HTML",
+    )
+
+
+@dp.message(SocialPhotoState.waiting_caption)
+async def social_photo_caption(message: Message, state: FSMContext):
+    caption = message.text or ""
+    enhanced = ai_enhance_caption(caption, "Social") if _SOCIAL_OK else caption
+    await state.update_data(caption=enhanced)
+    await state.set_state(SocialPhotoState.waiting_photo)
+    await message.answer(
+        f"✅ Caption ready!\n\n"
+        f"📸 <b>Now send your photo:</b>",
+        parse_mode="HTML",
+    )
+
+
+@dp.message(SocialPhotoState.waiting_photo, F.photo)
+async def social_photo_upload(message: Message, state: FSMContext):
+    data    = await state.get_data()
+    caption = data.get("caption", "")
+    await state.clear()
+    tid     = message.from_user.id
+
+    if not _SOCIAL_OK:
+        await message.answer("❌ Social platform unavailable.", parse_mode="HTML")
+        return
+
+    # Get highest resolution photo
+    file_id = message.photo[-1].file_id if message.photo else ""
+    post = create_post(
+        telegram_id  = tid,
+        content      = caption,
+        media_type   = "image",
+        media_file_id= file_id,
+    )
+    pid = post.get("post_id", "")
+    await message.answer(
+        f"📸 <b>Photo Posted Successfully!</b>\n\n"
+        f"{caption}\n\n"
+        f"🆔 Post ID: <code>{pid}</code>\n"
+        f"🔔 Your photo is now live in the feed!",
+        parse_mode="HTML",
+    )
+
+
+@dp.message(SocialPhotoState.waiting_photo)
+async def social_photo_no_photo(message: Message, state: FSMContext):
+    await message.answer("❌ Please send a photo image, not text. Or /start to cancel.", parse_mode="HTML")
+
+
+# ─── /video — Short Video Post ───────────────────────────────────────────────
+@dp.message(Command("video"))
+@dp.message(F.text == "🎬 Post Video")
+async def cmd_video(message: Message, state: FSMContext):
+    tid = message.from_user.id
+    if _SOCIAL_OK and not is_registered(tid):
+        await message.answer("❗ Please send /start to register first.", parse_mode="HTML")
+        return
+
+    await state.set_state(SocialVideoState.waiting_caption)
+    await message.answer(
+        "🎬 <b>Share a Short Video / Selfie Video</b>\n\n"
+        "Step 1: Write your caption first.\n\n"
+        "✏️ <b>Type your caption now:</b>",
+        parse_mode="HTML",
+    )
+
+
+@dp.message(SocialVideoState.waiting_caption)
+async def social_video_caption(message: Message, state: FSMContext):
+    caption  = message.text or ""
+    enhanced = ai_enhance_caption(caption, "Social") if _SOCIAL_OK else caption
+    await state.update_data(caption=enhanced)
+    await state.set_state(SocialVideoState.waiting_video)
+    await message.answer(
+        f"✅ Caption ready!\n\n"
+        f"🎬 <b>Now send your video</b> (selfie video, short clip, etc.):",
+        parse_mode="HTML",
+    )
+
+
+@dp.message(SocialVideoState.waiting_video, F.video | F.video_note)
+async def social_video_upload(message: Message, state: FSMContext):
+    data    = await state.get_data()
+    caption = data.get("caption", "")
+    await state.clear()
+    tid = message.from_user.id
+
+    if not _SOCIAL_OK:
+        await message.answer("❌ Social platform unavailable.", parse_mode="HTML")
+        return
+
+    file_id = ""
+    if message.video:
+        file_id = message.video.file_id
+    elif message.video_note:
+        file_id = message.video_note.file_id
+
+    post = create_post(
+        telegram_id  = tid,
+        content      = caption,
+        media_type   = "video",
+        media_file_id= file_id,
+    )
+    pid = post.get("post_id", "")
+    await message.answer(
+        f"🎬 <b>Video Posted Successfully!</b>\n\n"
+        f"{caption}\n\n"
+        f"🆔 Post ID: <code>{pid}</code>\n"
+        f"🔔 Your video is now live in the feed!",
+        parse_mode="HTML",
+    )
+
+
+@dp.message(SocialVideoState.waiting_video)
+async def social_video_no_video(message: Message, state: FSMContext):
+    await message.answer("❌ Please send a video file. Or /start to cancel.", parse_mode="HTML")
+
+
+# ─── Like Callback ────────────────────────────────────────────────────────────
+@dp.callback_query(F.data.startswith("like_"))
+async def cb_like(callback: CallbackQuery):
+    if not _SOCIAL_OK:
+        await callback.answer("Social platform unavailable.", show_alert=True)
+        return
+    pid = callback.data.replace("like_", "")
+    tid = callback.from_user.id
+    try:
+        result = toggle_like(tid, pid)
+        liked  = result.get("liked", False)
+        total  = result.get("total_likes", 0)
+        icon   = "❤️" if liked else "🤍"
+        await callback.answer(
+            f"{icon} {'Liked!' if liked else 'Unliked'} — {total} like{'s' if total != 1 else ''}",
+            show_alert=False,
+        )
+        # Update button label
+        new_kb = InlineKeyboardMarkup(inline_keyboard=[
+            [
+                InlineKeyboardButton(text=f"{icon} Like ({total})", callback_data=f"like_{pid}"),
+                InlineKeyboardButton(text="💬 Comment",             callback_data=f"comment_{pid}"),
+            ],
+            [
+                InlineKeyboardButton(text="👁 View Comments", callback_data=f"view_comments_{pid}"),
+            ],
+        ])
+        await callback.message.edit_reply_markup(reply_markup=new_kb)
+    except Exception as e:
+        await callback.answer(f"Error: {e}", show_alert=True)
+
+
+# ─── Feed goto callback ───────────────────────────────────────────────────────
+@dp.callback_query(F.data == "goto_feed")
+async def cb_goto_feed(callback: CallbackQuery):
+    await callback.answer()
+    await cmd_feed(callback.message)
+
+
+# ─── Comment Callback ─────────────────────────────────────────────────────────
+@dp.callback_query(F.data.startswith("comment_"))
+async def cb_comment_start(callback: CallbackQuery, state: FSMContext):
+    pid = callback.data.replace("comment_", "")
+    tid = callback.from_user.id
+    if _SOCIAL_OK and not is_registered(tid):
+        await callback.answer("Please /start to register first.", show_alert=True)
+        return
+
+    await state.set_state(SocialCommentState.waiting_text)
+    await state.update_data(post_id=pid)
+    await callback.message.answer(
+        f"💬 <b>Write your comment</b> for post <code>{pid}</code>:\n\n"
+        f"<i>Just type your comment below:</i>",
+        parse_mode="HTML",
+    )
+    await callback.answer()
+
+
+@dp.message(SocialCommentState.waiting_text)
+async def social_comment_text(message: Message, state: FSMContext):
+    data = await state.get_data()
+    pid  = data.get("post_id", "")
+    await state.clear()
+    tid  = message.from_user.id
+    text = message.text or ""
+
+    if not text.strip():
+        await message.answer("❌ Comment cannot be empty.", parse_mode="HTML")
+        return
+    if not _SOCIAL_OK:
+        await message.answer("❌ Social platform unavailable.", parse_mode="HTML")
+        return
+
+    try:
+        comment = add_comment(tid, pid, text)
+        cid     = comment.get("comment_id", "")
+        await message.answer(
+            f"✅ <b>Comment Posted!</b>\n\n"
+            f"💬 <i>{text}</i>\n\n"
+            f"🆔 Comment ID: <code>{cid}</code>\n"
+            f"Use /reply to reply to this comment.",
+            parse_mode="HTML",
+        )
+    except Exception as e:
+        await message.answer(f"❌ Error: {e}", parse_mode="HTML")
+
+
+# ─── View Comments Callback ───────────────────────────────────────────────────
+@dp.callback_query(F.data.startswith("view_comments_"))
+async def cb_view_comments(callback: CallbackQuery):
+    if not _SOCIAL_OK:
+        await callback.answer("Social platform unavailable.", show_alert=True)
+        return
+    pid  = callback.data.replace("view_comments_", "")
+    post = get_post(pid)
+    if not post:
+        await callback.answer("Post not found.", show_alert=True)
+        return
+
+    comments = post.get("comments", [])
+    if not comments:
+        await callback.message.answer(
+            f"💬 No comments yet on post <code>{pid}</code>.\nBe the first to comment!",
+            parse_mode="HTML",
+        )
+        await callback.answer()
+        return
+
+    text = f"💬 <b>Comments on post <code>{pid}</code></b>\n\n"
+    for c in comments[:10]:
+        author  = c.get("author_name", "Unknown")
+        c_text  = c.get("text", "")[:200]
+        cid     = c.get("comment_id", "")
+        created = c.get("created_at", "")[:16]
+        c_likes = len(c.get("likes", []))
+        replies = len(c.get("replies", []))
+        text += (
+            f"👤 <b>{author}</b>  <i>{created}</i>\n"
+            f"   {c_text}\n"
+            f"   ❤️ {c_likes}  ↩️ {replies} replies  🆔 <code>{cid}</code>\n\n"
+        )
+
+    text += f"<i>To reply: /reply → enter post ID → enter comment ID → type reply</i>"
+    await callback.message.answer(text[:4000], parse_mode="HTML")
+    await callback.answer()
+
+
+# ─── /reply — Reply to Comment ───────────────────────────────────────────────
+@dp.message(Command("reply"))
+@dp.message(F.text == "↩️ Reply Comment")
+async def cmd_reply(message: Message, state: FSMContext):
+    tid = message.from_user.id
+    if _SOCIAL_OK and not is_registered(tid):
+        await message.answer("❗ Please send /start to register first.", parse_mode="HTML")
+        return
+
+    await state.set_state(SocialReplyState.waiting_post_id)
+    await message.answer(
+        "↩️ <b>Reply to a Comment</b>\n\n"
+        "Step 1: Enter the <b>Post ID</b> (shown under each post as 🆔):",
+        parse_mode="HTML",
+    )
+
+
+@dp.message(SocialReplyState.waiting_post_id)
+async def reply_got_post_id(message: Message, state: FSMContext):
+    pid = (message.text or "").strip()
+    post = get_post(pid) if _SOCIAL_OK else None
+    if not post:
+        await message.answer(
+            "❌ Post not found. Check the Post ID and try again.\n\n"
+            "Use /feed to browse posts and find their IDs.",
+            parse_mode="HTML",
+        )
+        return
+    await state.update_data(post_id=pid)
+    await state.set_state(SocialReplyState.waiting_comment_id)
+    comments = post.get("comments", [])
+    c_info = ""
+    for c in comments[:5]:
+        cid  = c.get("comment_id", "")
+        auth = c.get("author_name", "?")
+        txt  = c.get("text", "")[:80]
+        c_info += f"  <code>{cid}</code> — <b>{auth}</b>: {txt}\n"
+    await message.answer(
+        f"✅ Post found!\n\n"
+        f"<b>Comments:</b>\n{c_info or '(No comments yet)'}\n\n"
+        f"Step 2: Enter the <b>Comment ID</b> to reply to:",
+        parse_mode="HTML",
+    )
+
+
+@dp.message(SocialReplyState.waiting_comment_id)
+async def reply_got_comment_id(message: Message, state: FSMContext):
+    cid = (message.text or "").strip()
+    await state.update_data(comment_id=cid)
+    await state.set_state(SocialReplyState.waiting_text)
+    await message.answer(
+        f"✅ Comment ID: <code>{cid}</code>\n\n"
+        f"Step 3: Type your <b>reply</b>:",
+        parse_mode="HTML",
+    )
+
+
+@dp.message(SocialReplyState.waiting_text)
+async def reply_got_text(message: Message, state: FSMContext):
+    data = await state.get_data()
+    pid  = data.get("post_id", "")
+    cid  = data.get("comment_id", "")
+    text = (message.text or "").strip()
+    await state.clear()
+    tid  = message.from_user.id
+
+    if not text:
+        await message.answer("❌ Reply cannot be empty.", parse_mode="HTML")
+        return
+    if not _SOCIAL_OK:
+        await message.answer("❌ Social platform unavailable.", parse_mode="HTML")
+        return
+
+    try:
+        rep = reply_comment(tid, pid, cid, text)
+        # AI-suggested response for the author
+        post = get_post(pid)
+        post_content = post.get("content", "") if post else ""
+        ai_tip = ai_suggest_reply(text, post_content)
+        await message.answer(
+            f"✅ <b>Reply Posted!</b>\n\n"
+            f"↩️ <i>{text}</i>\n\n"
+            f"💡 <b>AI Smart Reply tip:</b>\n<i>{ai_tip}</i>",
+            parse_mode="HTML",
+        )
+    except Exception as e:
+        await message.answer(f"❌ Error: {e}", parse_mode="HTML")
+
+
+# ─── /profile — My Profile ───────────────────────────────────────────────────
+@dp.message(Command("profile"))
+@dp.message(F.text == "👤 My Profile")
+async def cmd_profile(message: Message):
+    tid = message.from_user.id
+    if not _SOCIAL_OK:
+        await message.answer("❌ Social platform unavailable.", parse_mode="HTML")
+        return
+
+    profile = get_user_profile(tid)
+    if not profile:
+        await message.answer(
+            "❗ Profile not found. Please send /start to register.",
+            parse_mode="HTML",
+        )
+        return
+
+    name       = profile.get("display_name") or profile.get("first_name") or "Unknown"
+    username   = profile.get("username", "")
+    phone      = profile.get("phone", "")
+    sex        = profile.get("sex", "")
+    dob        = profile.get("date_of_birth", "")
+    bio        = profile.get("bio", "")
+    posts      = profile.get("post_count", 0)
+    joined     = profile.get("registered_at", "")[:10]
+    last_seen  = profile.get("last_seen", "")[:16]
+    role       = profile.get("role", "member")
+    lang       = profile.get("language_code", "")
+
+    uname_str  = f"@{username}" if username else "(not set)"
+    phone_str  = f"{phone}" if phone else "(not set)"
+    sex_str    = f"{sex}"   if sex   else "(not set)"
+    dob_str    = f"{dob}"   if dob   else "(not set)"
+    bio_str    = f"{bio}"   if bio   else "(no bio)"
+
+    await message.answer(
+        f"👤 <b>My Profile</b>\n\n"
+        f"📛 Name:         <b>{name}</b>\n"
+        f"🔗 Username:     {uname_str}\n"
+        f"🆔 Telegram ID:  <code>{tid}</code>\n"
+        f"📱 Phone:        {phone_str}\n"
+        f"⚧ Gender:       {sex_str}\n"
+        f"🎂 Date of Birth:{dob_str}\n"
+        f"🌐 Language:     {lang}\n"
+        f"📝 Posts:        <b>{posts}</b>\n"
+        f"📅 Joined:       {joined}\n"
+        f"👁 Last seen:    {last_seen}\n"
+        f"🏷 Role:         {role}\n\n"
+        f"💬 Bio: <i>{bio_str}</i>",
+        parse_mode="HTML",
+    )
+
+
+# ─── 🏠 Main Menu button ─────────────────────────────────────────────────────
+@dp.message(F.text == "🏠 Main Menu")
+async def cmd_main_menu(message: Message, state: FSMContext):
+    await state.clear()
+    name = message.from_user.first_name or "Friend"
+    await message.answer(
+        f"🏠 <b>Main Menu</b> — Welcome back, {name}!",
+        parse_mode="HTML",
+        reply_markup=MAIN_KB,
+    )
+
+
+# ─── /like — Quick Like Command ──────────────────────────────────────────────
+@dp.message(Command("like"))
+@dp.message(F.text == "❤️ Like Post")
+async def cmd_like(message: Message):
+    if not _SOCIAL_OK:
+        await message.answer("❌ Social platform unavailable.", parse_mode="HTML")
+        return
+
+    posts = get_feed(page=1, per_page=5)
+    if not posts:
+        await message.answer(
+            "📭 No posts to like yet. Use /post to create one!",
+            parse_mode="HTML",
+        )
+        return
+
+    kb_rows = []
+    for p in posts[:5]:
+        pid    = p.get("post_id", "")
+        author = p.get("author_name", "Unknown")[:20]
+        likes  = len(p.get("likes", []))
+        content = p.get("content", "")[:30]
+        kb_rows.append([
+            InlineKeyboardButton(
+                text=f"❤️ {author}: {content}... ({likes})",
+                callback_data=f"like_{pid}",
+            )
+        ])
+
+    await message.answer(
+        "❤️ <b>Like a Post</b>\n\n"
+        "Select which post to like/unlike:",
+        parse_mode="HTML",
+        reply_markup=InlineKeyboardMarkup(inline_keyboard=kb_rows),
+    )
+
+
+# ─── /comment quick command ───────────────────────────────────────────────────
+@dp.message(F.text == "💬 Comment")
+async def cmd_comment_quick(message: Message, state: FSMContext):
+    if not _SOCIAL_OK:
+        await message.answer("❌ Social platform unavailable.", parse_mode="HTML")
+        return
+
+    posts = get_feed(page=1, per_page=5)
+    if not posts:
+        await message.answer("📭 No posts to comment on yet. Use /post to create one!", parse_mode="HTML")
+        return
+
+    kb_rows = []
+    for p in posts[:5]:
+        pid    = p.get("post_id", "")
+        author = p.get("author_name", "Unknown")[:20]
+        comments = len(p.get("comments", []))
+        content  = p.get("content", "")[:30]
+        kb_rows.append([
+            InlineKeyboardButton(
+                text=f"💬 {author}: {content}... ({comments})",
+                callback_data=f"comment_{pid}",
+            )
+        ])
+
+    await message.answer(
+        "💬 <b>Comment on a Post</b>\n\n"
+        "Select which post to comment on:",
+        parse_mode="HTML",
+        reply_markup=InlineKeyboardMarkup(inline_keyboard=kb_rows),
+    )
 
 
 # ─── Main ─────────────────────────────────────────────────────────────────────

@@ -622,6 +622,146 @@ def build_dashboard_page(api_base: str) -> QWidget:
     btn_docs.clicked.connect(_docs)
     return page
 
+# ═══════════════════════════════════════════════════════════════════════════════
+# PAGE 1.5 — OMNI AI HUB
+# ═══════════════════════════════════════════════════════════════════════════════
+
+def build_omni_hub_page(api_base: str) -> QWidget:
+    page, layout = _make_page_layout("Omni AI Hub — 150 Features", "🌌")
+    page._workers = []
+
+    tabs = QTabWidget()
+    layout.addWidget(tabs)
+
+    t1 = QWidget()
+    t1l = QVBoxLayout(t1)
+
+    info = QLabel(
+        "Welcome to the Omni AI Hub. Execute any of the 150 advanced AI tasks seamlessly.\n"
+        "Select a task category, choose the specific feature, provide input, and let AI do the rest."
+    )
+    info.setStyleSheet(f"color:{SUBTEXT}; font-size:14px; padding-bottom:8px;")
+    t1l.addWidget(info)
+
+    form = QFormLayout()
+    form.setSpacing(10)
+
+    categories = {
+        "Conversation & NLP (1-20)": [
+            "Context-aware chat", "Long-term memory", "Real-time translation", "Voice to Text", "Text to Voice",
+            "Roleplay", "Emotional support", "Smart auto-reply", "Grammar & style correction", "Rewrite tone",
+            "Extract key info", "Keyword extraction", "Document translation", "Inline query", "Group chat summarization",
+            "Privacy-first conversation", "Sentiment analysis", "Language learning assistant", "Smart suggestions", "Voice conversation"
+        ],
+        "Information & Research (21-40)": [
+            "Web search real-time", "Fact-checking system", "Article summarization", "Weather forecast", "Stock & crypto analysis",
+            "YouTube/TikTok summary", "Document analysis (PDF/Excel/Word)", "Local news lookup", "Scientific paper summary", "Biography & history lookup",
+            "Wikipedia summarization", "Research assistant", "Data extraction from documents", "Trend analysis", "Knowledge base builder",
+            "FAQ auto-generation", "Multi-source comparison", "Report summarization", "Risk analysis", "Insight generation"
+        ],
+        "Productivity & Organization (41-60)": [
+            "To-do list manager", "Smart reminders", "Calendar sync", "Meeting summary", "Habit tracker",
+            "Travel planner", "Expense tracker", "Study/work notes generator", "Team task management", "Proactive notifications",
+            "Email writing assistant", "Time tracking", "URL shortener", "File organizer", "Smart scheduling AI",
+            "Daily/weekly planner", "Goal tracking system", "Personal dashboard", "Auto report generator", "Workflow automation"
+        ],
+        "Creative & Media (61-80)": [
+            "AI image generation", "Background remover", "Image upscale", "Photo restoration", "Avatar creator",
+            "OCR (image to text)", "Meme generator", "QR code design", "Sketch conversion", "Voice generation",
+            "Music generation", "Lyrics writing", "Video script writing", "Caption generator", "Logo concept generator",
+            "Poster/banner design", "Video editing AI", "Audio extraction", "Voice cloning", "Marketing content creator"
+        ],
+        "Education & Learning (81-100)": [
+            "Language teaching", "Explain science/math/history", "Quiz generator", "Homework assistant", "Flashcards creator",
+            "Code explanation", "Study planner", "Mock exam generator", "Simplify complex topics", "CV & Cover Letter builder",
+            "Math solver", "Chemistry/physics tutor", "Literature analysis", "Book summarization", "Fun facts generator",
+            "Reference finder", "Learning path AI", "Skill development advisor", "Career guidance", "Knowledge testing system"
+        ],
+        "Intelligence & Automation (101-110)": [
+            "Autonomous AI Agent", "Multi-step reasoning planner", "Goal-driven AI assistant", "Self-learning preferences", "Predictive suggestions",
+            "AI decision support", "Context-aware automation", "Smart notification timing", "Behavioral analysis", "Personal AI twin"
+        ],
+        "Business & Monetization (111-120)": [
+            "AI sales closer", "Dynamic pricing optimizer", "Customer journey prediction", "AI negotiation assistant", "Funnel optimization AI",
+            "Viral content predictor", "Ad performance auto-optimizer", "Business KPI prediction", "Revenue forecasting", "AI affiliate marketing bot"
+        ],
+        "Social & Community (121-130)": [
+            "AI influencer assistant", "Community growth optimizer", "Engagement prediction", "Auto content posting scheduler", "AI moderation",
+            "Fake account detection", "Community sentiment dashboard", "Social trend detector", "AI poll strategist", "Group gamification engine"
+        ],
+        "Developer & System (131-140)": [
+            "Auto full-stack app generator", "AI DevOps assistant", "Smart API builder", "Database auto-optimization", "AI system monitoring",
+            "Error prediction AI", "Auto bug fixing system", "Code security scanner", "AI testing automation", "Infrastructure scaling AI"
+        ],
+        "Human-like & Future AI (141-150)": [
+            "Emotion-aware AI", "Voice personality customization", "AI memory across platforms", "Multimodal understanding", "Real-time live assistant",
+            "AR/VR assistant integration", "AI-powered personal coach", "AI therapist", "Decision simulation AI", "Fully autonomous business bot"
+        ]
+    }
+
+    c_cat = _combo(list(categories.keys()))
+    c_task = QComboBox()
+    
+    def update_tasks():
+        c_task.clear()
+        c_task.addItems(categories[c_cat.currentText()])
+        
+    c_cat.currentIndexChanged.connect(update_tasks)
+    update_tasks()
+
+    c_lang = _combo("English", "Khmer", "Spanish", "French", "Chinese", "Arabic", "Japanese")
+
+    e_input = QTextEdit()
+    e_input.setPlaceholderText("Enter your input data, context, or instructions for the AI here...")
+    e_input.setMinimumHeight(120)
+    e_input.setStyleSheet(f"background:{SURFACE}; color:{TEXT}; border:1px solid {BORDER}; border-radius:8px; padding:12px; font-size:14px; line-height:1.5;")
+
+    form.addRow("Category:", c_cat)
+    form.addRow("Task / Feature:", c_task)
+    form.addRow("Output Language:", c_lang)
+    form.addRow("Input Data:", e_input)
+
+    t1l.addLayout(form)
+
+    btn_execute = ActionButton("🚀 Execute Omni Task", ACCENT)
+    t1l.addWidget(btn_execute)
+
+    out_result = OutputBox("Task execution results will appear here...")
+    out_result.setMinimumHeight(250)
+    t1l.addWidget(out_result, 1)
+
+    def _execute_task():
+        task_name = c_task.currentText()
+        input_data = e_input.toPlainText().strip()
+        if not input_data:
+            out_result.set_error("Please provide input data or instructions.")
+            return
+
+        btn_execute.set_loading(True)
+        out_result.reset_color()
+        out_result.setPlainText(f"Executing {task_name}...")
+
+        w = ApiWorker(
+            f"{api_base}/api/v1/omni-task",
+            {
+                "task_id": "omni_manual",
+                "task_name": task_name,
+                "input_data": input_data,
+                "language": c_lang.currentText()
+            },
+            btn=btn_execute
+        )
+
+        w.result_ready.connect(lambda r: out_result.setPlainText(str(r.get("data", r))))
+        w.error_signal.connect(out_result.set_error)
+        page._workers.append(w)
+        w.start()
+
+    btn_execute.clicked.connect(_execute_task)
+
+    tabs.addTab(t1, "🌌 Omni AI Hub")
+
+    return page
 
 # ─────────────────────────────────────────────────────────────────────────────
 def build_strategy_page(api_base: str) -> QWidget:
@@ -7531,6 +7671,500 @@ def build_realtime_intel_page(api_base: str) -> QWidget:
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
+# AI SOCIAL NETWORK PAGE  (page index 35)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+def build_social_network_page(api_base: str) -> QWidget:
+    """Full AI Social Network — Feed, Post, Like, Comment, Members."""
+    page, layout = _make_page_layout("AI Social Network", "📱")
+    page._workers = []   # keep QThread refs alive
+
+    sub = QLabel("Telegram-integrated social platform — Posts · Images · Videos · Likes · Comments · Replies")
+    sub.setStyleSheet(f"color:{SUBTEXT}; font-size:14px;")
+    layout.addWidget(sub)
+
+    # ── Stat cards row ────────────────────────────────────────────────────────
+    stats_row = QHBoxLayout()
+    _stat_vals = {}
+    for lbl, icon, color in [
+        ("👥 Members",   "👥", ACCENT),
+        ("📝 Posts",     "📝", SUCCESS),
+        ("❤️ Likes",     "❤️", "#F38BA8"),
+        ("💬 Comments",  "💬", WARNING),
+        ("🆕 Today",     "🆕", "#CBA6F7"),
+    ]:
+        card = QFrame()
+        card.setStyleSheet(f"background:{SURFACE};border-radius:10px;padding:6px;")
+        cl = QVBoxLayout(card); cl.setContentsMargins(10, 6, 10, 6)
+        vl = QLabel("—"); vl.setFont(QFont("Segoe UI", 20, QFont.Bold))
+        vl.setStyleSheet(f"color:{color};"); vl.setAlignment(Qt.AlignCenter)
+        ll = QLabel(lbl); ll.setStyleSheet(f"color:{SUBTEXT};font-size:12px;"); ll.setAlignment(Qt.AlignCenter)
+        cl.addWidget(vl); cl.addWidget(ll)
+        stats_row.addWidget(card)
+        _stat_vals[lbl] = vl
+    layout.addLayout(stats_row)
+
+    # ── Tabs ──────────────────────────────────────────────────────────────────
+    tabs = QTabWidget()
+    tabs.setStyleSheet(f"""
+        QTabWidget::pane{{background:{DARK_BG};border:1px solid {BORDER};border-radius:8px;}}
+        QTabBar::tab{{background:{SURFACE};color:{SUBTEXT};padding:8px 16px;font-size:13px;border-radius:6px 6px 0 0;margin-right:2px;}}
+        QTabBar::tab:selected{{background:{ACCENT};color:#11111B;font-weight:bold;}}
+        QTabBar::tab:hover{{background:{HOVER};color:{TEXT};}}
+    """)
+    layout.addWidget(tabs, 1)
+
+    _tbl_style = (
+        f"QTableWidget{{background:{SURFACE};color:{TEXT};border:1px solid {BORDER};"
+        f"border-radius:8px;gridline-color:{BORDER};font-size:13px;}}"
+        f"QTableWidget::item{{padding:5px;}}"
+        f"QTableWidget::item:selected{{background:{ACCENT}33;}}"
+        f"QHeaderView::section{{background:{SIDEBAR};color:{ACCENT};font-weight:bold;padding:5px;border:none;}}"
+    )
+
+    # ──────────────────────────────────────────────────────────────────────────
+    # TAB 1 — Live Feed
+    # ──────────────────────────────────────────────────────────────────────────
+    t1 = QWidget(); t1l = QVBoxLayout(t1)
+    t1l.setContentsMargins(14, 10, 14, 10); t1l.setSpacing(8)
+
+    t1_ctrl = QHBoxLayout()
+    btn_refresh_feed = ActionButton("🔄 Refresh Feed", ACCENT)
+    btn_refresh_feed.setFixedHeight(34)
+    page_spin = QSpinBox(); page_spin.setRange(1, 100); page_spin.setValue(1)
+    page_spin.setPrefix("Page: "); page_spin.setFixedWidth(110)
+    page_spin.setStyleSheet(f"background:{SURFACE};color:{TEXT};border:1px solid {BORDER};border-radius:6px;padding:4px;")
+    t1_ctrl.addWidget(btn_refresh_feed)
+    t1_ctrl.addWidget(page_spin)
+    t1_ctrl.addStretch()
+    t1l.addLayout(t1_ctrl)
+
+    feed_table = QTableWidget(0, 7)
+    feed_table.setHorizontalHeaderLabels([
+        "Author", "Type", "Content Preview", "Likes", "Comments", "Posted At", "Post ID"
+    ])
+    feed_table.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeToContents)
+    feed_table.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeToContents)
+    feed_table.horizontalHeader().setSectionResizeMode(2, QHeaderView.Stretch)
+    feed_table.horizontalHeader().setSectionResizeMode(3, QHeaderView.ResizeToContents)
+    feed_table.horizontalHeader().setSectionResizeMode(4, QHeaderView.ResizeToContents)
+    feed_table.horizontalHeader().setSectionResizeMode(5, QHeaderView.ResizeToContents)
+    feed_table.horizontalHeader().setSectionResizeMode(6, QHeaderView.ResizeToContents)
+    feed_table.setSelectionBehavior(QTableWidget.SelectRows)
+    feed_table.setEditTriggers(QTableWidget.NoEditTriggers)
+    feed_table.setAlternatingRowColors(True)
+    feed_table.setStyleSheet(_tbl_style)
+    t1l.addWidget(feed_table, 1)
+
+    feed_detail = QTextEdit()
+    feed_detail.setReadOnly(True)
+    feed_detail.setMaximumHeight(130)
+    feed_detail.setStyleSheet(
+        f"background:{SURFACE};color:{TEXT};border:1px solid {BORDER};border-radius:6px;padding:8px;font-size:13px;"
+    )
+    feed_detail.setPlaceholderText("Click a post to see full content & comments…")
+    t1l.addWidget(feed_detail)
+
+    # Delete post button (admin moderation)
+    mod_row = QHBoxLayout()
+    btn_del_post = ActionButton("🗑 Delete Selected Post", "#F38BA8")
+    btn_del_post.setFixedHeight(34)
+    mod_row.addWidget(btn_del_post); mod_row.addStretch()
+    t1l.addLayout(mod_row)
+
+    def _load_feed():
+        btn_refresh_feed.set_loading(True)
+        w = ApiWorker(f"{api_base}/api/v1/social/feed?page={page_spin.value()}&per_page=20", method="GET")
+        def _done(resp):
+            btn_refresh_feed.set_loading(False)
+            posts = resp.get("data", [])
+            feed_table.setRowCount(0)
+            media_icons = {"text": "📝", "image": "📸", "video": "🎬", "audio": "🎵"}
+            for p in posts:
+                r = feed_table.rowCount(); feed_table.insertRow(r)
+                media = media_icons.get(p.get("media_type", "text"), "📝")
+                cells = [
+                    p.get("author_name", "Unknown"),
+                    f"{media} {p.get('media_type','text').title()}",
+                    p.get("content", "")[:80],
+                    str(len(p.get("likes", []))),
+                    str(len(p.get("comments", []))),
+                    p.get("created_at", "")[:16],
+                    p.get("post_id", ""),
+                ]
+                for col, val in enumerate(cells):
+                    item = QTableWidgetItem(val)
+                    if col == 3:
+                        item.setForeground(QColor("#F38BA8"))
+                    if col == 4:
+                        item.setForeground(QColor(WARNING))
+                    feed_table.setItem(r, col, item)
+        w.result_ready.connect(_done)
+        page._workers.append(w)
+        w.start()
+
+    def _feed_row_clicked():
+        row = feed_table.currentRow()
+        if row < 0:
+            return
+        pid  = feed_table.item(row, 6).text() if feed_table.item(row, 6) else ""
+        auth = feed_table.item(row, 0).text() if feed_table.item(row, 0) else ""
+        cont = feed_table.item(row, 2).text() if feed_table.item(row, 2) else ""
+        lks  = feed_table.item(row, 3).text() if feed_table.item(row, 3) else "0"
+        cmts = feed_table.item(row, 4).text() if feed_table.item(row, 4) else "0"
+        dt   = feed_table.item(row, 5).text() if feed_table.item(row, 5) else ""
+        feed_detail.setPlainText(
+            f"Post ID:  {pid}\nAuthor:   {auth}\nPosted:   {dt}\n"
+            f"Likes:    {lks}   Comments: {cmts}\n\nContent:\n{cont}"
+        )
+
+    def _delete_selected_post():
+        row = feed_table.currentRow()
+        if row < 0:
+            QMessageBox.warning(page, "Select Post", "Please select a post to delete.")
+            return
+        pid = feed_table.item(row, 6).text() if feed_table.item(row, 6) else ""
+        if not pid:
+            return
+        reply = QMessageBox.question(
+            page, "Delete Post",
+            f"Permanently delete post {pid}?",
+            QMessageBox.Yes | QMessageBox.Cancel, QMessageBox.Cancel,
+        )
+        if reply != QMessageBox.Yes:
+            return
+        import requests as _req
+        try:
+            r = _req.delete(f"{api_base}/api/v1/social/admin/posts/{pid}", timeout=10)
+            QMessageBox.information(page, "Deleted", f"Post {pid} deleted.")
+            _load_feed()
+        except Exception as e:
+            QMessageBox.critical(page, "Error", str(e))
+
+    btn_refresh_feed.clicked.connect(_load_feed)
+    page_spin.valueChanged.connect(_load_feed)
+    feed_table.itemSelectionChanged.connect(_feed_row_clicked)
+    btn_del_post.clicked.connect(_delete_selected_post)
+    tabs.addTab(t1, "📰 Live Feed")
+
+    # ──────────────────────────────────────────────────────────────────────────
+    # TAB 2 — Create Post
+    # ──────────────────────────────────────────────────────────────────────────
+    t2 = QWidget(); t2l = QVBoxLayout(t2)
+    t2l.setContentsMargins(16, 14, 16, 14); t2l.setSpacing(10)
+
+    post_grp = QGroupBox("✍️ Create New Post")
+    post_grp.setStyleSheet(
+        f"QGroupBox{{color:{ACCENT};font-weight:bold;border:1px solid {BORDER};"
+        f"border-radius:8px;padding-top:8px;margin-top:4px;}}"
+        f"QGroupBox::title{{subcontrol-origin:margin;left:8px;padding:0 4px;}}"
+    )
+    pg = QGridLayout(post_grp); pg.setSpacing(10)
+
+    pg.addWidget(QLabel("Author TG ID:"), 0, 0)
+    inp_post_tid = QLineEdit(); inp_post_tid.setPlaceholderText("Telegram User ID (e.g. 123456789)")
+    pg.addWidget(inp_post_tid, 0, 1)
+
+    pg.addWidget(QLabel("Media Type:"), 1, 0)
+    cbo_media = QComboBox()
+    cbo_media.addItems(["text", "image", "video", "audio"])
+    pg.addWidget(cbo_media, 1, 1)
+
+    pg.addWidget(QLabel("Content:"), 2, 0)
+    inp_content = QTextEdit(); inp_content.setMaximumHeight(100)
+    inp_content.setPlaceholderText("Write your post content here…")
+    pg.addWidget(inp_content, 2, 1)
+
+    pg.addWidget(QLabel("Location (opt):"), 3, 0)
+    inp_location = QLineEdit(); inp_location.setPlaceholderText("e.g. Phnom Penh, Cambodia")
+    pg.addWidget(inp_location, 3, 1)
+
+    t2l.addWidget(post_grp)
+
+    post_btn_row = QHBoxLayout()
+    btn_enhance  = ActionButton("✨ AI Enhance Caption", "#CBA6F7")
+    btn_publish  = ActionButton("🚀 Publish Post", SUCCESS)
+    btn_enhance.setFixedHeight(38); btn_publish.setFixedHeight(38)
+    post_btn_row.addWidget(btn_enhance); post_btn_row.addWidget(btn_publish)
+    t2l.addLayout(post_btn_row)
+
+    post_out = QTextEdit(); post_out.setReadOnly(True)
+    post_out.setStyleSheet(f"background:{SURFACE};color:{SUCCESS};border:1px solid {BORDER};border-radius:6px;padding:8px;font-size:13px;")
+    post_out.setMaximumHeight(120)
+    post_out.setPlaceholderText("Post result will appear here…")
+    t2l.addWidget(post_out)
+    t2l.addStretch()
+
+    def _enhance_caption():
+        txt = inp_content.toPlainText().strip()
+        if not txt:
+            post_out.setPlainText("Please enter content first."); return
+        btn_enhance.set_loading(True)
+        w = ApiWorker(
+            f"{api_base}/api/v1/social/enhance-caption",
+            method="POST", payload={"text": txt, "platform": "Social"},
+        )
+        def _done(resp):
+            btn_enhance.set_loading(False)
+            enhanced = resp.get("data", {}).get("enhanced", txt)
+            inp_content.setPlainText(enhanced)
+            post_out.setPlainText(f"✨ Caption enhanced by AI!\n\n{enhanced}")
+        w.result_ready.connect(_done)
+        page._workers.append(w)
+        w.start()
+
+    def _publish_post():
+        tid  = inp_post_tid.text().strip()
+        cont = inp_content.toPlainText().strip()
+        if not tid or not cont:
+            post_out.setPlainText("❌ Please fill in Author TG ID and Content."); return
+        btn_publish.set_loading(True)
+        w = ApiWorker(
+            f"{api_base}/api/v1/social/post",
+            method="POST",
+            payload={
+                "telegram_id": tid, "content": cont,
+                "media_type": cbo_media.currentText(),
+                "location": inp_location.text().strip(),
+                "tags": [],
+            },
+        )
+        def _done(resp):
+            btn_publish.set_loading(False)
+            if resp.get("status") == "success":
+                p = resp.get("data", {})
+                post_out.setPlainText(
+                    f"✅ Post published!\nPost ID: {p.get('post_id','')}\n"
+                    f"Time: {p.get('created_at','')}"
+                )
+                inp_content.clear()
+                _load_feed()
+            else:
+                post_out.setPlainText(f"❌ Error: {resp.get('detail', str(resp))}")
+        w.result_ready.connect(_done)
+        page._workers.append(w)
+        w.start()
+
+    btn_enhance.clicked.connect(_enhance_caption)
+    btn_publish.clicked.connect(_publish_post)
+    tabs.addTab(t2, "✍️ Create Post")
+
+    # ──────────────────────────────────────────────────────────────────────────
+    # TAB 3 — Members (Registered Telegram Users)
+    # ──────────────────────────────────────────────────────────────────────────
+    t3 = QWidget(); t3l = QVBoxLayout(t3)
+    t3l.setContentsMargins(14, 10, 14, 10); t3l.setSpacing(8)
+
+    t3_ctrl = QHBoxLayout()
+    btn_refresh_members = ActionButton("🔄 Refresh Members", ACCENT)
+    btn_refresh_members.setFixedHeight(34)
+    member_search = QLineEdit(); member_search.setPlaceholderText("🔍 Search by name, username, phone…")
+    member_search.setStyleSheet(
+        f"background:{SURFACE};color:{TEXT};border:1px solid {BORDER};border-radius:6px;padding:6px 10px;font-size:13px;"
+    )
+    t3_ctrl.addWidget(btn_refresh_members)
+    t3_ctrl.addWidget(member_search, 1)
+    t3l.addLayout(t3_ctrl)
+
+    members_table = QTableWidget(0, 10)
+    members_table.setHorizontalHeaderLabels([
+        "Full Name", "Username", "TG ID", "Phone", "Sex", "Date of Birth",
+        "Language", "Posts", "Joined", "Status",
+    ])
+    members_table.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeToContents)
+    members_table.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeToContents)
+    members_table.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeToContents)
+    members_table.horizontalHeader().setSectionResizeMode(3, QHeaderView.ResizeToContents)
+    members_table.horizontalHeader().setSectionResizeMode(4, QHeaderView.ResizeToContents)
+    members_table.horizontalHeader().setSectionResizeMode(5, QHeaderView.ResizeToContents)
+    members_table.horizontalHeader().setSectionResizeMode(6, QHeaderView.ResizeToContents)
+    members_table.horizontalHeader().setSectionResizeMode(7, QHeaderView.ResizeToContents)
+    members_table.horizontalHeader().setSectionResizeMode(8, QHeaderView.ResizeToContents)
+    members_table.horizontalHeader().setSectionResizeMode(9, QHeaderView.Stretch)
+    members_table.setSelectionBehavior(QTableWidget.SelectRows)
+    members_table.setEditTriggers(QTableWidget.NoEditTriggers)
+    members_table.setAlternatingRowColors(True)
+    members_table.setStyleSheet(_tbl_style)
+    t3l.addWidget(members_table, 1)
+
+    mem_count_lbl = QLabel("0 members loaded")
+    mem_count_lbl.setStyleSheet(f"color:{SUBTEXT};font-size:13px;")
+    t3l.addWidget(mem_count_lbl)
+
+    _all_members = []
+
+    def _populate_members(members):
+        members_table.setRowCount(0)
+        for u in members:
+            r = members_table.rowCount(); members_table.insertRow(r)
+            active = u.get("is_active", True)
+            cells = [
+                u.get("display_name") or f"{u.get('first_name','')} {u.get('last_name','')}".strip() or "Unknown",
+                f"@{u.get('username')}" if u.get("username") else "—",
+                str(u.get("telegram_id", "")),
+                u.get("phone", "—") or "—",
+                u.get("sex", "—") or "—",
+                u.get("date_of_birth", "—") or "—",
+                u.get("language_code", "").upper() or "—",
+                str(u.get("post_count", 0)),
+                u.get("registered_at", "")[:10],
+                "✅ Active" if active else "🚫 Banned",
+            ]
+            for col, val in enumerate(cells):
+                item = QTableWidgetItem(val)
+                if col == 9 and not active:
+                    item.setForeground(QColor("#F38BA8"))
+                if col == 7:
+                    item.setForeground(QColor(SUCCESS))
+                members_table.setItem(r, col, item)
+        mem_count_lbl.setText(f"👥 {len(members)} members total")
+
+    def _load_members():
+        btn_refresh_members.set_loading(True)
+        w = ApiWorker(f"{api_base}/api/v1/social/admin/users", method="GET")
+        def _done(resp):
+            btn_refresh_members.set_loading(False)
+            nonlocal _all_members
+            _all_members = resp.get("data", [])
+            _populate_members(_all_members)
+            # Update stat cards
+            _stat_vals.get("👥 Members", QLabel()).setText(str(len(_all_members)))
+        w.result_ready.connect(_done)
+        page._workers.append(w)
+        w.start()
+
+    def _search_members(text: str):
+        if not _all_members:
+            return
+        text = text.lower().strip()
+        if not text:
+            _populate_members(_all_members)
+            return
+        filtered = [
+            u for u in _all_members
+            if (text in (u.get("display_name") or "").lower()
+                or text in (u.get("first_name") or "").lower()
+                or text in (u.get("username") or "").lower()
+                or text in (u.get("phone") or "").lower()
+                or text in str(u.get("telegram_id", "")).lower()
+            )
+        ]
+        _populate_members(filtered)
+
+    btn_refresh_members.clicked.connect(_load_members)
+    member_search.textChanged.connect(_search_members)
+    tabs.addTab(t3, "👥 Members")
+
+    # ──────────────────────────────────────────────────────────────────────────
+    # TAB 4 — Platform Stats
+    # ──────────────────────────────────────────────────────────────────────────
+    t4 = QWidget(); t4l = QVBoxLayout(t4)
+    t4l.setContentsMargins(14, 14, 14, 14); t4l.setSpacing(12)
+
+    btn_refresh_stats = ActionButton("🔄 Refresh Stats", ACCENT)
+    btn_refresh_stats.setFixedHeight(36)
+    t4l.addWidget(btn_refresh_stats)
+
+    stats_display = QTextEdit()
+    stats_display.setReadOnly(True)
+    stats_display.setStyleSheet(
+        f"background:{SURFACE};color:{TEXT};border:1px solid {BORDER};border-radius:8px;padding:14px;font-size:14px;"
+    )
+    stats_display.setPlaceholderText("Click Refresh Stats to load platform statistics…")
+    t4l.addWidget(stats_display, 1)
+
+    def _load_stats():
+        btn_refresh_stats.set_loading(True)
+        w = ApiWorker(f"{api_base}/api/v1/social/stats", method="GET")
+        def _done(resp):
+            btn_refresh_stats.set_loading(False)
+            d = resp.get("data", {})
+            if not d:
+                stats_display.setPlainText(f"❌ Error: {resp}"); return
+
+            # Update stat cards
+            _stat_vals.get("👥 Members",  QLabel()).setText(str(d.get("total_users", "—")))
+            _stat_vals.get("📝 Posts",    QLabel()).setText(str(d.get("total_posts", "—")))
+            _stat_vals.get("❤️ Likes",    QLabel()).setText(str(d.get("total_likes", "—")))
+            _stat_vals.get("💬 Comments", QLabel()).setText(str(d.get("total_comments", "—")))
+            _stat_vals.get("🆕 Today",    QLabel()).setText(
+                f"{d.get('registered_today',0)}u / {d.get('posts_today',0)}p"
+            )
+
+            stats_display.setPlainText(
+                f"📊  GrowthOS AI Social Network — Platform Statistics\n"
+                f"{'─'*50}\n\n"
+                f"👥  Total Members:        {d.get('total_users', 0)}\n"
+                f"✅  Active Members:        {d.get('active_users', 0)}\n"
+                f"📝  Total Posts:           {d.get('total_posts', 0)}\n"
+                f"❤️  Total Likes:           {d.get('total_likes', 0)}\n"
+                f"💬  Total Comments:        {d.get('total_comments', 0)}\n\n"
+                f"🆕  New Registrations Today:  {d.get('registered_today', 0)}\n"
+                f"📅  Posts Published Today:    {d.get('posts_today', 0)}\n"
+            )
+        w.result_ready.connect(_done)
+        page._workers.append(w)
+        w.start()
+
+    btn_refresh_stats.clicked.connect(_load_stats)
+    tabs.addTab(t4, "📊 Stats")
+
+    # ──────────────────────────────────────────────────────────────────────────
+    # TAB 5 — Bot Setup & Instructions
+    # ──────────────────────────────────────────────────────────────────────────
+    t5 = QWidget(); t5l = QVBoxLayout(t5)
+    t5l.setContentsMargins(16, 14, 16, 14); t5l.setSpacing(10)
+
+    guide = QTextEdit()
+    guide.setReadOnly(True)
+    guide.setStyleSheet(
+        f"background:{SURFACE};color:{TEXT};border:1px solid {BORDER};border-radius:8px;padding:14px;font-size:14px;"
+    )
+    guide.setHtml(f"""
+    <h2 style='color:{ACCENT};margin-top:0;'>📱 AI Social Network — User Guide</h2>
+    <h3 style='color:{SUCCESS};'>🤖 How Registration Works (Automatic)</h3>
+    <ol style='color:{TEXT};line-height:2.0;'>
+      <li>User opens Telegram and sends <code style='color:{ACCENT};'>/start</code> to the bot</li>
+      <li>Bot auto-registers them → asks for <b>Phone Number</b> (via Telegram contact button)</li>
+      <li>Bot asks for <b>Gender</b> (Male / Female / Other)</li>
+      <li>Bot asks for <b>Date of Birth</b> (DD/MM/YYYY)</li>
+      <li>Registration complete → User gets full social network access</li>
+    </ol>
+    <h3 style='color:{SUCCESS};'>📝 Social Media Features Available</h3>
+    <table style='color:{TEXT};width:100%;border-collapse:collapse;font-size:13px;'>
+      <tr><td style='padding:6px;color:{ACCENT};'>📱 /social</td><td>Open Social Network hub with live stats</td></tr>
+      <tr><td style='padding:6px;color:{ACCENT};'>📰 /feed</td><td>Browse latest posts from the community</td></tr>
+      <tr><td style='padding:6px;color:{ACCENT};'>✍️ /post</td><td>Share a text post (AI-enhanced captions)</td></tr>
+      <tr><td style='padding:6px;color:{ACCENT};'>📸 /photo</td><td>Share a photo with caption</td></tr>
+      <tr><td style='padding:6px;color:{ACCENT};'>🎬 /video</td><td>Share a short video / selfie video</td></tr>
+      <tr><td style='padding:6px;color:{ACCENT};'>❤️ /like</td><td>Like or unlike posts (toggle)</td></tr>
+      <tr><td style='padding:6px;color:{ACCENT};'>💬 /comment</td><td>Comment on a post</td></tr>
+      <tr><td style='padding:6px;color:{ACCENT};'>↩️ /reply</td><td>Reply to a specific comment</td></tr>
+      <tr><td style='padding:6px;color:{ACCENT};'>👤 /profile</td><td>View your full profile: Name/TG ID/Phone/Sex/DOB</td></tr>
+    </table>
+    <h3 style='color:{SUCCESS};'>🔑 Data Stored Per User</h3>
+    <p style='color:{TEXT};'>Full Name &bull; Telegram ID &bull; Username (@handle) &bull; Phone Number &bull;
+    Gender &bull; Date of Birth &bull; Language &bull; Post Count &bull; Join Date &bull; Last Seen &bull; Role</p>
+    <h3 style='color:{SUCCESS};'>🛡️ Admin Controls (This Panel)</h3>
+    <ul style='color:{TEXT};line-height:2.0;'>
+      <li><b>Live Feed tab</b> — Monitor all posts, delete inappropriate content</li>
+      <li><b>Members tab</b> — View all registered users with full profile data, search/filter</li>
+      <li><b>Stats tab</b> — Real-time platform statistics</li>
+      <li><b>Create Post tab</b> — Post on behalf of any user ID</li>
+    </ul>
+    """)
+    t5l.addWidget(guide, 1)
+    tabs.addTab(t5, "📖 Guide")
+
+    # ── Auto-load stats on open ───────────────────────────────────────────────
+    QTimer.singleShot(500, _load_stats)
+    QTimer.singleShot(800, _load_members)
+    QTimer.singleShot(600, _load_feed)
+
+    return page
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
 # ADMIN PANEL PAGE
 # ═══════════════════════════════════════════════════════════════════════════════
 
@@ -7872,6 +8506,134 @@ def build_admin_page(user_info: dict) -> QWidget:
 
     btn_pw.clicked.connect(_change_pw)
     tabs.addTab(t4, "🔑 My Account")
+
+    # ── TAB 5: Telegram Members ────────────────────────────────────────────────
+    t5 = QWidget(); t5l = QVBoxLayout(t5)
+    t5l.setContentsMargins(14, 10, 14, 10); t5l.setSpacing(8)
+
+    _admin_tbl_style = (
+        f"QTableWidget{{background:{SURFACE};color:{TEXT};border:1px solid {BORDER};"
+        f"border-radius:8px;gridline-color:{BORDER};font-size:13px;}}"
+        f"QTableWidget::item{{padding:5px;}}"
+        f"QTableWidget::item:selected{{background:{ACCENT}33;}}"
+        f"QHeaderView::section{{background:{SIDEBAR};color:{ACCENT};font-weight:bold;padding:5px;border:none;}}"
+    )
+
+    adm_ctrl = QHBoxLayout()
+    btn_adm_refresh = ActionButton("🔄 Refresh Members", ACCENT); btn_adm_refresh.setFixedHeight(34)
+    btn_adm_csv     = ActionButton("📄 Export CSV", SUCCESS);     btn_adm_csv.setFixedHeight(34)
+    btn_adm_ban     = ActionButton("🚫 Ban Selected", "#F38BA8"); btn_adm_ban.setFixedHeight(34)
+    adm_ctrl.addWidget(btn_adm_refresh)
+    adm_ctrl.addWidget(btn_adm_csv)
+    adm_ctrl.addWidget(btn_adm_ban)
+    adm_ctrl.addStretch()
+    t5l.addLayout(adm_ctrl)
+
+    adm_tbl = QTableWidget(0, 9)
+    adm_tbl.setHorizontalHeaderLabels([
+        "Full Name", "Username", "Telegram ID", "Phone", "Sex", "Date of Birth",
+        "Joined", "Posts", "Status"
+    ])
+    for ci in range(9):
+        adm_tbl.horizontalHeader().setSectionResizeMode(
+            ci, QHeaderView.Stretch if ci == 0 else QHeaderView.ResizeToContents
+        )
+    adm_tbl.setSelectionBehavior(QTableWidget.SelectRows)
+    adm_tbl.setEditTriggers(QTableWidget.NoEditTriggers)
+    adm_tbl.setAlternatingRowColors(True)
+    adm_tbl.setStyleSheet(_admin_tbl_style)
+    t5l.addWidget(adm_tbl, 1)
+
+    adm_count = QLabel("0 members"); adm_count.setStyleSheet(f"color:{SUBTEXT};font-size:12px;")
+    t5l.addWidget(adm_count)
+
+    _adm_users: list = []
+
+    def _fill_adm_tbl(users: list):
+        adm_tbl.setRowCount(0)
+        for u in users:
+            r = adm_tbl.rowCount(); adm_tbl.insertRow(r)
+            active = u.get("is_active", True)
+            cells = [
+                u.get("display_name") or f"{u.get('first_name','')} {u.get('last_name','')}".strip() or "Unknown",
+                f"@{u.get('username')}" if u.get("username") else "—",
+                str(u.get("telegram_id", "")),
+                u.get("phone", "—") or "—",
+                u.get("sex", "—") or "—",
+                u.get("date_of_birth", "—") or "—",
+                u.get("registered_at", "")[:10],
+                str(u.get("post_count", 0)),
+                "✅ Active" if active else "🚫 Banned",
+            ]
+            for col, val in enumerate(cells):
+                item = QTableWidgetItem(val)
+                if col == 8 and not active:
+                    item.setForeground(QColor("#F38BA8"))
+                adm_tbl.setItem(r, col, item)
+        adm_count.setText(f"👥 {len(users)} registered Telegram members")
+
+    def _adm_load():
+        btn_adm_refresh.set_loading(True)
+        import requests as _req
+        try:
+            r = _req.get(f"http://127.0.0.1:8000/api/v1/social/admin/users", timeout=10)
+            r.raise_for_status()
+            data = r.json().get("data", [])
+            nonlocal _adm_users; _adm_users = data
+            _fill_adm_tbl(data)
+        except Exception as e:
+            adm_count.setText(f"❌ Error: {e}")
+        finally:
+            btn_adm_refresh.set_loading(False)
+
+    def _adm_export_csv():
+        if not _adm_users:
+            QMessageBox.warning(page, "No Data", "Please refresh members first."); return
+        from PyQt5.QtWidgets import QFileDialog
+        path, _ = QFileDialog.getSaveFileName(page, "Export CSV", "telegram_members.csv", "CSV Files (*.csv)")
+        if not path:
+            return
+        import csv
+        try:
+            with open(path, "w", newline="", encoding="utf-8-sig") as f:
+                wr = csv.DictWriter(f, fieldnames=[
+                    "telegram_id","first_name","last_name","username","phone",
+                    "sex","date_of_birth","registered_at","post_count","is_active"
+                ])
+                wr.writeheader()
+                for u in _adm_users:
+                    wr.writerow({k: u.get(k,"") for k in wr.fieldnames})
+            QMessageBox.information(page, "Exported", f"✅ CSV saved to:\n{path}")
+        except Exception as e:
+            QMessageBox.critical(page, "Export Error", str(e))
+
+    def _adm_ban():
+        row = adm_tbl.currentRow()
+        if row < 0:
+            QMessageBox.warning(page, "Select User", "Please select a user to ban."); return
+        tid = adm_tbl.item(row, 2).text() if adm_tbl.item(row, 2) else ""
+        if not tid:
+            return
+        reply = QMessageBox.question(
+            page, "Ban User",
+            f"Ban Telegram user {tid}? They will no longer be able to post.",
+            QMessageBox.Yes | QMessageBox.Cancel, QMessageBox.Cancel,
+        )
+        if reply != QMessageBox.Yes:
+            return
+        import requests as _req
+        try:
+            r = _req.post(f"http://127.0.0.1:8000/api/v1/social/admin/ban/{tid}", timeout=10)
+            r.raise_for_status()
+            QMessageBox.information(page, "Banned", f"User {tid} has been banned.")
+            _adm_load()
+        except Exception as e:
+            QMessageBox.critical(page, "Error", str(e))
+
+    btn_adm_refresh.clicked.connect(_adm_load)
+    btn_adm_csv.clicked.connect(_adm_export_csv)
+    btn_adm_ban.clicked.connect(_adm_ban)
+    tabs.addTab(t5, "📱 Telegram Members")
 
     layout.addWidget(tabs, 1)
     return page
@@ -9162,6 +9924,1259 @@ def build_telegram_bot_page(api_base: str) -> QWidget:
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
+# ✦ NEW FEATURE PAGE 30: AI VIDEO STUDIO
+# ═══════════════════════════════════════════════════════════════════════════════
+
+def build_video_studio_page(api_base: str) -> QWidget:
+    """AI Video Studio — TikTok/Reels/Shorts script & storyboard generator."""
+    import asyncio
+
+    _GS = (f"QGroupBox{{color:{ACCENT};font-weight:bold;border:1px solid {BORDER};"
+           f"border-radius:8px;padding-top:8px;margin-top:4px;}}"
+           f"QGroupBox::title{{subcontrol-origin:margin;left:8px;padding:0 4px;}}")
+
+    def _btn(text, color=None):
+        b = QPushButton(text)
+        b.setCursor(Qt.PointingHandCursor)
+        c = color or ACCENT
+        b.setStyleSheet(
+            f"QPushButton{{background:{c};color:#11111B;border:none;border-radius:8px;"
+            f"padding:8px 18px;font-weight:bold;font-size:13px;}}"
+            f"QPushButton:hover{{background:{c}CC;}}"
+            f"QPushButton:disabled{{background:{BORDER};color:{SUBTEXT};}}"
+        )
+        return b
+
+    page = QWidget()
+    pl = QVBoxLayout(page)
+    pl.setContentsMargins(20, 16, 20, 16)
+    pl.setSpacing(10)
+
+    hdr = QLabel("🎬  AI Video Studio")
+    hdr.setFont(QFont("Segoe UI", 17, QFont.Bold))
+    hdr.setStyleSheet(f"color:{ACCENT};")
+    pl.addWidget(hdr)
+    sub = QLabel("Generate complete TikTok / Reels / YouTube Shorts scripts, storyboards, hooks & SEO metadata with AI")
+    sub.setStyleSheet(f"color:{SUBTEXT}; font-size:13px;")
+    pl.addWidget(sub)
+
+    tabs = QTabWidget()
+    tabs.setStyleSheet(
+        f"QTabWidget::pane{{background:{DARK_BG};border:1px solid {BORDER};border-radius:8px;}}"
+        f"QTabBar::tab{{background:{SURFACE};color:{SUBTEXT};padding:8px 14px;font-size:13px;border-radius:6px 6px 0 0;margin-right:2px;}}"
+        f"QTabBar::tab:selected{{background:{ACCENT};color:#11111B;font-weight:bold;}}"
+        f"QTabBar::tab:hover{{background:{HOVER};color:{TEXT};}}"
+    )
+    pl.addWidget(tabs, 1)
+
+    # ── TAB 1: Script Generator ───────────────────────────────────────────────
+    t1 = QWidget(); t1l = QVBoxLayout(t1); t1l.setContentsMargins(14, 12, 14, 12); t1l.setSpacing(8)
+
+    grp_in = QGroupBox("🎯 Video Brief"); grp_in.setStyleSheet(_GS)
+    gin = QGridLayout(grp_in); gin.setSpacing(8)
+
+    gin.addWidget(QLabel("Topic / Idea:"), 0, 0)
+    vs_topic = QLineEdit(); vs_topic.setPlaceholderText("e.g. How to grow on TikTok in 2025")
+    gin.addWidget(vs_topic, 0, 1, 1, 3)
+
+    gin.addWidget(QLabel("Platform:"), 1, 0)
+    vs_platform = QComboBox(); vs_platform.addItems(["TikTok", "Instagram Reels", "YouTube Shorts", "Facebook Reels", "Snapchat Spotlight"])
+    gin.addWidget(vs_platform, 1, 1)
+
+    gin.addWidget(QLabel("Duration (sec):"), 1, 2)
+    vs_dur = QSpinBox(); vs_dur.setRange(15, 600); vs_dur.setValue(60); vs_dur.setSuffix(" sec")
+    gin.addWidget(vs_dur, 1, 3)
+
+    gin.addWidget(QLabel("Style:"), 2, 0)
+    vs_style = QComboBox(); vs_style.addItems(["Educational", "Entertainment", "Inspirational", "Tutorial", "Storytelling", "Comedy", "POV", "Vlog"])
+    gin.addWidget(vs_style, 2, 1)
+
+    gin.addWidget(QLabel("Niche:"), 2, 2)
+    vs_niche = QLineEdit(); vs_niche.setPlaceholderText("e.g. fitness, business, beauty")
+    gin.addWidget(vs_niche, 2, 3)
+
+    gin.addWidget(QLabel("Language:"), 3, 0)
+    vs_lang = QComboBox(); vs_lang.addItems(["English", "Khmer", "Thai", "Vietnamese", "Chinese", "Japanese", "Korean", "Spanish", "French", "Arabic", "Hindi"])
+    gin.addWidget(vs_lang, 3, 1)
+
+    t1l.addWidget(grp_in)
+
+    btn_row = QHBoxLayout()
+    vs_gen_script = _btn("🎬 Generate Script", ACCENT)
+    vs_gen_board  = _btn("🎞 Build Storyboard", SUCCESS)
+    vs_gen_seo    = _btn("🔍 Video SEO Pack", WARNING)
+    btn_row.addWidget(vs_gen_script); btn_row.addWidget(vs_gen_board); btn_row.addWidget(vs_gen_seo); btn_row.addStretch()
+    t1l.addLayout(btn_row)
+
+    vs_out = QTextEdit(); vs_out.setReadOnly(True)
+    vs_out.setPlaceholderText("📝 Your AI-generated video script will appear here...\n\nFill in the brief above and click Generate Script.")
+    vs_out.setStyleSheet(f"background:{SURFACE};color:{TEXT};border:1px solid {BORDER};border-radius:8px;font-family:Consolas,monospace;font-size:13px;")
+    t1l.addWidget(vs_out, 1)
+    tabs.addTab(t1, "📝 Script Generator")
+
+    # ── TAB 2: Hook Optimizer ─────────────────────────────────────────────────
+    t2 = QWidget(); t2l = QVBoxLayout(t2); t2l.setContentsMargins(14, 12, 14, 12); t2l.setSpacing(8)
+
+    grp_hook = QGroupBox("🎣 Hook Optimizer"); grp_hook.setStyleSheet(_GS)
+    gh = QGridLayout(grp_hook); gh.setSpacing(8)
+    gh.addWidget(QLabel("Existing Hook:"), 0, 0)
+    vs_hook_in = QLineEdit(); vs_hook_in.setPlaceholderText("Paste your current opening line or hook...")
+    gh.addWidget(vs_hook_in, 0, 1, 1, 3)
+    gh.addWidget(QLabel("Platform:"), 1, 0)
+    vs_hook_plat = QComboBox(); vs_hook_plat.addItems(["TikTok", "Instagram Reels", "YouTube Shorts"])
+    gh.addWidget(vs_hook_plat, 1, 1)
+    gh.addWidget(QLabel("Language:"), 1, 2)
+    vs_hook_lang = QComboBox(); vs_hook_lang.addItems(["English", "Khmer", "Thai", "Vietnamese", "Chinese", "Spanish"])
+    gh.addWidget(vs_hook_lang, 1, 3)
+    t2l.addWidget(grp_hook)
+
+    btn_hook = _btn("⚡ Optimize Hook", WARNING)
+    t2l.addWidget(btn_hook)
+    vs_hook_out = QTextEdit(); vs_hook_out.setReadOnly(True)
+    vs_hook_out.setPlaceholderText("Optimized hook variations with AI retention predictions will appear here...")
+    vs_hook_out.setStyleSheet(f"background:{SURFACE};color:{TEXT};border:1px solid {BORDER};border-radius:8px;font-size:13px;")
+    t2l.addWidget(vs_hook_out, 1)
+
+    grp_caption = QGroupBox("📝 Caption & Subtitle Generator"); grp_caption.setStyleSheet(_GS)
+    gc = QGridLayout(grp_caption); gc.setSpacing(8)
+    gc.addWidget(QLabel("Topic:"), 0, 0)
+    vs_cap_topic = QLineEdit(); vs_cap_topic.setPlaceholderText("Video topic for caption generation...")
+    gc.addWidget(vs_cap_topic, 0, 1, 1, 3)
+    gc.addWidget(QLabel("Caption Style:"), 1, 0)
+    vs_cap_style = QComboBox(); vs_cap_style.addItems(["Energetic", "Professional", "Funny", "Inspirational", "Educational", "Storytelling"])
+    gc.addWidget(vs_cap_style, 1, 1)
+    gc.addWidget(QLabel("Platform:"), 1, 2)
+    vs_cap_plat = QComboBox(); vs_cap_plat.addItems(["Instagram", "TikTok", "YouTube", "Facebook"])
+    gc.addWidget(vs_cap_plat, 1, 3)
+    t2l.addWidget(grp_caption)
+
+    btn_caption = _btn("✍️ Generate Captions", ACCENT)
+    t2l.addWidget(btn_caption)
+    tabs.addTab(t2, "🎣 Hook & Captions")
+
+    # ── Worker thread ─────────────────────────────────────────────────────────
+    class _VS_Worker(QThread):
+        finished = pyqtSignal(str)
+        error    = pyqtSignal(str)
+        def __init__(self, coro): super().__init__(); self._coro = coro
+        def run(self):
+            try:
+                loop = asyncio.new_event_loop(); asyncio.set_event_loop(loop)
+                result = loop.run_until_complete(self._coro); loop.close()
+                self.finished.emit(result)
+            except Exception as e:
+                self.error.emit(str(e))
+
+    _vs_workers = []
+
+    def _run_vs(coro, out_widget, btn_widget, btn_label):
+        btn_widget.setEnabled(False); btn_widget.setText("⏳ Generating...")
+        out_widget.setText("🔄 AI is generating your video content... please wait.")
+        w = _VS_Worker(coro)
+        w.finished.connect(lambda r: (_set_out(out_widget, r), _reset_btn(btn_widget, btn_label)))
+        w.error.connect(lambda e: (out_widget.setText(f"❌ Error: {e}"), _reset_btn(btn_widget, btn_label)))
+        _vs_workers.append(w); w.start()
+
+    def _set_out(widget, raw):
+        try:
+            data = json.loads(raw) if isinstance(raw, str) and raw.startswith("{") else raw
+            if isinstance(data, dict):
+                txt = ""
+                for k, v in data.items():
+                    if isinstance(v, list):
+                        txt += f"\n{'─'*50}\n🔹 {k.upper().replace('_',' ')}\n"
+                        for i, item in enumerate(v, 1):
+                            if isinstance(item, dict):
+                                txt += f"\n  [{i}] " + " | ".join(f"{kk}: {vv}" for kk, vv in item.items()) + "\n"
+                            else:
+                                txt += f"  {i}. {item}\n"
+                    elif isinstance(v, dict):
+                        txt += f"\n{'─'*50}\n🔹 {k.upper().replace('_',' ')}\n"
+                        for kk, vv in v.items():
+                            txt += f"  • {kk}: {vv}\n"
+                    else:
+                        txt += f"\n🔹 {k.upper().replace('_',' ')}: {v}\n"
+                widget.setText(txt.strip())
+            else:
+                widget.setText(str(raw))
+        except Exception:
+            widget.setText(str(raw))
+
+    def _reset_btn(btn, label):
+        btn.setEnabled(True); btn.setText(label)
+
+    def _do_gen_script():
+        from ai_core.video_studio import generate_video_script
+        import asyncio as _al
+        async def _run():
+            r = await generate_video_script(
+                vs_topic.text().strip() or "social media growth",
+                vs_platform.currentText(), vs_dur.value(),
+                vs_style.currentText(), vs_niche.text().strip() or "General",
+                vs_lang.currentText()
+            )
+            return json.dumps(r, ensure_ascii=False, indent=2)
+        _run_vs(_run(), vs_out, vs_gen_script, "🎬 Generate Script")
+
+    def _do_gen_board():
+        from ai_core.video_studio import build_storyboard
+        async def _run():
+            r = await build_storyboard(
+                vs_topic.text().strip() or "social media growth",
+                vs_platform.currentText(), 6, vs_lang.currentText()
+            )
+            return json.dumps(r, ensure_ascii=False, indent=2)
+        _run_vs(_run(), vs_out, vs_gen_board, "🎞 Build Storyboard")
+
+    def _do_gen_seo():
+        from ai_core.video_studio import generate_video_seo
+        async def _run():
+            r = await generate_video_seo(
+                vs_topic.text().strip() or "social media growth",
+                vs_platform.currentText(), vs_lang.currentText()
+            )
+            return json.dumps(r, ensure_ascii=False, indent=2)
+        _run_vs(_run(), vs_out, vs_gen_seo, "🔍 Video SEO Pack")
+
+    def _do_hook():
+        from ai_core.video_studio import optimize_video_hook
+        async def _run():
+            r = await optimize_video_hook(
+                vs_hook_in.text().strip() or "Stop scrolling — this changes everything...",
+                vs_hook_plat.currentText(), vs_hook_lang.currentText()
+            )
+            return json.dumps(r, ensure_ascii=False, indent=2)
+        _run_vs(_run(), vs_hook_out, btn_hook, "⚡ Optimize Hook")
+
+    def _do_caption():
+        from ai_core.video_studio import generate_captions
+        async def _run():
+            r = await generate_captions(
+                vs_cap_topic.text().strip() or "social media",
+                vs_cap_plat.currentText(), vs_cap_style.currentText(),
+                vs_hook_lang.currentText()
+            )
+            return json.dumps(r, ensure_ascii=False, indent=2)
+        _run_vs(_run(), vs_hook_out, btn_caption, "✍️ Generate Captions")
+
+    vs_gen_script.clicked.connect(_do_gen_script)
+    vs_gen_board.clicked.connect(_do_gen_board)
+    vs_gen_seo.clicked.connect(_do_gen_seo)
+    btn_hook.clicked.connect(_do_hook)
+    btn_caption.clicked.connect(_do_caption)
+
+    return page
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# ✦ NEW FEATURE PAGE 31: A/B INTELLIGENCE LAB
+# ═══════════════════════════════════════════════════════════════════════════════
+
+def build_ab_lab_page(api_base: str) -> QWidget:
+    """A/B Intelligence Lab — AI-powered multi-variant content testing."""
+    import asyncio
+
+    _GS = (f"QGroupBox{{color:{ACCENT};font-weight:bold;border:1px solid {BORDER};"
+           f"border-radius:8px;padding-top:8px;margin-top:4px;}}"
+           f"QGroupBox::title{{subcontrol-origin:margin;left:8px;padding:0 4px;}}")
+
+    def _btn(text, color=None):
+        b = QPushButton(text); b.setCursor(Qt.PointingHandCursor)
+        c = color or ACCENT
+        b.setStyleSheet(
+            f"QPushButton{{background:{c};color:#11111B;border:none;border-radius:8px;"
+            f"padding:8px 18px;font-weight:bold;font-size:13px;}}"
+            f"QPushButton:hover{{background:{c}CC;}}"
+            f"QPushButton:disabled{{background:{BORDER};color:{SUBTEXT};}}"
+        )
+        return b
+
+    page = QWidget(); pl = QVBoxLayout(page)
+    pl.setContentsMargins(20, 16, 20, 16); pl.setSpacing(10)
+
+    hdr = QLabel("🧪  A/B Intelligence Lab")
+    hdr.setFont(QFont("Segoe UI", 17, QFont.Bold))
+    hdr.setStyleSheet(f"color:{ACCENT};")
+    pl.addWidget(hdr)
+    sub = QLabel("Generate AI-predicted A/B content variants — know your winner BEFORE you post")
+    sub.setStyleSheet(f"color:{SUBTEXT}; font-size:13px;")
+    pl.addWidget(sub)
+
+    tabs = QTabWidget()
+    tabs.setStyleSheet(
+        f"QTabWidget::pane{{background:{DARK_BG};border:1px solid {BORDER};border-radius:8px;}}"
+        f"QTabBar::tab{{background:{SURFACE};color:{SUBTEXT};padding:8px 14px;font-size:13px;border-radius:6px 6px 0 0;margin-right:2px;}}"
+        f"QTabBar::tab:selected{{background:{ACCENT};color:#11111B;font-weight:bold;}}"
+        f"QTabBar::tab:hover{{background:{HOVER};color:{TEXT};}}"
+    )
+    pl.addWidget(tabs, 1)
+
+    # ── TAB 1: Variant Generator ──────────────────────────────────────────────
+    t1 = QWidget(); t1l = QVBoxLayout(t1); t1l.setContentsMargins(14, 12, 14, 12); t1l.setSpacing(8)
+
+    grp1 = QGroupBox("📋 Original Content"); grp1.setStyleSheet(_GS)
+    g1 = QGridLayout(grp1); g1.setSpacing(8)
+    g1.addWidget(QLabel("Platform:"), 0, 0)
+    ab_platform = QComboBox(); ab_platform.addItems(["Instagram", "TikTok", "Facebook", "Twitter/X", "LinkedIn", "YouTube"])
+    g1.addWidget(ab_platform, 0, 1)
+    g1.addWidget(QLabel("Test Element:"), 0, 2)
+    ab_element = QComboBox(); ab_element.addItems(["Full Post", "Caption Only", "Headline", "Hook / Opening Line", "CTA"])
+    g1.addWidget(ab_element, 0, 3)
+    g1.addWidget(QLabel("Variants:"), 1, 0)
+    ab_variants = QSpinBox(); ab_variants.setRange(2, 4); ab_variants.setValue(3)
+    g1.addWidget(ab_variants, 1, 1)
+    g1.addWidget(QLabel("Language:"), 1, 2)
+    ab_lang = QComboBox(); ab_lang.addItems(["English", "Khmer", "Thai", "Vietnamese", "Chinese", "Spanish", "French"])
+    g1.addWidget(ab_lang, 1, 3)
+    g1.addWidget(QLabel("Original Content:"), 2, 0)
+    ab_content = QTextEdit(); ab_content.setMaximumHeight(100)
+    ab_content.setPlaceholderText("Paste your original post content here to generate optimized variants...")
+    ab_content.setStyleSheet(f"background:{DARK_BG};color:{TEXT};border:1px solid {BORDER};border-radius:6px;padding:6px;font-size:13px;")
+    g1.addWidget(ab_content, 2, 1, 1, 3)
+    t1l.addWidget(grp1)
+
+    b_row = QHBoxLayout()
+    ab_gen_btn    = _btn("🧬 Generate A/B Variants", ACCENT)
+    ab_predict_btn = _btn("🎯 Predict Winner", SUCCESS)
+    ab_caption_btn = _btn("🔮 Caption Psychology", WARNING)
+    b_row.addWidget(ab_gen_btn); b_row.addWidget(ab_predict_btn); b_row.addWidget(ab_caption_btn); b_row.addStretch()
+    t1l.addLayout(b_row)
+
+    ab_out = QTextEdit(); ab_out.setReadOnly(True)
+    ab_out.setPlaceholderText("🧪 A/B variant predictions will appear here...\n\nPaste your content and click Generate to see AI-scored variants before you post.")
+    ab_out.setStyleSheet(f"background:{SURFACE};color:{TEXT};border:1px solid {BORDER};border-radius:8px;font-size:13px;")
+    t1l.addWidget(ab_out, 1)
+    tabs.addTab(t1, "🧬 Variant Generator")
+
+    # ── TAB 2: Head-to-Head Comparison ────────────────────────────────────────
+    t2 = QWidget(); t2l = QVBoxLayout(t2); t2l.setContentsMargins(14, 12, 14, 12); t2l.setSpacing(8)
+
+    spl = QSplitter(Qt.Horizontal)
+    grp_a = QGroupBox("Version A"); grp_a.setStyleSheet(_GS)
+    ga = QVBoxLayout(grp_a)
+    ab_va = QTextEdit(); ab_va.setPlaceholderText("Paste Variant A here...")
+    ab_va.setStyleSheet(f"background:{DARK_BG};color:{TEXT};border:1px solid {BORDER};border-radius:6px;padding:6px;font-size:13px;")
+    ga.addWidget(ab_va)
+    grp_b = QGroupBox("Version B"); grp_b.setStyleSheet(_GS)
+    gb = QVBoxLayout(grp_b)
+    ab_vb = QTextEdit(); ab_vb.setPlaceholderText("Paste Variant B here...")
+    ab_vb.setStyleSheet(f"background:{DARK_BG};color:{TEXT};border:1px solid {BORDER};border-radius:6px;padding:6px;font-size:13px;")
+    gb.addWidget(ab_vb)
+    spl.addWidget(grp_a); spl.addWidget(grp_b)
+    t2l.addWidget(spl)
+
+    h2r = QHBoxLayout()
+    ab_h2h_platform = QComboBox(); ab_h2h_platform.addItems(["Instagram", "TikTok", "Facebook", "LinkedIn"])
+    ab_metric = QComboBox(); ab_metric.addItems(["Engagement Rate", "Reach", "Saves", "Comments", "Shares", "Profile Visits"])
+    ab_h2h_btn = _btn("⚔️ Compare & Predict Winner", ACCENT)
+    h2r.addWidget(QLabel("Platform:")); h2r.addWidget(ab_h2h_platform)
+    h2r.addSpacing(8); h2r.addWidget(QLabel("Optimize for:")); h2r.addWidget(ab_metric)
+    h2r.addSpacing(8); h2r.addWidget(ab_h2h_btn); h2r.addStretch()
+    t2l.addLayout(h2r)
+
+    ab_h2h_out = QTextEdit(); ab_h2h_out.setReadOnly(True)
+    ab_h2h_out.setPlaceholderText("Head-to-head comparison results will appear here...")
+    ab_h2h_out.setStyleSheet(f"background:{SURFACE};color:{TEXT};border:1px solid {BORDER};border-radius:8px;font-size:13px;")
+    t2l.addWidget(ab_h2h_out, 1)
+    tabs.addTab(t2, "⚔️ Head-to-Head")
+
+    # ── TAB 3: Posting Time Optimizer ─────────────────────────────────────────
+    t3 = QWidget(); t3l = QVBoxLayout(t3); t3l.setContentsMargins(14, 12, 14, 12); t3l.setSpacing(8)
+    grp3 = QGroupBox("⏰ Posting Time Optimizer"); grp3.setStyleSheet(_GS)
+    g3 = QGridLayout(grp3); g3.setSpacing(8)
+    g3.addWidget(QLabel("Platform:"), 0, 0)
+    ab_time_plat = QComboBox(); ab_time_plat.addItems(["Instagram", "TikTok", "Facebook", "YouTube", "LinkedIn", "Twitter/X"])
+    g3.addWidget(ab_time_plat, 0, 1)
+    g3.addWidget(QLabel("Niche:"), 0, 2)
+    ab_time_niche = QLineEdit(); ab_time_niche.setPlaceholderText("e.g. fitness, business, beauty")
+    g3.addWidget(ab_time_niche, 0, 3)
+    g3.addWidget(QLabel("Audience Location:"), 1, 0)
+    ab_time_loc = QLineEdit(); ab_time_loc.setPlaceholderText("e.g. USA, Cambodia, Thailand")
+    g3.addWidget(ab_time_loc, 1, 1)
+    g3.addWidget(QLabel("Current Best Day:"), 1, 2)
+    ab_time_day = QComboBox(); ab_time_day.addItems(["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"])
+    g3.addWidget(ab_time_day, 1, 3)
+    t3l.addWidget(grp3)
+    ab_time_btn = _btn("📅 Get Optimal Schedule", SUCCESS)
+    t3l.addWidget(ab_time_btn)
+    ab_time_out = QTextEdit(); ab_time_out.setReadOnly(True)
+    ab_time_out.setPlaceholderText("Optimal posting schedule with AI analysis will appear here...")
+    ab_time_out.setStyleSheet(f"background:{SURFACE};color:{TEXT};border:1px solid {BORDER};border-radius:8px;font-size:13px;")
+    t3l.addWidget(ab_time_out, 1)
+    tabs.addTab(t3, "⏰ Time Optimizer")
+
+    # ── Workers ───────────────────────────────────────────────────────────────
+    _ab_workers = []
+
+    def _run_ab(coro, out_widget, btn_widget, label):
+        btn_widget.setEnabled(False); btn_widget.setText("⏳ Analyzing...")
+        out_widget.setText("🔄 AI is processing... please wait.")
+        class _W(QThread):
+            done = pyqtSignal(str); err = pyqtSignal(str)
+            def __init__(self, c): super().__init__(); self._c = c
+            def run(self):
+                try:
+                    loop = asyncio.new_event_loop(); asyncio.set_event_loop(loop)
+                    r = loop.run_until_complete(self._c); loop.close(); self.done.emit(r)
+                except Exception as e: self.err.emit(str(e))
+        w = _W(coro)
+        w.done.connect(lambda r: (_pretty_out(out_widget, r), btn_widget.setEnabled(True), btn_widget.setText(label)))
+        w.err.connect(lambda e: (out_widget.setText(f"❌ {e}"), btn_widget.setEnabled(True), btn_widget.setText(label)))
+        _ab_workers.append(w); w.start()
+
+    def _pretty_out(widget, raw):
+        try:
+            data = json.loads(raw) if isinstance(raw, str) else raw
+            if isinstance(data, dict):
+                lines = []
+                for k, v in data.items():
+                    lines.append(f"\n{'═'*48}")
+                    lines.append(f"  {k.upper().replace('_',' ')}")
+                    lines.append(f"{'─'*48}")
+                    if isinstance(v, list):
+                        for i, item in enumerate(v, 1):
+                            if isinstance(item, dict):
+                                lines.append(f"\n  [{i}]")
+                                for kk, vv in item.items():
+                                    lines.append(f"      {kk}: {vv}")
+                            else:
+                                lines.append(f"  {i}. {item}")
+                    elif isinstance(v, dict):
+                        for kk, vv in v.items():
+                            lines.append(f"  • {kk}: {vv}")
+                    else:
+                        lines.append(f"  {v}")
+                widget.setText("\n".join(lines))
+            else:
+                widget.setText(str(raw))
+        except Exception:
+            widget.setText(str(raw))
+
+    def _do_ab_variants():
+        from ai_core.ab_testing import generate_ab_variants
+        async def _r():
+            res = await generate_ab_variants(
+                ab_content.toPlainText().strip() or "Check out our latest product — you'll love it!",
+                ab_platform.currentText(), ab_variants.value(), ab_element.currentText(), ab_lang.currentText()
+            )
+            return json.dumps(res, ensure_ascii=False, indent=2)
+        _run_ab(_r(), ab_out, ab_gen_btn, "🧬 Generate A/B Variants")
+
+    def _do_predict():
+        from ai_core.ab_testing import predict_ab_winner
+        async def _r():
+            res = await predict_ab_winner(
+                ab_va.toPlainText().strip() or "Variant A content",
+                ab_vb.toPlainText().strip() or "Variant B content",
+                ab_h2h_platform.currentText(), ab_metric.currentText(), "General", ab_lang.currentText()
+            )
+            return json.dumps(res, ensure_ascii=False, indent=2)
+        _run_ab(_r(), ab_h2h_out, ab_predict_btn, "🎯 Predict Winner")
+
+    def _do_caption_psych():
+        from ai_core.ab_testing import optimize_caption_ab
+        async def _r():
+            res = await optimize_caption_ab(
+                ab_content.toPlainText().strip() or "Check out our product — you'll love it!",
+                ab_platform.currentText(), "Engagement", ab_lang.currentText()
+            )
+            return json.dumps(res, ensure_ascii=False, indent=2)
+        _run_ab(_r(), ab_out, ab_caption_btn, "🔮 Caption Psychology")
+
+    def _do_h2h():
+        from ai_core.ab_testing import predict_ab_winner
+        async def _r():
+            res = await predict_ab_winner(
+                ab_va.toPlainText().strip() or "Variant A",
+                ab_vb.toPlainText().strip() or "Variant B",
+                ab_h2h_platform.currentText(), ab_metric.currentText()
+            )
+            return json.dumps(res, ensure_ascii=False, indent=2)
+        _run_ab(_r(), ab_h2h_out, ab_h2h_btn, "⚔️ Compare & Predict Winner")
+
+    def _do_timing():
+        from ai_core.ab_testing import analyze_posting_times
+        async def _r():
+            res = await analyze_posting_times(
+                ab_time_plat.currentText(), ab_time_niche.text().strip() or "General",
+                ab_time_loc.text().strip() or "USA", ab_time_day.currentText(), ab_lang.currentText()
+            )
+            return json.dumps(res, ensure_ascii=False, indent=2)
+        _run_ab(_r(), ab_time_out, ab_time_btn, "📅 Get Optimal Schedule")
+
+    ab_gen_btn.clicked.connect(_do_ab_variants)
+    ab_predict_btn.clicked.connect(_do_predict)
+    ab_caption_btn.clicked.connect(_do_caption_psych)
+    ab_h2h_btn.clicked.connect(_do_h2h)
+    ab_time_btn.clicked.connect(_do_timing)
+
+    return page
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# ✦ NEW FEATURE PAGE 32: SOCIAL COMMERCE AI
+# ═══════════════════════════════════════════════════════════════════════════════
+
+def build_social_commerce_page(api_base: str) -> QWidget:
+    """Social Commerce AI — Shoppable content, DM funnels, and conversion optimization."""
+    import asyncio
+
+    _GS = (f"QGroupBox{{color:{ACCENT};font-weight:bold;border:1px solid {BORDER};"
+           f"border-radius:8px;padding-top:8px;margin-top:4px;}}"
+           f"QGroupBox::title{{subcontrol-origin:margin;left:8px;padding:0 4px;}}")
+
+    def _btn(text, color=None):
+        b = QPushButton(text); b.setCursor(Qt.PointingHandCursor)
+        c = color or ACCENT
+        b.setStyleSheet(
+            f"QPushButton{{background:{c};color:#11111B;border:none;border-radius:8px;"
+            f"padding:8px 18px;font-weight:bold;font-size:13px;}}"
+            f"QPushButton:hover{{background:{c}CC;}}"
+            f"QPushButton:disabled{{background:{BORDER};color:{SUBTEXT};}}"
+        )
+        return b
+
+    page = QWidget(); pl = QVBoxLayout(page)
+    pl.setContentsMargins(20, 16, 20, 16); pl.setSpacing(10)
+
+    hdr = QLabel("🛍️  Social Commerce AI")
+    hdr.setFont(QFont("Segoe UI", 17, QFont.Bold))
+    hdr.setStyleSheet(f"color:{ACCENT};")
+    pl.addWidget(hdr)
+    sub = QLabel("Generate shoppable content, DM sales funnels, social proof, and conversion optimization with AI")
+    sub.setStyleSheet(f"color:{SUBTEXT}; font-size:13px;")
+    pl.addWidget(sub)
+
+    tabs = QTabWidget()
+    tabs.setStyleSheet(
+        f"QTabWidget::pane{{background:{DARK_BG};border:1px solid {BORDER};border-radius:8px;}}"
+        f"QTabBar::tab{{background:{SURFACE};color:{SUBTEXT};padding:8px 14px;font-size:13px;border-radius:6px 6px 0 0;margin-right:2px;}}"
+        f"QTabBar::tab:selected{{background:{ACCENT};color:#11111B;font-weight:bold;}}"
+        f"QTabBar::tab:hover{{background:{HOVER};color:{TEXT};}}"
+    )
+    pl.addWidget(tabs, 1)
+
+    # ── TAB 1: Shoppable Content ──────────────────────────────────────────────
+    t1 = QWidget(); t1l = QVBoxLayout(t1); t1l.setContentsMargins(14, 12, 14, 12); t1l.setSpacing(8)
+    grp1 = QGroupBox("🛒 Shoppable Post Generator"); grp1.setStyleSheet(_GS)
+    g1 = QGridLayout(grp1); g1.setSpacing(8)
+    g1.addWidget(QLabel("Product Name:"), 0, 0)
+    sc_product = QLineEdit(); sc_product.setPlaceholderText("e.g. Organic Glow Serum")
+    g1.addWidget(sc_product, 0, 1, 1, 3)
+    g1.addWidget(QLabel("Price:"), 1, 0)
+    sc_price = QLineEdit(); sc_price.setPlaceholderText("e.g. $29 / $49.99")
+    g1.addWidget(sc_price, 1, 1)
+    g1.addWidget(QLabel("Platform:"), 1, 2)
+    sc_plat = QComboBox(); sc_plat.addItems(["Instagram", "TikTok Shop", "Facebook Shop", "Pinterest", "Snapchat"])
+    g1.addWidget(sc_plat, 1, 3)
+    g1.addWidget(QLabel("Target Audience:"), 2, 0)
+    sc_audience = QLineEdit(); sc_audience.setPlaceholderText("e.g. women 25-35 interested in skincare")
+    g1.addWidget(sc_audience, 2, 1, 1, 3)
+    g1.addWidget(QLabel("Language:"), 3, 0)
+    sc_lang = QComboBox(); sc_lang.addItems(["English", "Khmer", "Thai", "Vietnamese", "Chinese", "Spanish"])
+    g1.addWidget(sc_lang, 3, 1)
+    t1l.addWidget(grp1)
+
+    b1r = QHBoxLayout()
+    sc_shop_btn     = _btn("🛍️ Generate Shoppable Post", ACCENT)
+    sc_showcase_btn = _btn("✨ Product Showcase", SUCCESS)
+    sc_proof_btn    = _btn("⭐ Social Proof Pack", WARNING)
+    b1r.addWidget(sc_shop_btn); b1r.addWidget(sc_showcase_btn); b1r.addWidget(sc_proof_btn); b1r.addStretch()
+    t1l.addLayout(b1r)
+
+    sc_out1 = QTextEdit(); sc_out1.setReadOnly(True)
+    sc_out1.setPlaceholderText("🛍️ Your shoppable content will appear here...\n\nFill in product details above and click Generate.")
+    sc_out1.setStyleSheet(f"background:{SURFACE};color:{TEXT};border:1px solid {BORDER};border-radius:8px;font-size:13px;")
+    t1l.addWidget(sc_out1, 1)
+    tabs.addTab(t1, "🛒 Shoppable Posts")
+
+    # ── TAB 2: DM Sales Funnel ────────────────────────────────────────────────
+    t2 = QWidget(); t2l = QVBoxLayout(t2); t2l.setContentsMargins(14, 12, 14, 12); t2l.setSpacing(8)
+    grp2 = QGroupBox("💬 DM Sales Funnel Builder"); grp2.setStyleSheet(_GS)
+    g2 = QGridLayout(grp2); g2.setSpacing(8)
+    g2.addWidget(QLabel("Product:"), 0, 0)
+    sc_funnel_product = QLineEdit(); sc_funnel_product.setPlaceholderText("Product or service name")
+    g2.addWidget(sc_funnel_product, 0, 1, 1, 3)
+    g2.addWidget(QLabel("Trigger Keyword:"), 1, 0)
+    sc_trigger = QLineEdit(); sc_trigger.setPlaceholderText("e.g. INFO, PRICE, YES, DETAILS")
+    g2.addWidget(sc_trigger, 1, 1)
+    g2.addWidget(QLabel("Target Audience:"), 1, 2)
+    sc_funnel_aud = QLineEdit(); sc_funnel_aud.setPlaceholderText("e.g. small business owners")
+    g2.addWidget(sc_funnel_aud, 1, 3)
+    g2.addWidget(QLabel("Language:"), 2, 0)
+    sc_funnel_lang = QComboBox(); sc_funnel_lang.addItems(["English", "Khmer", "Thai", "Vietnamese", "Chinese", "Spanish"])
+    g2.addWidget(sc_funnel_lang, 2, 1)
+    t2l.addWidget(grp2)
+
+    sc_funnel_btn = _btn("💬 Build DM Sales Funnel", ACCENT)
+    t2l.addWidget(sc_funnel_btn)
+    sc_out2 = QTextEdit(); sc_out2.setReadOnly(True)
+    sc_out2.setPlaceholderText("Your automated DM sales funnel sequence will appear here...\n\nThis generates a complete 5-step DM conversation that converts followers to buyers.")
+    sc_out2.setStyleSheet(f"background:{SURFACE};color:{TEXT};border:1px solid {BORDER};border-radius:8px;font-size:13px;")
+    t2l.addWidget(sc_out2, 1)
+    tabs.addTab(t2, "💬 DM Funnel")
+
+    # ── TAB 3: Conversion Optimizer ───────────────────────────────────────────
+    t3 = QWidget(); t3l = QVBoxLayout(t3); t3l.setContentsMargins(14, 12, 14, 12); t3l.setSpacing(8)
+    grp3 = QGroupBox("📈 Bio & Conversion Optimizer"); grp3.setStyleSheet(_GS)
+    g3 = QGridLayout(grp3); g3.setSpacing(8)
+    g3.addWidget(QLabel("Current Bio:"), 0, 0)
+    sc_bio = QTextEdit(); sc_bio.setMaximumHeight(80)
+    sc_bio.setPlaceholderText("Paste your current social media bio here...")
+    sc_bio.setStyleSheet(f"background:{DARK_BG};color:{TEXT};border:1px solid {BORDER};border-radius:6px;padding:6px;font-size:13px;")
+    g3.addWidget(sc_bio, 0, 1, 1, 3)
+    g3.addWidget(QLabel("Product/Offer:"), 1, 0)
+    sc_conv_product = QLineEdit(); sc_conv_product.setPlaceholderText("What you're selling or promoting")
+    g3.addWidget(sc_conv_product, 1, 1, 1, 3)
+    g3.addWidget(QLabel("Traffic Source:"), 2, 0)
+    sc_traffic = QComboBox(); sc_traffic.addItems(["Instagram", "TikTok", "Facebook", "YouTube", "LinkedIn", "Twitter/X"])
+    g3.addWidget(sc_traffic, 2, 1)
+    t3l.addWidget(grp3)
+
+    sc_conv_btn = _btn("📈 Optimize for Conversion", SUCCESS)
+    t3l.addWidget(sc_conv_btn)
+    sc_out3 = QTextEdit(); sc_out3.setReadOnly(True)
+    sc_out3.setPlaceholderText("Bio optimization and conversion strategy will appear here...")
+    sc_out3.setStyleSheet(f"background:{SURFACE};color:{TEXT};border:1px solid {BORDER};border-radius:8px;font-size:13px;")
+    t3l.addWidget(sc_out3, 1)
+    tabs.addTab(t3, "📈 Conversion Optimizer")
+
+    # ── Workers ───────────────────────────────────────────────────────────────
+    _sc_workers = []
+
+    def _run_sc(coro, out_w, btn_w, label):
+        btn_w.setEnabled(False); btn_w.setText("⏳ Generating...")
+        out_w.setText("🔄 AI is generating commerce content... please wait.")
+        class _W(QThread):
+            done = pyqtSignal(str); err = pyqtSignal(str)
+            def __init__(self, c): super().__init__(); self._c = c
+            def run(self):
+                try:
+                    loop = asyncio.new_event_loop(); asyncio.set_event_loop(loop)
+                    r = loop.run_until_complete(self._c); loop.close(); self.done.emit(r)
+                except Exception as e: self.err.emit(str(e))
+        w = _W(coro)
+        w.done.connect(lambda r: (_fmt_out(out_w, r), btn_w.setEnabled(True), btn_w.setText(label)))
+        w.err.connect(lambda e: (out_w.setText(f"❌ {e}"), btn_w.setEnabled(True), btn_w.setText(label)))
+        _sc_workers.append(w); w.start()
+
+    def _fmt_out(widget, raw):
+        try:
+            data = json.loads(raw) if isinstance(raw, str) else raw
+            if isinstance(data, dict):
+                lines = []
+                for k, v in data.items():
+                    lines.append(f"\n{'═'*50}\n  {k.upper().replace('_',' ')}\n{'─'*50}")
+                    if isinstance(v, list):
+                        for i, item in enumerate(v, 1):
+                            if isinstance(item, dict):
+                                lines.append(f"\n  Step {i if 'step' not in item else item.get('step', i)}:")
+                                for kk, vv in item.items():
+                                    lines.append(f"    {kk}: {vv}")
+                            else:
+                                lines.append(f"  {i}. {item}")
+                    elif isinstance(v, dict):
+                        for kk, vv in v.items():
+                            lines.append(f"  • {kk}: {vv}")
+                    else:
+                        lines.append(f"  {v}")
+                widget.setText("\n".join(lines))
+            else:
+                widget.setText(str(raw))
+        except Exception:
+            widget.setText(str(raw))
+
+    def _do_shop():
+        from ai_core.social_commerce import generate_shoppable_content
+        async def _r():
+            res = await generate_shoppable_content(
+                sc_product.text().strip() or "Premium Product",
+                sc_price.text().strip() or "$29",
+                sc_plat.currentText(), sc_audience.text().strip() or "General audience",
+                sc_lang.currentText()
+            )
+            return json.dumps(res, ensure_ascii=False, indent=2)
+        _run_sc(_r(), sc_out1, sc_shop_btn, "🛍️ Generate Shoppable Post")
+
+    def _do_showcase():
+        from ai_core.social_commerce import generate_product_showcase
+        async def _r():
+            res = await generate_product_showcase(
+                sc_product.text().strip() or "Premium Product",
+                "Key features of the product", "Main benefit",
+                sc_plat.currentText(), sc_lang.currentText()
+            )
+            return json.dumps(res, ensure_ascii=False, indent=2)
+        _run_sc(_r(), sc_out1, sc_showcase_btn, "✨ Product Showcase")
+
+    def _do_proof():
+        from ai_core.social_commerce import generate_social_proof
+        async def _r():
+            res = await generate_social_proof(
+                sc_product.text().strip() or "Premium Product",
+                "increased sales by 300%", sc_plat.currentText(), sc_lang.currentText()
+            )
+            return json.dumps(res, ensure_ascii=False, indent=2)
+        _run_sc(_r(), sc_out1, sc_proof_btn, "⭐ Social Proof Pack")
+
+    def _do_funnel():
+        from ai_core.social_commerce import build_dm_funnel
+        async def _r():
+            res = await build_dm_funnel(
+                sc_funnel_product.text().strip() or "Our Product",
+                sc_trigger.text().strip() or "INFO",
+                sc_funnel_aud.text().strip() or "General audience",
+                sc_funnel_lang.currentText()
+            )
+            return json.dumps(res, ensure_ascii=False, indent=2)
+        _run_sc(_r(), sc_out2, sc_funnel_btn, "💬 Build DM Sales Funnel")
+
+    def _do_conv():
+        from ai_core.social_commerce import optimize_conversion_rate
+        async def _r():
+            res = await optimize_conversion_rate(
+                sc_bio.toPlainText().strip() or "Your current bio",
+                sc_conv_product.text().strip() or "Our Product",
+                sc_traffic.currentText(), sc_funnel_lang.currentText()
+            )
+            return json.dumps(res, ensure_ascii=False, indent=2)
+        _run_sc(_r(), sc_out3, sc_conv_btn, "📈 Optimize for Conversion")
+
+    sc_shop_btn.clicked.connect(_do_shop)
+    sc_showcase_btn.clicked.connect(_do_showcase)
+    sc_proof_btn.clicked.connect(_do_proof)
+    sc_funnel_btn.clicked.connect(_do_funnel)
+    sc_conv_btn.clicked.connect(_do_conv)
+
+    return page
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# ✦ NEW FEATURE PAGE 33: AUDIO & VOICE AI
+# ═══════════════════════════════════════════════════════════════════════════════
+
+def build_audio_ai_page(api_base: str) -> QWidget:
+    """Audio & Voice AI — Trending audio, podcast scripts, voice notes & audio branding."""
+    import asyncio
+
+    _GS = (f"QGroupBox{{color:{ACCENT};font-weight:bold;border:1px solid {BORDER};"
+           f"border-radius:8px;padding-top:8px;margin-top:4px;}}"
+           f"QGroupBox::title{{subcontrol-origin:margin;left:8px;padding:0 4px;}}")
+
+    def _btn(text, color=None):
+        b = QPushButton(text); b.setCursor(Qt.PointingHandCursor)
+        c = color or ACCENT
+        b.setStyleSheet(
+            f"QPushButton{{background:{c};color:#11111B;border:none;border-radius:8px;"
+            f"padding:8px 18px;font-weight:bold;font-size:13px;}}"
+            f"QPushButton:hover{{background:{c}CC;}}"
+            f"QPushButton:disabled{{background:{BORDER};color:{SUBTEXT};}}"
+        )
+        return b
+
+    page = QWidget(); pl = QVBoxLayout(page)
+    pl.setContentsMargins(20, 16, 20, 16); pl.setSpacing(10)
+
+    hdr = QLabel("🎵  Audio & Voice AI")
+    hdr.setFont(QFont("Segoe UI", 17, QFont.Bold))
+    hdr.setStyleSheet(f"color:{ACCENT};")
+    pl.addWidget(hdr)
+    sub = QLabel("Trending audio analysis, podcast scripts, voice note DMs, audio branding & caption optimization")
+    sub.setStyleSheet(f"color:{SUBTEXT}; font-size:13px;")
+    pl.addWidget(sub)
+
+    tabs = QTabWidget()
+    tabs.setStyleSheet(
+        f"QTabWidget::pane{{background:{DARK_BG};border:1px solid {BORDER};border-radius:8px;}}"
+        f"QTabBar::tab{{background:{SURFACE};color:{SUBTEXT};padding:8px 14px;font-size:13px;border-radius:6px 6px 0 0;margin-right:2px;}}"
+        f"QTabBar::tab:selected{{background:{ACCENT};color:#11111B;font-weight:bold;}}"
+        f"QTabBar::tab:hover{{background:{HOVER};color:{TEXT};}}"
+    )
+    pl.addWidget(tabs, 1)
+
+    # ── TAB 1: Trending Audio ─────────────────────────────────────────────────
+    t1 = QWidget(); t1l = QVBoxLayout(t1); t1l.setContentsMargins(14, 12, 14, 12); t1l.setSpacing(8)
+    grp1 = QGroupBox("🔊 Trending Audio Strategy"); grp1.setStyleSheet(_GS)
+    g1 = QGridLayout(grp1); g1.setSpacing(8)
+    g1.addWidget(QLabel("Niche:"), 0, 0)
+    aud_niche = QLineEdit(); aud_niche.setPlaceholderText("e.g. fitness, business, beauty, tech")
+    g1.addWidget(aud_niche, 0, 1)
+    g1.addWidget(QLabel("Platform:"), 0, 2)
+    aud_plat = QComboBox(); aud_plat.addItems(["TikTok", "Instagram Reels", "YouTube Shorts", "Facebook Reels"])
+    g1.addWidget(aud_plat, 0, 3)
+    g1.addWidget(QLabel("Content Type:"), 1, 0)
+    aud_type = QComboBox(); aud_type.addItems(["Educational", "Entertainment", "Inspirational", "Tutorial", "Lifestyle", "Comedy"])
+    g1.addWidget(aud_type, 1, 1)
+    g1.addWidget(QLabel("Language:"), 1, 2)
+    aud_lang = QComboBox(); aud_lang.addItems(["English", "Khmer", "Thai", "Vietnamese", "Chinese", "Spanish"])
+    g1.addWidget(aud_lang, 1, 3)
+    t1l.addWidget(grp1)
+    aud_trend_btn = _btn("🎵 Analyze Trending Audio", ACCENT)
+    t1l.addWidget(aud_trend_btn)
+    aud_out1 = QTextEdit(); aud_out1.setReadOnly(True)
+    aud_out1.setPlaceholderText("Trending audio analysis and strategy will appear here...")
+    aud_out1.setStyleSheet(f"background:{SURFACE};color:{TEXT};border:1px solid {BORDER};border-radius:8px;font-size:13px;")
+    t1l.addWidget(aud_out1, 1)
+    tabs.addTab(t1, "🎵 Trending Audio")
+
+    # ── TAB 2: Podcast Script ─────────────────────────────────────────────────
+    t2 = QWidget(); t2l = QVBoxLayout(t2); t2l.setContentsMargins(14, 12, 14, 12); t2l.setSpacing(8)
+    grp2 = QGroupBox("🎙️ Podcast Script Generator"); grp2.setStyleSheet(_GS)
+    g2 = QGridLayout(grp2); g2.setSpacing(8)
+    g2.addWidget(QLabel("Episode Topic:"), 0, 0)
+    pod_topic = QLineEdit(); pod_topic.setPlaceholderText("e.g. How to grow on social media in 2025")
+    g2.addWidget(pod_topic, 0, 1, 1, 3)
+    g2.addWidget(QLabel("Show Name:"), 1, 0)
+    pod_show = QLineEdit(); pod_show.setPlaceholderText("Your podcast show name")
+    g2.addWidget(pod_show, 1, 1)
+    g2.addWidget(QLabel("Host Name:"), 1, 2)
+    pod_host = QLineEdit(); pod_host.setPlaceholderText("Your name or host name")
+    g2.addWidget(pod_host, 1, 3)
+    g2.addWidget(QLabel("Length (min):"), 2, 0)
+    pod_len = QSpinBox(); pod_len.setRange(5, 120); pod_len.setValue(20); pod_len.setSuffix(" min")
+    g2.addWidget(pod_len, 2, 1)
+    g2.addWidget(QLabel("Style:"), 2, 2)
+    pod_style = QComboBox(); pod_style.addItems(["Educational", "Interview", "Solo", "Storytelling", "News/Recap", "Comedy"])
+    g2.addWidget(pod_style, 2, 3)
+    g2.addWidget(QLabel("Language:"), 3, 0)
+    pod_lang = QComboBox(); pod_lang.addItems(["English", "Khmer", "Thai", "Vietnamese", "Chinese", "Spanish"])
+    g2.addWidget(pod_lang, 3, 1)
+    t2l.addWidget(grp2)
+    pod_btn = _btn("🎙️ Generate Episode Script", ACCENT)
+    t2l.addWidget(pod_btn)
+    pod_out = QTextEdit(); pod_out.setReadOnly(True)
+    pod_out.setPlaceholderText("Your complete podcast episode script will appear here...")
+    pod_out.setStyleSheet(f"background:{SURFACE};color:{TEXT};border:1px solid {BORDER};border-radius:8px;font-size:13px;")
+    t2l.addWidget(pod_out, 1)
+    tabs.addTab(t2, "🎙️ Podcast Script")
+
+    # ── TAB 3: Voice Note DM ──────────────────────────────────────────────────
+    t3 = QWidget(); t3l = QVBoxLayout(t3); t3l.setContentsMargins(14, 12, 14, 12); t3l.setSpacing(8)
+    grp3 = QGroupBox("🎤 Voice Note DM Script"); grp3.setStyleSheet(_GS)
+    g3 = QGridLayout(grp3); g3.setSpacing(8)
+    g3.addWidget(QLabel("Purpose:"), 0, 0)
+    vn_purpose = QLineEdit(); vn_purpose.setPlaceholderText("e.g. introduce my product, follow up on offer, reconnect with old follower")
+    g3.addWidget(vn_purpose, 0, 1, 1, 3)
+    g3.addWidget(QLabel("Recipient:"), 1, 0)
+    vn_recipient = QLineEdit(); vn_recipient.setPlaceholderText("e.g. potential customer, influencer, existing follower")
+    g3.addWidget(vn_recipient, 1, 1)
+    g3.addWidget(QLabel("Tone:"), 1, 2)
+    vn_tone = QComboBox(); vn_tone.addItems(["Friendly", "Professional", "Excited", "Casual", "Persuasive", "Warm"])
+    g3.addWidget(vn_tone, 1, 3)
+    g3.addWidget(QLabel("Length:"), 2, 0)
+    vn_len = QComboBox(); vn_len.addItems(["30 seconds", "60 seconds", "90 seconds"])
+    g3.addWidget(vn_len, 2, 1)
+    g3.addWidget(QLabel("Language:"), 2, 2)
+    vn_lang = QComboBox(); vn_lang.addItems(["English", "Khmer", "Thai", "Vietnamese", "Chinese", "Spanish"])
+    g3.addWidget(vn_lang, 2, 3)
+    t3l.addWidget(grp3)
+    vn_btn = _btn("🎤 Generate Voice Script", SUCCESS)
+    t3l.addWidget(vn_btn)
+    vn_out = QTextEdit(); vn_out.setReadOnly(True)
+    vn_out.setPlaceholderText("Your natural-sounding voice note script will appear here...")
+    vn_out.setStyleSheet(f"background:{SURFACE};color:{TEXT};border:1px solid {BORDER};border-radius:8px;font-size:13px;")
+    t3l.addWidget(vn_out, 1)
+    tabs.addTab(t3, "🎤 Voice Note DM")
+
+    # ── TAB 4: Audio Brand & Transcript ───────────────────────────────────────
+    t4 = QWidget(); t4l = QVBoxLayout(t4); t4l.setContentsMargins(14, 12, 14, 12); t4l.setSpacing(8)
+
+    grp4a = QGroupBox("🎼 Audio Brand Strategy"); grp4a.setStyleSheet(_GS)
+    g4a = QGridLayout(grp4a); g4a.setSpacing(8)
+    g4a.addWidget(QLabel("Brand Name:"), 0, 0)
+    ab_brand = QLineEdit(); ab_brand.setPlaceholderText("Your brand or account name")
+    g4a.addWidget(ab_brand, 0, 1)
+    g4a.addWidget(QLabel("Niche:"), 0, 2)
+    ab_niche = QLineEdit(); ab_niche.setPlaceholderText("Your content niche")
+    g4a.addWidget(ab_niche, 0, 3)
+    g4a.addWidget(QLabel("Target Emotion:"), 1, 0)
+    ab_emotion = QComboBox(); ab_emotion.addItems(["Trust & Excitement", "Inspiration & Hope", "Fun & Energy", "Professional & Authority", "Calm & Mindful"])
+    g4a.addWidget(ab_emotion, 1, 1, 1, 3)
+    t4l.addWidget(grp4a)
+    ab_brand_btn = _btn("🎼 Build Audio Brand Strategy", ACCENT)
+    t4l.addWidget(ab_brand_btn)
+
+    grp4b = QGroupBox("📝 Transcript → Caption Optimizer"); grp4b.setStyleSheet(_GS)
+    g4b = QGridLayout(grp4b); g4b.setSpacing(8)
+    g4b.addWidget(QLabel("Raw Transcript:"), 0, 0)
+    ab_transcript = QTextEdit(); ab_transcript.setMaximumHeight(80)
+    ab_transcript.setPlaceholderText("Paste your raw audio/video transcript here to optimize it into a social media caption...")
+    ab_transcript.setStyleSheet(f"background:{DARK_BG};color:{TEXT};border:1px solid {BORDER};border-radius:6px;padding:6px;font-size:13px;")
+    g4b.addWidget(ab_transcript, 0, 1, 1, 3)
+    g4b.addWidget(QLabel("Platform:"), 1, 0)
+    ab_trans_plat = QComboBox(); ab_trans_plat.addItems(["Instagram", "TikTok", "LinkedIn", "Facebook", "Twitter/X"])
+    g4b.addWidget(ab_trans_plat, 1, 1)
+    g4b.addWidget(QLabel("Max Length (chars):"), 1, 2)
+    ab_trans_len = QSpinBox(); ab_trans_len.setRange(50, 2000); ab_trans_len.setValue(300)
+    g4b.addWidget(ab_trans_len, 1, 3)
+    t4l.addWidget(grp4b)
+
+    ab_trans_btn = _btn("📝 Optimize Transcript", WARNING)
+    t4l.addWidget(ab_trans_btn)
+    aud_out4 = QTextEdit(); aud_out4.setReadOnly(True)
+    aud_out4.setPlaceholderText("Audio brand strategy or optimized caption will appear here...")
+    aud_out4.setStyleSheet(f"background:{SURFACE};color:{TEXT};border:1px solid {BORDER};border-radius:8px;font-size:13px;")
+    t4l.addWidget(aud_out4, 1)
+    tabs.addTab(t4, "🎼 Brand & Transcript")
+
+    # ── Workers ───────────────────────────────────────────────────────────────
+    _aud_workers = []
+
+    def _run_aud(coro, out_w, btn_w, label):
+        btn_w.setEnabled(False); btn_w.setText("⏳ Processing...")
+        out_w.setText("🔄 AI is analyzing audio content... please wait.")
+        class _W(QThread):
+            done = pyqtSignal(str); err = pyqtSignal(str)
+            def __init__(self, c): super().__init__(); self._c = c
+            def run(self):
+                try:
+                    loop = asyncio.new_event_loop(); asyncio.set_event_loop(loop)
+                    r = loop.run_until_complete(self._c); loop.close(); self.done.emit(r)
+                except Exception as e: self.err.emit(str(e))
+        w = _W(coro)
+        w.done.connect(lambda r: (_aud_fmt(out_w, r), btn_w.setEnabled(True), btn_w.setText(label)))
+        w.err.connect(lambda e: (out_w.setText(f"❌ {e}"), btn_w.setEnabled(True), btn_w.setText(label)))
+        _aud_workers.append(w); w.start()
+
+    def _aud_fmt(widget, raw):
+        try:
+            data = json.loads(raw) if isinstance(raw, str) else raw
+            if isinstance(data, dict):
+                lines = []
+                for k, v in data.items():
+                    lines.append(f"\n{'═'*50}\n  {k.upper().replace('_', ' ')}\n{'─'*50}")
+                    if isinstance(v, list):
+                        for i, item in enumerate(v, 1):
+                            if isinstance(item, dict):
+                                lines.append(f"\n  [{i}]")
+                                for kk, vv in item.items():
+                                    lines.append(f"    {kk}: {vv}")
+                            else:
+                                lines.append(f"  {i}. {item}")
+                    elif isinstance(v, dict):
+                        for kk, vv in v.items():
+                            if isinstance(vv, list):
+                                lines.append(f"  {kk}:")
+                                for x in vv: lines.append(f"    • {x}")
+                            else:
+                                lines.append(f"  • {kk}: {vv}")
+                    else:
+                        lines.append(f"  {v}")
+                widget.setText("\n".join(lines))
+            else:
+                widget.setText(str(raw))
+        except Exception:
+            widget.setText(str(raw))
+
+    def _do_trending():
+        from ai_core.audio_ai import analyze_trending_audio
+        async def _r():
+            res = await analyze_trending_audio(
+                aud_niche.text().strip() or "General", aud_plat.currentText(),
+                aud_type.currentText(), aud_lang.currentText()
+            )
+            return json.dumps(res, ensure_ascii=False, indent=2)
+        _run_aud(_r(), aud_out1, aud_trend_btn, "🎵 Analyze Trending Audio")
+
+    def _do_podcast():
+        from ai_core.audio_ai import generate_podcast_script
+        async def _r():
+            res = await generate_podcast_script(
+                pod_topic.text().strip() or "Growing on Social Media in 2025",
+                pod_len.value(), pod_show.text().strip() or "My Podcast",
+                pod_host.text().strip() or "Host", pod_style.currentText(),
+                pod_lang.currentText()
+            )
+            return json.dumps(res, ensure_ascii=False, indent=2)
+        _run_aud(_r(), pod_out, pod_btn, "🎙️ Generate Episode Script")
+
+    def _do_voice():
+        from ai_core.audio_ai import generate_voice_note_script
+        async def _r():
+            res = await generate_voice_note_script(
+                vn_purpose.text().strip() or "introduce my product to a potential customer",
+                vn_recipient.text().strip() or "potential customer",
+                vn_tone.currentText(), vn_len.currentText(), vn_lang.currentText()
+            )
+            return json.dumps(res, ensure_ascii=False, indent=2)
+        _run_aud(_r(), vn_out, vn_btn, "🎤 Generate Voice Script")
+
+    def _do_audio_brand():
+        from ai_core.audio_ai import build_audio_brand_strategy
+        async def _r():
+            res = await build_audio_brand_strategy(
+                ab_brand.text().strip() or "My Brand",
+                ab_niche.text().strip() or "General",
+                ab_emotion.currentText(), aud_lang.currentText()
+            )
+            return json.dumps(res, ensure_ascii=False, indent=2)
+        _run_aud(_r(), aud_out4, ab_brand_btn, "🎼 Build Audio Brand Strategy")
+
+    def _do_transcript():
+        from ai_core.audio_ai import optimize_transcription_to_caption
+        async def _r():
+            res = await optimize_transcription_to_caption(
+                ab_transcript.toPlainText().strip() or "Today I want to talk about growing your social media...",
+                ab_trans_plat.currentText(), ab_trans_len.value(), aud_lang.currentText()
+            )
+            return json.dumps(res, ensure_ascii=False, indent=2)
+        _run_aud(_r(), aud_out4, ab_trans_btn, "📝 Optimize Transcript")
+
+    aud_trend_btn.clicked.connect(_do_trending)
+    pod_btn.clicked.connect(_do_podcast)
+    vn_btn.clicked.connect(_do_voice)
+    ab_brand_btn.clicked.connect(_do_audio_brand)
+    ab_trans_btn.clicked.connect(_do_transcript)
+
+    return page
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# ✦ NEW FEATURE PAGE 34: ALGORITHM DECODER
+# ═══════════════════════════════════════════════════════════════════════════════
+
+def build_algorithm_decoder_page(api_base: str) -> QWidget:
+    """Algorithm Decoder — Reverse-engineer platform algorithms for maximum reach."""
+    import asyncio
+
+    _GS = (f"QGroupBox{{color:{ACCENT};font-weight:bold;border:1px solid {BORDER};"
+           f"border-radius:8px;padding-top:8px;margin-top:4px;}}"
+           f"QGroupBox::title{{subcontrol-origin:margin;left:8px;padding:0 4px;}}")
+
+    def _btn(text, color=None):
+        b = QPushButton(text); b.setCursor(Qt.PointingHandCursor)
+        c = color or ACCENT
+        b.setStyleSheet(
+            f"QPushButton{{background:{c};color:#11111B;border:none;border-radius:8px;"
+            f"padding:8px 18px;font-weight:bold;font-size:13px;}}"
+            f"QPushButton:hover{{background:{c}CC;}}"
+            f"QPushButton:disabled{{background:{BORDER};color:{SUBTEXT};}}"
+        )
+        return b
+
+    page = QWidget(); pl = QVBoxLayout(page)
+    pl.setContentsMargins(20, 16, 20, 16); pl.setSpacing(10)
+
+    hdr = QLabel("🔮  Algorithm Intelligence Decoder")
+    hdr.setFont(QFont("Segoe UI", 17, QFont.Bold))
+    hdr.setStyleSheet(f"color:{ACCENT};")
+    pl.addWidget(hdr)
+    sub = QLabel("Decode platform algorithms, score content before posting, check shadow-ban risk & track algorithm updates")
+    sub.setStyleSheet(f"color:{SUBTEXT}; font-size:13px;")
+    pl.addWidget(sub)
+
+    tabs = QTabWidget()
+    tabs.setStyleSheet(
+        f"QTabWidget::pane{{background:{DARK_BG};border:1px solid {BORDER};border-radius:8px;}}"
+        f"QTabBar::tab{{background:{SURFACE};color:{SUBTEXT};padding:8px 14px;font-size:13px;border-radius:6px 6px 0 0;margin-right:2px;}}"
+        f"QTabBar::tab:selected{{background:{ACCENT};color:#11111B;font-weight:bold;}}"
+        f"QTabBar::tab:hover{{background:{HOVER};color:{TEXT};}}"
+    )
+    pl.addWidget(tabs, 1)
+
+    # ── TAB 1: Algorithm Decoder ──────────────────────────────────────────────
+    t1 = QWidget(); t1l = QVBoxLayout(t1); t1l.setContentsMargins(14, 12, 14, 12); t1l.setSpacing(8)
+    grp1 = QGroupBox("🔮 Decode Platform Algorithm"); grp1.setStyleSheet(_GS)
+    g1 = QGridLayout(grp1); g1.setSpacing(8)
+    g1.addWidget(QLabel("Platform:"), 0, 0)
+    alg_plat = QComboBox(); alg_plat.addItems(["Instagram", "TikTok", "YouTube", "Facebook", "LinkedIn", "Twitter/X", "Pinterest"])
+    g1.addWidget(alg_plat, 0, 1)
+    g1.addWidget(QLabel("Content Type:"), 0, 2)
+    alg_type = QComboBox(); alg_type.addItems(["Reels", "Posts/Carousels", "Stories", "Live", "Shorts", "Videos", "Articles"])
+    g1.addWidget(alg_type, 0, 3)
+    g1.addWidget(QLabel("Niche:"), 1, 0)
+    alg_niche = QLineEdit(); alg_niche.setPlaceholderText("e.g. fitness, business, beauty")
+    g1.addWidget(alg_niche, 1, 1)
+    g1.addWidget(QLabel("Language:"), 1, 2)
+    alg_lang = QComboBox(); alg_lang.addItems(["English", "Khmer", "Thai", "Vietnamese", "Chinese", "Spanish"])
+    g1.addWidget(alg_lang, 1, 3)
+    t1l.addWidget(grp1)
+
+    b1r = QHBoxLayout()
+    alg_decode_btn   = _btn("🔮 Decode Algorithm", ACCENT)
+    alg_updates_btn  = _btn("📡 Latest Updates", SUCCESS)
+    alg_peaks_btn    = _btn("⏰ Peak Windows", WARNING)
+    b1r.addWidget(alg_decode_btn); b1r.addWidget(alg_updates_btn); b1r.addWidget(alg_peaks_btn); b1r.addStretch()
+    t1l.addLayout(b1r)
+
+    alg_out1 = QTextEdit(); alg_out1.setReadOnly(True)
+    alg_out1.setPlaceholderText(
+        "🔮 Algorithm intelligence will appear here...\n\n"
+        "• Decode Algorithm — full breakdown of ranking factors, distribution phases, and secret signals\n"
+        "• Latest Updates — 2025 algorithm changes and what's working NOW\n"
+        "• Peak Windows — personalized optimal posting schedule"
+    )
+    alg_out1.setStyleSheet(f"background:{SURFACE};color:{TEXT};border:1px solid {BORDER};border-radius:8px;font-size:13px;")
+    t1l.addWidget(alg_out1, 1)
+    tabs.addTab(t1, "🔮 Algorithm Decoder")
+
+    # ── TAB 2: Pre-Post Content Scorer ────────────────────────────────────────
+    t2 = QWidget(); t2l = QVBoxLayout(t2); t2l.setContentsMargins(14, 12, 14, 12); t2l.setSpacing(8)
+    grp2 = QGroupBox("📊 Pre-Post Content Scorer"); grp2.setStyleSheet(_GS)
+    g2 = QGridLayout(grp2); g2.setSpacing(8)
+    g2.addWidget(QLabel("Content Type:"), 0, 0)
+    pp_type = QComboBox(); pp_type.addItems(["Reel", "Post", "Carousel", "Story", "Short", "Video"])
+    g2.addWidget(pp_type, 0, 1)
+    g2.addWidget(QLabel("Platform:"), 0, 2)
+    pp_plat = QComboBox(); pp_plat.addItems(["Instagram", "TikTok", "YouTube", "Facebook", "LinkedIn"])
+    g2.addWidget(pp_plat, 0, 3)
+    g2.addWidget(QLabel("Planned Post Time:"), 1, 0)
+    pp_time = QLineEdit(); pp_time.setPlaceholderText("e.g. Tuesday 11:00 AM")
+    g2.addWidget(pp_time, 1, 1)
+    g2.addWidget(QLabel("Hashtags:"), 1, 2)
+    pp_hashtags = QLineEdit(); pp_hashtags.setPlaceholderText("#tag1 #tag2 #tag3 ...")
+    g2.addWidget(pp_hashtags, 1, 3)
+    g2.addWidget(QLabel("Content to Score:"), 2, 0)
+    pp_content = QTextEdit(); pp_content.setMaximumHeight(100)
+    pp_content.setPlaceholderText("Paste your post caption or content description here to get an AI score before posting...")
+    pp_content.setStyleSheet(f"background:{DARK_BG};color:{TEXT};border:1px solid {BORDER};border-radius:6px;padding:6px;font-size:13px;")
+    g2.addWidget(pp_content, 2, 1, 1, 3)
+    t2l.addWidget(grp2)
+
+    pp_btn = _btn("📊 Score My Content", ACCENT)
+    t2l.addWidget(pp_btn)
+    pp_out = QTextEdit(); pp_out.setReadOnly(True)
+    pp_out.setPlaceholderText("Your pre-post content score and optimization tips will appear here...")
+    pp_out.setStyleSheet(f"background:{SURFACE};color:{TEXT};border:1px solid {BORDER};border-radius:8px;font-size:13px;")
+    t2l.addWidget(pp_out, 1)
+    tabs.addTab(t2, "📊 Pre-Post Scorer")
+
+    # ── TAB 3: Shadow-Ban Checker ─────────────────────────────────────────────
+    t3 = QWidget(); t3l = QVBoxLayout(t3); t3l.setContentsMargins(14, 12, 14, 12); t3l.setSpacing(8)
+    grp3 = QGroupBox("🛡️ Shadow-Ban Risk Checker"); grp3.setStyleSheet(_GS)
+    g3 = QGridLayout(grp3); g3.setSpacing(8)
+    g3.addWidget(QLabel("Recent Hashtags Used:"), 0, 0)
+    sb_hashtags = QTextEdit(); sb_hashtags.setMaximumHeight(70)
+    sb_hashtags.setPlaceholderText("#yourtag1 #yourtag2 #yourtag3 — paste your recent hashtags here...")
+    sb_hashtags.setStyleSheet(f"background:{DARK_BG};color:{TEXT};border:1px solid {BORDER};border-radius:6px;padding:6px;font-size:13px;")
+    g3.addWidget(sb_hashtags, 0, 1, 1, 3)
+    g3.addWidget(QLabel("Recent Activity:"), 1, 0)
+    sb_activity = QLineEdit(); sb_activity.setPlaceholderText("e.g. posted 5x/day, used automation, follow/unfollow")
+    g3.addWidget(sb_activity, 1, 1)
+    g3.addWidget(QLabel("Platform:"), 1, 2)
+    sb_plat = QComboBox(); sb_plat.addItems(["Instagram", "TikTok", "Facebook", "YouTube", "Twitter/X"])
+    g3.addWidget(sb_plat, 1, 3)
+    t3l.addWidget(grp3)
+
+    sb_btn = _btn("🛡️ Check Shadow-Ban Risk", WARNING)
+    t3l.addWidget(sb_btn)
+    sb_out = QTextEdit(); sb_out.setReadOnly(True)
+    sb_out.setPlaceholderText("Shadow-ban risk analysis and recovery plan will appear here...")
+    sb_out.setStyleSheet(f"background:{SURFACE};color:{TEXT};border:1px solid {BORDER};border-radius:8px;font-size:13px;")
+    t3l.addWidget(sb_out, 1)
+    tabs.addTab(t3, "🛡️ Shadow-Ban Checker")
+
+    # ── Workers ───────────────────────────────────────────────────────────────
+    _alg_workers = []
+
+    def _run_alg(coro, out_w, btn_w, label):
+        btn_w.setEnabled(False); btn_w.setText("⏳ Decoding...")
+        out_w.setText("🔄 Decoding algorithm intelligence... please wait.")
+        class _W(QThread):
+            done = pyqtSignal(str); err = pyqtSignal(str)
+            def __init__(self, c): super().__init__(); self._c = c
+            def run(self):
+                try:
+                    loop = asyncio.new_event_loop(); asyncio.set_event_loop(loop)
+                    r = loop.run_until_complete(self._c); loop.close(); self.done.emit(r)
+                except Exception as e: self.err.emit(str(e))
+        w = _W(coro)
+        w.done.connect(lambda r: (_alg_fmt(out_w, r), btn_w.setEnabled(True), btn_w.setText(label)))
+        w.err.connect(lambda e: (out_w.setText(f"❌ {e}"), btn_w.setEnabled(True), btn_w.setText(label)))
+        _alg_workers.append(w); w.start()
+
+    def _alg_fmt(widget, raw):
+        try:
+            data = json.loads(raw) if isinstance(raw, str) else raw
+            if isinstance(data, dict):
+                lines = []
+                for k, v in data.items():
+                    lines.append(f"\n{'═'*52}")
+                    lines.append(f"  ✦ {k.upper().replace('_', ' ')}")
+                    lines.append(f"{'─'*52}")
+                    if isinstance(v, list):
+                        for i, item in enumerate(v, 1):
+                            if isinstance(item, dict):
+                                lines.append(f"\n  [{i}]")
+                                for kk, vv in item.items():
+                                    lines.append(f"    {kk}: {vv}")
+                            else:
+                                lines.append(f"  {i}. {item}")
+                    elif isinstance(v, dict):
+                        for kk, vv in v.items():
+                            if isinstance(vv, list):
+                                lines.append(f"  {kk}:")
+                                for x in vv: lines.append(f"    ▸ {x}")
+                            else:
+                                lines.append(f"  ▸ {kk}: {vv}")
+                    else:
+                        lines.append(f"  {v}")
+                widget.setText("\n".join(lines))
+            else:
+                widget.setText(str(raw))
+        except Exception:
+            widget.setText(str(raw))
+
+    def _do_decode():
+        from ai_core.algorithm_decoder import decode_algorithm
+        async def _r():
+            res = await decode_algorithm(
+                alg_plat.currentText(), alg_type.currentText(),
+                alg_niche.text().strip() or "General", alg_lang.currentText()
+            )
+            return json.dumps(res, ensure_ascii=False, indent=2)
+        _run_alg(_r(), alg_out1, alg_decode_btn, "🔮 Decode Algorithm")
+
+    def _do_updates():
+        from ai_core.algorithm_decoder import get_algorithm_updates
+        async def _r():
+            res = await get_algorithm_updates(alg_plat.currentText(), alg_lang.currentText())
+            return json.dumps(res, ensure_ascii=False, indent=2)
+        _run_alg(_r(), alg_out1, alg_updates_btn, "📡 Latest Updates")
+
+    def _do_peaks():
+        from ai_core.algorithm_decoder import calculate_peak_window
+        async def _r():
+            res = await calculate_peak_window(
+                alg_plat.currentText(), 10000,
+                alg_niche.text().strip() or "General", "UTC-5 (Eastern)", alg_lang.currentText()
+            )
+            return json.dumps(res, ensure_ascii=False, indent=2)
+        _run_alg(_r(), alg_out1, alg_peaks_btn, "⏰ Peak Windows")
+
+    def _do_score():
+        from ai_core.algorithm_decoder import score_content_prepost
+        async def _r():
+            res = await score_content_prepost(
+                pp_content.toPlainText().strip() or "Check out our latest post!",
+                pp_plat.currentText(), pp_type.currentText(),
+                pp_time.text().strip() or "Tuesday 11:00 AM",
+                pp_hashtags.text().strip(), alg_lang.currentText()
+            )
+            return json.dumps(res, ensure_ascii=False, indent=2)
+        _run_alg(_r(), pp_out, pp_btn, "📊 Score My Content")
+
+    def _do_shadowban():
+        from ai_core.algorithm_decoder import check_shadowban_risk
+        async def _r():
+            res = await check_shadowban_risk(
+                sb_hashtags.toPlainText().strip() or "#general #content #post",
+                sb_activity.text().strip() or "Normal posting",
+                sb_plat.currentText(), alg_lang.currentText()
+            )
+            return json.dumps(res, ensure_ascii=False, indent=2)
+        _run_alg(_r(), sb_out, sb_btn, "🛡️ Check Shadow-Ban Risk")
+
+    alg_decode_btn.clicked.connect(_do_decode)
+    alg_updates_btn.clicked.connect(_do_updates)
+    alg_peaks_btn.clicked.connect(_do_peaks)
+    pp_btn.clicked.connect(_do_score)
+    sb_btn.clicked.connect(_do_shadowban)
+
+    return page
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
 # MAIN WINDOW
 # ═══════════════════════════════════════════════════════════════════════════════
 
@@ -9268,36 +11283,43 @@ class GrowthOS_Desktop(QMainWindow):
         # ── Scrollable nav buttons ────────────────────────────────────────────
         nav_items = [
             (0,  "📊", "Dashboard"),
-            (1,  "🧠", "Strategy Brain"),
-            (2,  "✍️", "Content Studio"),
-            (3,  "📈", "Analytics"),
-            (4,  "🔮", "Trend Radar"),
-            (5,  "⚙️", "Campaign Engine"),
-            (6,  "🛡️", "Risk Engine"),
-            (7,  "🛒", "SMM Panel"),
-            (8,  "🤖", "Multi-Agent AI"),
-            (9,  "💾", "Memory System"),
-            (10, "📅", "Auto-Scheduler"),
-            (11, "💬", "Social Inbox"),
-            (12, "🌍", "Geo Intelligence"),
-            (13, "🔧", "Settings & Help"),
-            (14, "🔐", "Social Accounts"),
-            (15, "📱", "Social Manager"),
-            (16, "🔍", "Intelligence Hub"),
-            (17, "🔥", "Viral & Growth"),
-            (18, "⚡", "Automation Suite"),
-            (19, "💼", "Business Intel"),
-            (20, "🎨", "Creator Tools"),
-            (21, "💰", "Sales Engine"),
-            (22, "🎬", "Content Domination"),
-            (23, "🏆", "Brand Authority"),
-            (24, "🤝", "Community Hub"),
-            (25, "⚡", "Real-Time Intel"),
-            (26, "📘", "Facebook Manager"),
-            (27, "📱", "Telegram Bot"),
+            (35, "📱", "AI Social Network"),
+            (1,  "🌌", "Omni AI Hub"),
+            (2,  "🧠", "Strategy Brain"),
+            (3,  "✍️", "Content Studio"),
+            (4,  "📈", "Analytics"),
+            (5,  "🔮", "Trend Radar"),
+            (6,  "⚙️", "Campaign Engine"),
+            (7,  "🛡️", "Risk Engine"),
+            (8,  "🛒", "SMM Panel"),
+            (9,  "🤖", "Multi-Agent AI"),
+            (10, "💾", "Memory System"),
+            (11, "📅", "Auto-Scheduler"),
+            (12, "💬", "Social Inbox"),
+            (13, "🌍", "Geo Intelligence"),
+            (14, "🔧", "Settings & Help"),
+            (15, "🔐", "Social Accounts"),
+            (16, "📱", "Social Manager"),
+            (17, "🔍", "Intelligence Hub"),
+            (18, "🔥", "Viral & Growth"),
+            (19, "⚡", "Automation Suite"),
+            (20, "💼", "Business Intel"),
+            (21, "🎨", "Creator Tools"),
+            (22, "💰", "Sales Engine"),
+            (23, "🎬", "Content Domination"),
+            (24, "🏆", "Brand Authority"),
+            (25, "🤝", "Community Hub"),
+            (26, "⚡", "Real-Time Intel"),
+            (27, "📘", "Facebook Manager"),
+            (28, "📱", "Telegram Bot"),
+            (30, "🎬", "Video Studio"),
+            (31, "🧪", "A/B Lab"),
+            (32, "🛍️", "Social Commerce"),
+            (33, "🎵", "Audio AI"),
+            (34, "🔮", "Algorithm Decoder"),
         ]
         if self._user_info.get("role") == "admin":
-            nav_items.append((28, "👑", "Admin Panel"))
+            nav_items.append((29, "👑", "Admin Panel"))
 
         self._nav_buttons = {}
         nav_container = QWidget()
@@ -9459,36 +11481,46 @@ class GrowthOS_Desktop(QMainWindow):
         api = BACKEND_URL
         pages = [
             build_dashboard_page(api),       # 0
-            build_strategy_page(api),        # 1
-            build_content_page(api),         # 2
-            build_analytics_page(api),       # 3
-            build_trends_page(api),          # 4
-            build_campaign_page(api),        # 5
-            build_risk_page(api),            # 6
-            build_smm_page(api),             # 7
-            build_multiagent_page(api),      # 8
-            build_memory_page(api),          # 9
-            build_scheduler_page(api),       # 10
-            build_inbox_page(api),           # 11
-            build_geo_page(api),             # 12
-            build_settings_page(api),        # 13
-            build_social_accounts_page(api), # 14
-            build_social_manager_page(api),  # 15
-            build_intelligence_page(api),    # 16
-            build_viral_tools_page(api),     # 17
-            build_automation_page(api),      # 18
-            build_business_intel_page(api),  # 19
-            build_creator_tools_page(api),   # 20
-            build_sales_engine_page(api),        # 21
-            build_content_domination_page(api),  # 22
-            build_brand_authority_page(api),     # 23
-            build_community_page(api),           # 24
-            build_realtime_intel_page(api),      # 25
-            build_facebook_manager_page(api),    # 26
-            build_telegram_bot_page(api),         # 27
+            build_omni_hub_page(api),        # 1
+            build_strategy_page(api),        # 2
+            build_content_page(api),         # 3
+            build_analytics_page(api),       # 4
+            build_trends_page(api),          # 5
+            build_campaign_page(api),        # 6
+            build_risk_page(api),            # 7
+            build_smm_page(api),             # 8
+            build_multiagent_page(api),      # 9
+            build_memory_page(api),          # 10
+            build_scheduler_page(api),       # 11
+            build_inbox_page(api),           # 12
+            build_geo_page(api),             # 13
+            build_settings_page(api),        # 14
+            build_social_accounts_page(api), # 15
+            build_social_manager_page(api),  # 16
+            build_intelligence_page(api),    # 17
+            build_viral_tools_page(api),     # 18
+            build_automation_page(api),      # 19
+            build_business_intel_page(api),  # 20
+            build_creator_tools_page(api),   # 21
+            build_sales_engine_page(api),        # 22
+            build_content_domination_page(api),  # 23
+            build_brand_authority_page(api),     # 24
+            build_community_page(api),           # 25
+            build_realtime_intel_page(api),      # 26
+            build_facebook_manager_page(api),    # 27
+            build_telegram_bot_page(api),        # 28
         ]
         if self._user_info.get("role") == "admin":
-            pages.append(build_admin_page(self._user_info))  # 28
+            pages.append(build_admin_page(self._user_info))  # 29
+        else:
+            pages.append(QWidget())  # 29 placeholder (non-admin)
+        # New AI features: pages 30–34
+        pages.append(build_video_studio_page(api))       # 30
+        pages.append(build_ab_lab_page(api))             # 31
+        pages.append(build_social_commerce_page(api))    # 32
+        pages.append(build_audio_ai_page(api))           # 33
+        pages.append(build_algorithm_decoder_page(api))  # 34
+        pages.append(build_social_network_page(api))     # 35 – AI Social Network
         for p in pages:
             self.stack.addWidget(p)
         parent_layout.addWidget(self.stack, 1)
